@@ -144,19 +144,36 @@ corridors.
 % TODO: report measured N, E, <k>, <k^2>/<k>, assortativity.
 
 \section{Models and Parameters}
-\subsection{Metapopulation reaction--diffusion}
-Each airport carries a full compartmental model and individuals diffuse
-along edges~\cite{colizza:reactiondiffusion}. Per day, a \emph{reaction}
-step applies the force of infection $\lambda_i=\beta\,I_i/N_i$ with
-model-specific transitions at rates $\gamma$ (recovery), $\sigma$
-(incubation, SEIR) and $\kappa$ (quarantine, SQIR); a \emph{diffusion} step
-moves a fraction of each compartment along outbound routes, split by route
-weight $w_{ij}$ and a global travel rate $\tau$. The four models span
-permanent immunity (SIR: measles), no immunity (SIS: common cold), latency
-(SEIR: COVID-19, SARS) and isolation (SQIR: Ebola). This formulation
-carries a global invasion threshold below which spread stays
-local~\cite{colizza:invasion}, and is substrate-agnostic, so it applies
-unchanged to land and water layers.
+\subsection{Metapopulation dynamics with two mobility mechanisms}
+Each city carries a full compartmental model~\cite{colizza:reactiondiffusion};
+the four models span permanent immunity (SIR: measles), no immunity (SIS:
+common cold), latency (SEIR: COVID-19, SARS) and isolation (SQIR: Ebola).
+Crucially, mobility is \emph{not} all of one kind, and treating it as such is
+a known error~\cite{balcan:recurrent}. We therefore separate two mechanisms:
+
+\textbf{Diffusive mobility (air, water).} A fraction of every compartment
+relocates along outbound edges each day and mixes at the destination, split
+by edge weight and a per-layer travel rate. This is the standard
+reaction--diffusion coupling and carries a global invasion
+threshold~\cite{colizza:invasion}.
+
+\textbf{Recurrent mobility (land/commuting).} Commuters do not relocate: they
+travel to a neighbour by day, mix there, and return home at
+night~\cite{balcan:recurrent,sorianopanos:multiplex}. We implement this as a
+coupling of the \emph{force of infection} rather than a relocation: the
+pressure on city $i$'s residents is
+$\pi_i=\sum_j C_{ij}\, I^{*}_j/N^{*}_j$, where $C$ is the per-capita commuting
+matrix (the land radiation kernel with a stay-home diagonal) and
+$I^{*}_j=\sum_i C_{ij} I_i$, $N^{*}_j=\sum_i C_{ij} N_i$ are the infectious and
+total people \emph{present} at $j$. With no land layer $C$ is the identity and
+$\pi_i=I_i/N_i$, recovering the plain diffusive model.
+
+This distinction is not cosmetic. On the European air$+$land network, modelling
+commuting as recurrent rather than diffusive lowers the peak active infection
+by roughly $5\times$ (from $\sim$277\,M to $\sim$49\,M), because recurrent
+commuting couples neighbours without permanently transporting the seed
+population across the continent --- exactly the threshold-shifting effect
+reported by~\cite{balcan:recurrent}.
 
 \subsection{Parameter choice}
 We fix clinical rates ($\gamma,\sigma,\kappa$) from each disease's

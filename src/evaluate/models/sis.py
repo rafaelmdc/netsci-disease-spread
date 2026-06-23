@@ -17,11 +17,8 @@ from src.evaluate.models.registry import MODEL_REGISTRY
 class SIS(CompartmentalModel):
     compartments = ["S", "I"]
 
-    def reaction(self, state: State, params: ModelParams) -> State:
+    def reaction(self, state: State, params: ModelParams, pressure: np.ndarray) -> State:
         s, i = state["S"], state["I"]
-        n = s + i
-        with np.errstate(divide="ignore", invalid="ignore"):
-            force = np.where(n > 0, params.beta * i / n, 0.0)
-        new_inf = np.minimum(force * s, s)
+        new_inf = np.minimum(params.beta * pressure * s, s)
         new_rec = np.minimum(params.gamma * i, i)
         return {"S": s - new_inf + new_rec, "I": i + new_inf - new_rec}

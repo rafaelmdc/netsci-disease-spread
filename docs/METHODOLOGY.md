@@ -26,11 +26,30 @@ $\lambda_i = \beta \, I_i / N_i$, then the standard transitions:
 | SEIR | S, E, I, R    | S→E ($\lambda_i$), E→I ($\sigma$), I→R ($\gamma$) |
 | SQIR | S, I, Q, R    | S→I ($\lambda_i$), I→Q ($\kappa$), Q→R ($\gamma_Q$), I→R ($\gamma$) |
 
-**Diffusion (migration).** A fraction of each compartment boards outbound
-flights, split over edges proportionally to route weight $w_{ij}$ and a
-global travel rate $\tau$. Holding the dynamics fixed while only the edge
-set changes is what makes air / land / water layer-combinations
-comparable.
+**Mobility — two mechanisms (not all diffusion).** Treating every transport
+layer as diffusion is a known error (`balcan:recurrent`), so we separate:
+
+- **Diffusive (air, water).** A fraction of each compartment *relocates*
+  along outbound edges per day and mixes at the destination (route weight
+  $w_{ij}$ × per-layer travel rate). Standard reaction–diffusion.
+- **Recurrent (land/commuting).** Commuters travel by day, mix at the
+  destination, and **return home** — they are *not* relocated. We couple the
+  **force of infection** instead: a city $i$'s residents feel pressure
+  $\pi_i=\sum_j C_{ij}\,I^*_j/N^*_j$, where $C$ is the per-capita commuting
+  matrix (land radiation kernel + stay-home diagonal) and $I^*_j,N^*_j$ are
+  the infectious / total people *present* at $j$. No land ⇒ $C=I$ ⇒
+  $\pi_i=I_i/N_i$ (plain diffusive). This follows the GLEAM/Balcan and
+  movement-interaction-return frameworks (`sorianopanos:multiplex`).
+
+> **Why it matters (professor-facing):** on the European air+land network,
+> modelling commuting as recurrent rather than diffusive lowers the peak
+> active infection ~5× (~277M → ~49M) — recurrent commuting couples
+> neighbours without transporting the seed population across the continent.
+> This is a real, threshold-shifting effect (`balcan:recurrent`), not a tuning
+> artifact, and it is why the land layer is *not* modelled as diffusion.
+
+Holding the dynamics fixed while only the layer set / region changes is what
+makes the comparisons clean.
 
 > **Design rule:** the *only* differences between experiments are the
 > model, the strategy, the layer combination, and the seed. Everything

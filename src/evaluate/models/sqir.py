@@ -18,12 +18,12 @@ from src.evaluate.models.registry import MODEL_REGISTRY
 class SQIR(CompartmentalModel):
     compartments = ["S", "I", "Q", "R"]
 
-    def reaction(self, state: State, params: ModelParams) -> State:
+    def mixing_pop(self, state: State) -> np.ndarray:
+        return state["S"] + state["I"] + state["R"]  # quarantined are isolated
+
+    def reaction(self, state: State, params: ModelParams, pressure: np.ndarray) -> State:
         s, i, q, r = state["S"], state["I"], state["Q"], state["R"]
-        active = s + i + r  # quarantined are isolated, not mixing
-        with np.errstate(divide="ignore", invalid="ignore"):
-            force = np.where(active > 0, params.beta * i / active, 0.0)
-        new_inf = np.minimum(force * s, s)
+        new_inf = np.minimum(params.beta * pressure * s, s)
         # quarantine first, then direct recovery from the remainder (keeps I >= 0)
         new_quar = np.minimum(params.kappa * i, i)
         new_rec_i = np.minimum(params.gamma * i, i - new_quar)

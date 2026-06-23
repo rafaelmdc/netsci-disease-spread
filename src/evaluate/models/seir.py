@@ -18,12 +18,9 @@ from src.evaluate.models.registry import MODEL_REGISTRY
 class SEIR(CompartmentalModel):
     compartments = ["S", "E", "I", "R"]
 
-    def reaction(self, state: State, params: ModelParams) -> State:
+    def reaction(self, state: State, params: ModelParams, pressure: np.ndarray) -> State:
         s, e, i, r = state["S"], state["E"], state["I"], state["R"]
-        n = s + e + i + r
-        with np.errstate(divide="ignore", invalid="ignore"):
-            force = np.where(n > 0, params.beta * i / n, 0.0)
-        new_exp = np.minimum(force * s, s)
+        new_exp = np.minimum(params.beta * pressure * s, s)
         new_inf = np.minimum(params.sigma * e, e)  # sigma validated non-None for SEIR
         new_rec = np.minimum(params.gamma * i, i)
         return {

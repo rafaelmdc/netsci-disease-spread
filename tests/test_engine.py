@@ -25,10 +25,11 @@ def test_reaction_one_step_matches_formula():
     pop = np.array([1000.0])
     state = model.init_state(pop, seed_node=0, seed_size=100.0)
     params = ModelParams(beta=0.4, gamma=0.1)
-    nxt = model.reaction(state, params)
-    # expected new infections = beta * S * I / N
     s, i = state["S"][0], state["I"][0]
-    expected_inf = params.beta * s * i / (s + i)
+    pressure = np.array([i / (s + i)])  # local infectious fraction
+    nxt = model.reaction(state, params, pressure)
+    # expected new infections = beta * pressure * S = beta * S * I / N
+    expected_inf = params.beta * pressure[0] * s
     assert nxt["I"][0] == np.float64(i + expected_inf - params.gamma * i)
 
 
@@ -55,19 +56,87 @@ def test_determinism_same_seed():
     assert a.timeseries == b.timeseries
 
 
-def test_per_layer_edge_rate():
+def test_diffusion_rate_excludes_land():
     from src.config import SimConfig
-    from src.evaluate.engine import _edge_rate
+    from src.evaluate.engine import diffusion_rate
 
-    data = {"w_air": 10.0, "w_land": 5.0, "weight": 15.0}
-    sim = SimConfig(tau=0.001, tau_by_layer={"air": 0.001, "land": 0.01})
-    # 0.001*10 (air) + 0.01*5 (land) = 0.06
-    assert abs(_edge_rate(data, sim) - 0.06) < 1e-9
+    # diffusion is air+water only; land is recurrent (commuting), not relocation
+    data = {"w_air": 10.0, "w_water": 2.0, "w_land": 5.0}
+    sim = SimConfig(tau=0.001, tau_by_layer={"air": 0.001, "water": 0.01, "land": 0.3})
+    # 0.001*10 (air) + 0.01*2 (water) = 0.03 ; land excluded
+    assert abs(diffusion_rate(data, sim) - 0.03) < 1e-9
 
 
 def test_global_tau_fallback():
     from src.config import SimConfig
-    from src.evaluate.engine import _edge_rate
+    from src.evaluate.engine import diffusion_rate
 
     sim = SimConfig(tau=0.001)
-    assert abs(_edge_rate({"weight": 15.0}, sim) - 0.015) < 1e-9
+    assert abs(diffusion_rate({"weight": 15.0}, sim) - 0.015) < 1e-9
+
+
+def test_commuting_matrix_is_row_stochastic_with_stayhome():
+    import networkx as nx
+
+    from src.config import SimConfig
+    from src.evaluate.engine import _commuting_matrix
+
+    g = nx.DiGraph()
+    g.add_node("A", population=1000)
+    g.add_node("B", population=1000)
+    g.add_edge("A", "B", w_land=0.5, weight=0.5)
+    c = _commuting_matrix(g, ["A", "B"], SimConfig(tau_by_layer={"land": 0.4}))
+    assert c is not None
+    assert np.allclose(c.sum(axis=1), 1.0)  # row-stochastic
+    assert c[0, 1] == 0.4 * 0.5  # commuting fraction * kernel
+    assert c[0, 0] == 1.0 - 0.4 * 0.5  # stay-home
+
+
+def test_no_land_means_no_commuting():
+    import networkx as nx
+
+    from src.config import SimConfig
+    from src.evaluate.engine import _commuting_matrix
+
+    g = nx.DiGraph()
+    g.add_node("A", population=1000)
+    g.add_edge("A", "A", w_air=1.0)
+    assert _commuting_matrix(g, ["A"], SimConfig()) is None
+
+
+def test_recurrent_commuting_couples_without_relocating():
+    # A is seeded; A<->B linked only by land (commuting). B should become
+    # infected via shared-location mixing, yet no air/water => no relocation,
+    # so each city's total population stays put.
+    import networkx as nx
+
+    from src.config import (
+        Layer,
+        ModelConfig,
+        ModelName,
+        ModelParams,
+        NetworkConfig,
+        RunConfig,
+        SimConfig,
+        StrategyConfig,
+        StrategyName,
+    )
+    from src.evaluate.engine import simulate
+
+    g = nx.DiGraph()
+    g.add_node("A", population=10_000)
+    g.add_node("B", population=10_000)
+    g.add_edge("A", "B", w_land=0.5, weight=0.5)
+    g.add_edge("B", "A", w_land=0.5, weight=0.5)
+    cfg = RunConfig(
+        network=NetworkConfig(region="toy", layers=[Layer.AIR, Layer.LAND]),
+        model=ModelConfig(name=ModelName.SIR, params=ModelParams(beta=0.5, gamma=0.1)),
+        strategy=StrategyConfig(name=StrategyName.CONTROL, budget=0, coverage=0.0, efficacy=0.0),
+        sim=SimConfig(horizon=120, seed_size=20, seed=0, tau_by_layer={"land": 0.3}),
+    )
+    res = simulate(g, cfg, record_nodes=True)
+    # B got infected purely through commuting coupling
+    assert res.node_infectious[-1][1] > 0 or max(s[1] for s in res.node_infectious) > 0
+    # population conserved (no relocation: total stays 20000)
+    total = sum(res.timeseries[c][-1] for c in res.compartments)
+    assert abs(total - 20_000) < 1e-6

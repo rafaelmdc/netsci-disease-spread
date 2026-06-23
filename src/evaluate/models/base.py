@@ -1,14 +1,14 @@
 """Interface for compartmental models in the metapopulation engine.
 
-A model is the *reaction* half of the reaction-diffusion process: it
-advances per-node disease compartments by one local day. Diffusion
-(migration) and immunization are handled generically by the engine.
+The model advances local disease compartments by one day. The engine supplies
+the per-node infection *pressure* (the effective infectious fraction a city's
+residents are exposed to), which is computed either locally (``I_i / N_i``) or
+with recurrent commuting coupling (residents mix where they commute and return
+home) — see engine.py. This separation lets the same models run under both
+diffusive and recurrent mobility.
 
-Immunization uses a universal, inert ``V`` (vaccinated) compartment owned by
-the engine — never a disease compartment. This keeps vaccination correct
-and uniform across models: a vaccinated individual is removed from ``S`` and
-plays no further part in the dynamics, which is true even for SIS (where
-there is no recovered/immune compartment at all).
+Diffusion (relocation by air/water) and immunization are handled generically by
+the engine, via an inert ``V`` (vaccinated) compartment.
 """
 
 from __future__ import annotations
@@ -40,6 +40,17 @@ class CompartmentalModel(ABC):
         state[self.infectious_key][seed_node] += seed
         return state
 
+    def infectious(self, state: State) -> np.ndarray:
+        """Per-node infectious count that drives transmission."""
+        return state[self.infectious_key]
+
+    def mixing_pop(self, state: State) -> np.ndarray:
+        """Per-node population that mixes (denominator of the force of infection).
+        SQIR overrides this to exclude the isolated Quarantined compartment."""
+        return sum(state[c] for c in self.compartments)
+
     @abstractmethod
-    def reaction(self, state: State, params: ModelParams) -> State:
-        """Advance local dynamics by one day (returns a new state)."""
+    def reaction(self, state: State, params: ModelParams, pressure: np.ndarray) -> State:
+        """Advance local dynamics one day. ``pressure_i`` is the effective
+        infectious fraction; new infections of susceptibles are
+        ``beta * pressure * S``."""

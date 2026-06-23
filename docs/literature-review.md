@@ -149,6 +149,15 @@ boat/ground question). These are **real, citable** anchors per modality.
   treatment (`balcan:gleam`, `balcan:multiscale`, `colizza:reactiondiffusion`).
   The strict multiplex is a future refinement, not a claim of this work.
 
+- **Balcan & Vespignani (2011), *Nature Physics* — recurrent mobility.**
+  `balcan:recurrent`. **Why our land layer is not diffusion.** Commuting is
+  *recurrent* (go to work, return home), not diffusive (permanent relocation),
+  and the two give *different invasion thresholds* — a phase transition, not a
+  cosmetic difference. So air/water are modelled as diffusion (relocation) but
+  **land as recurrent commuting** that couples the force of infection between
+  cities without moving residents. Concretely, this lowered the European
+  air+land peak ~5× vs the naive all-diffusion model.
+
 **How flows become coupling (so we don't invent it).** In the metapopulation
 framework the migration term is the *per-capita* mobility flux: the fraction
 of a city's residents moving to each neighbour per day. So:
@@ -244,3 +253,5 @@ write-up.
 - van den Driessche & Watmough 2002 (R₀ / next-gen matrix) — <https://doi.org/10.1016/S0025-5564(02)00108-6>
 - Balcan et al. 2010 (GLEAM model) — <https://doi.org/10.1016/j.jocs.2010.07.002>
 - Balcan et al. 2009 (H1N1 likelihood calibration) — <https://doi.org/10.1186/1741-7015-7-45>
+- Balcan & Vespignani 2011 (recurrent mobility) — <https://doi.org/10.1038/nphys1944>
+- Soriano-Paños et al. 2018 (multiplex metapopulations) — <https://doi.org/10.1103/PhysRevX.8.031039>
