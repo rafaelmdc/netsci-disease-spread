@@ -39,8 +39,22 @@ def build(config: str = typer.Option(..., help="path to the run YAML config")) -
 
     out_dir = ensure_dir(figures_dir(region, combo))
     net_html = network_to_html(graph, out_dir / "network.html", targets=targets)
-    cur_html = curves_to_html(ts, out_dir / f"{cfg.run_id}_curves.html",
-                              title=f"{cfg.model.name.value.upper()} / {cfg.strategy.name.value}")
+
+    p = cfg.model.params
+    rates = f"β={p.beta}, γ={p.gamma}" + (f", σ={p.sigma}" if p.sigma else "")
+    title = f"{cfg.model.name.value.upper()} on {region} / {combo}"
+    subtitle = (
+        f"strategy: <b>{cfg.strategy.name.value}</b> "
+        f"({cfg.strategy.budget} cities, {cfg.strategy.coverage:.0%} coverage, "
+        f"{cfg.strategy.efficacy:.0%} efficacy)  ·  rates: {rates}  ·  "
+        f"{cfg.sim.horizon}-day horizon, travel rate τ={cfg.sim.tau}, seed {cfg.sim.seed}  ·  "
+        f"network: {int(record['network']['n_nodes'])} nodes / "
+        f"{int(record['network']['n_edges'])} edges  ·  "
+        f"peak active infections: {record['summary']['peak_infected']:,.0f}"
+    )
+    cur_html = curves_to_html(
+        ts, out_dir / f"{cfg.run_id}_curves.html", title=title, subtitle=subtitle
+    )
 
     index = out_dir / "index.html"
     index.write_text(
