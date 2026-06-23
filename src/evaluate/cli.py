@@ -14,7 +14,7 @@ from src.evaluate.operating_point import recommend, scan_tau
 from src.evaluate.runner import run_and_save
 from src.experiment import load_experiment_config
 from src.netgen.graph_io import read_graphml
-from src.paths import RESULTS, combo_name, processed_graph
+from src.paths import RESULTS, combo_name, ensure_parent, processed_graph
 
 app = typer.Typer(help="Module 3: evaluation.")
 
@@ -72,6 +72,51 @@ def operating_point(
                    f"peak day {best['peak_day']})")
     else:
         typer.echo("no informative tau in range — try a longer horizon or wider tau range")
+
+
+@app.command()
+def structure(
+    regions: str = "europe,americas,asia,africa,oceania",
+    layers: str = "air",
+) -> None:
+    """Cross-region structural comparison: rho(degree, betweenness) and
+    anomalous gateways per region — the novelty measurement, topology only."""
+    from src.config import Layer, NetworkConfig
+    from src.evaluate.metrics import characterize, degree_betweenness
+    from src.netgen.build import build_network
+
+    layer_list = [Layer(x) for x in layers.split(",")]
+    rows = []
+    for region in regions.split(","):
+        graph = build_network(NetworkConfig(region=region, layers=layer_list))
+        ch = characterize(graph)
+        db = degree_betweenness(graph)
+        rows.append(
+            {
+                "region": region,
+                "n_nodes": int(ch["n_nodes"]),
+                "mean_degree": round(ch["mean_degree"], 1),
+                "k2_over_k": round(ch["k2_over_k"], 1),
+                "spearman_deg_btw": round(db["spearman_deg_btw"], 3),
+                "n_anomalous": len(db["anomalous_gateways"]),
+                "anomalous_sample": ",".join(db["anomalous_gateways"][:6]),
+            }
+        )
+    # Report a relative spectrum (no arbitrary cutoff): highest rho = most
+    # degree/betweenness-correlated (US-like end), lowest = most anomalous.
+    rows.sort(key=lambda r: r["spearman_deg_btw"], reverse=True)
+    typer.echo("  region spectrum: correlated (US-like) -> anomalous (worldwide-like)")
+    for r in rows:
+        typer.echo(
+            f"  {r['region']:10s} rho={r['spearman_deg_btw']:.3f}  "
+            f"{r['n_anomalous']:>3} anomalous gateways"
+        )
+    df = pd.DataFrame(rows)
+    out = RESULTS / "structure.parquet"
+    ensure_parent(out)
+    df.to_parquet(out)
+    df.to_csv(str(out).replace(".parquet", ".csv"), index=False)
+    typer.echo(f"wrote {out}")
 
 
 @app.command()
