@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import typer
 
-from src.config import NetworkConfig
+from src.config import Layer, NetworkConfig
+from src.netgen.build import build_network
 from src.netgen.graph_io import write_graphml
 from src.netgen.toy import build_toy_graph
 from src.paths import combo_name, processed_graph
@@ -27,10 +28,13 @@ def build(
     region: str = "europe",
     layers: str = typer.Option("air", help="comma-separated layers: air,land,water"),
 ) -> None:
-    """Build a real network for a region/layers (implemented in Slice 1+)."""
-    raise typer.Exit(
-        typer.echo(
-            f"netgen build({region=}, {layers=}) not implemented yet — "
-            "use `netgen toy` for the walking skeleton. See docs/ROADMAP.md."
-        )
+    """Build a real network from retrieved data for a region and layer set."""
+    layer_list = [Layer(x.strip()) for x in layers.split(",") if x.strip()]
+    cfg = NetworkConfig(region=region, layers=layer_list)
+    graph = build_network(cfg)
+    out = processed_graph(region, combo_name([layer.value for layer in layer_list]))
+    write_graphml(graph, out)
+    typer.echo(
+        f"{region}/{combo_name([layer.value for layer in layer_list])}: "
+        f"{graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges -> {out}"
     )

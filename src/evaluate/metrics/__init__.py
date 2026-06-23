@@ -33,7 +33,8 @@ def degree_betweenness(graph: nx.DiGraph, anomaly_quantile: float = 0.75) -> dic
         return {"spearman_deg_btw": float("nan"), "anomalous_gateways": []}
 
     deg = np.array([graph.degree(n) for n in nodes], dtype=float)
-    bc_map = nx.betweenness_centrality(graph, weight="weight")
+    # unweighted: edge `weight` is frequency, not distance (see strategies)
+    bc_map = nx.betweenness_centrality(graph)
     bc = np.array([bc_map[n] for n in nodes], dtype=float)
 
     rho = float(spearmanr(deg, bc).statistic)

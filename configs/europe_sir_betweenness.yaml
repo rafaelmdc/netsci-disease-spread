@@ -1,0 +1,20 @@
+# Europe / air, SIR with betweenness immunization.
+# Build first:  netsci retrieve openflights && netsci netgen build --region europe --layers air
+network:
+  region: europe
+  layers: [air]
+model:
+  name: sir
+  params:
+    beta: 0.32
+    gamma: 0.12
+strategy:
+  name: betweenness
+  budget: 15
+  coverage: 0.75
+  efficacy: 0.85
+sim:
+  horizon: 75
+  tau: 0.0002
+  seed_size: 2500
+  seed: 0
