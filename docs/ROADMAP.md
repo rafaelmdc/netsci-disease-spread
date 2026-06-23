@@ -30,15 +30,23 @@ Living document. Tracks what exists, what's next, and open decisions.
 - [x] Multi-stage `Dockerfile`, `docker-compose.yml`, `nextflow.config`, CI.
 - [x] Toy end-to-end walking skeleton proving the I/O contracts (host + Docker).
 
-### Phase 1 — Core Europe / air result (MVP)
-- [ ] `retrieve`: OpenFlights fetcher + provenance.
-- [ ] `netgen`: Europe filter, weighted air graph, population proxy.
-- [ ] `evaluate/models`: SIR, SIS, SEIR, SQIR as metapopulation R-D.
-- [ ] `evaluate/strategies`: control, random, degree, betweenness.
-- [ ] `evaluate/metrics`: characterization + **ρ(degree, betweenness)** and
-      anomalous-gateway detection (the novelty test).
-- [ ] `viz`: infection curves + Gephi export.
-- [ ] First end-to-end figures for the paper.
+### Phase 1 — Core Europe / air result (MVP, done)
+- [x] `retrieve`: OpenFlights fetcher + provenance.
+- [x] `netgen`: tz-prefix region filter, weighted air graph, population proxy
+      (Europe = 561 nodes, 10072 edges) via a layer-builder registry.
+- [x] `evaluate/models`: SIR, SIS, SEIR, SQIR (registry) as metapopulation R-D,
+      with a universal inert `V` compartment for correct immunization.
+- [x] `evaluate/strategies`: control, random, degree, betweenness (registry).
+- [x] `evaluate/metrics`: characterization + **ρ(degree, betweenness)** and
+      anomalous-gateway detection.
+- [x] `viz`: interactive HTML network + curves (Europe rendered).
+- [ ] First paper figures + fill Table 1 (Slice 6).
+
+> **First real result:** Europe air ρ(degree, betweenness) ≈ **0.90** with
+> ~9 anomalous gateways (e.g. Kittilä, Isles of Scilly, Newquay) — high
+> correlation (US-like) but with worldwide-like peripheral gateways.
+> **Science fix:** betweenness is computed **unweighted** (edge `weight` is
+> flight frequency, not a distance).
 
 ### Phase 2 — Novelty depth
 - [ ] Subgraph/core-aware targeting (k-core, motifs, graphlets).

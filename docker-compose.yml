@@ -9,6 +9,8 @@ services:
     build: .
     image: netsci-disease-spread:latest
     working_dir: /app
+    # write artifacts as the host user, not root (override: `export UID GID`)
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./data:/app/data
       - ./results:/app/results
