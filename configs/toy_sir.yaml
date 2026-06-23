@@ -1,0 +1,20 @@
+# Walking-skeleton run: SIR with betweenness immunization on the toy network.
+# Build the network first:  netsci netgen toy
+network:
+  region: toy
+  layers: [air]
+model:
+  name: sir
+  params:
+    beta: 0.32
+    gamma: 0.12
+strategy:
+  name: betweenness
+  budget: 4
+  coverage: 0.75
+  efficacy: 0.85
+sim:
+  horizon: 75
+  tau: 0.0002
+  seed_size: 2500
+  seed: 0

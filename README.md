@@ -1,7 +1,8 @@
 # netsci-disease-spread
 
 Simulating infection models and topology-aware vaccination strategies on
-the European air-travel network.
+transport networks — starting with European air travel and extending to
+multimodal (air / land / water) substrates and every world region.
 
 > **Status:** early research project (MSc Network Science coursework).
 > The repository currently contains the project blueprint, the paper draft,
@@ -10,27 +11,37 @@ the European air-travel network.
 
 ## What this is
 
-We model how an epidemic spreads along European aviation routes and test
-which vaccination strategy contains it best. The substrate is the European
-subgraph of the [OpenFlights](https://openflights.org/data.html) route
-network (airports = nodes, routes = weighted edges). On it we run four
-compartmental dynamics — **SIR, SIS, SEIR, SQIR** — and compare
-vaccination by **random**, **degree**, and **betweenness** targeting, plus
-a **subgraph/core-aware** targeting layer that is our novel contribution.
+We model how an epidemic spreads across a transport network and test which
+vaccination strategy contains it best. The primary substrate is the
+European subgraph of the [OpenFlights](https://openflights.org/data.html)
+air network (airports = nodes, routes = weighted edges), with **land**
+(rail/road/commuting) and **water** (ferry/shipping) layers added as a
+shared-node multilayer network, and the **region** as a parameter so the
+same analysis runs across continents and the whole world. On each network
+we run four compartmental dynamics — **SIR, SIS, SEIR, SQIR** — as a
+metapopulation reaction–diffusion process, and compare vaccination by
+**random**, **degree**, and **betweenness** targeting (plus a structural
+subgraph/core refinement). Results are delivered as interactive,
+browser-based HTML visualisations, and the whole pipeline runs in Docker
+for one-command reproducibility.
 
 The accompanying paper is in [`docs/tex/`](docs/tex/) (KDD Explorations
 double-column format). Background and the annotated reading list are in
-[`docs/literature-review.md`](docs/literature-review.md).
+[`docs/literature-review.md`](docs/literature-review.md), with a full
+documentation index at [`docs/README.md`](docs/README.md).
 
 ## Research questions
 
 1. How does vaccination affect the infected network across different
    infection models and disease parameters?
-2. Does the best strategy depend on network topology, and how important is
-   vaccination on a realistic mobility substrate?
-3. **(Novelty)** Can local structure — `k`-cores, motifs, graphlet
-   signatures — improve *targeting* and *explain* model–strategy outcomes
-   better than node-level centrality alone?
+2. **(Primary novelty)** Where does Europe sit on the degree–betweenness
+   spectrum — US-like (the two centralities correlate, so degree- and
+   betweenness-targeted immunisation coincide) or worldwide-like (anomalous
+   low-degree/high-betweenness gateways, so the strategies diverge)? The
+   region parameter lets us answer this by direct cross-region comparison.
+3. Can local structure — `k`-cores, motifs, graphlet signatures — refine
+   *targeting* and *explain* model–strategy outcomes beyond node-level
+   centrality?
 
 ## Intended repository layout
 
@@ -64,22 +75,27 @@ evaluations* that are directly comparable. See
 
 ## Quick start (planned)
 
+Everything runs in Docker — no manual installs.
+
 ```bash
-# environment
-python -m venv .venv && source .venv/bin/activate
-pip install -e .
+# build the image once
+docker compose build
 
 # MODULE 1 + 2: retrieve data and generate the European air network
-python -m src.retrieve.openflights                 # → data/raw/air/
-python -m src.netgen.build --region europe --layers air \
-    --out data/processed/europe/air.graphml
+docker compose run --rm app retrieve openflights        # → data/raw/air/
+docker compose run --rm app netgen build \
+    --region europe --layers air                        # → data/processed/europe/air.graphml
 
-# MODULE 3: run one experiment
-python -m src.evaluate.run --config configs/sir_betweenness.yaml
+# MODULE 3 + viz: run one experiment and emit interactive HTML
+docker compose run --rm app evaluate run --config configs/sir_betweenness.yaml
+docker compose run --rm app viz build --run <run_id>    # → figures/.../ *.html
 
-# run the full sweep (regions × layer combos × models × strategies)
-nextflow run workflow/main.nf -profile local
+# full sweep (regions × layer combos × models × strategies × seeds)
+nextflow run workflow/main.nf -with-docker
 ```
+
+For local development without Docker: `uv sync` then `uv run <cmd>`
+(equivalently `uv run pytest`). See [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md).
 
 ## Building the paper
 
@@ -92,6 +108,7 @@ tectonic main.tex        # or: latexmk -pdf main.tex
 
 | Doc | Purpose |
 |-----|---------|
+| [`docs/README.md`](docs/README.md) | **Documentation index** — start here |
 | [`docs/literature-review.md`](docs/literature-review.md) | Annotated references, old → recent |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Three-module pipeline, data flow, Nextflow rationale |
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | How models are used and **how parameters are justified** |

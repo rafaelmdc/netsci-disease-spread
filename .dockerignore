@@ -1,0 +1,23 @@
+# Reproduced by the pipeline — never copy into the image
+data/
+results/
+figures/
+work/
+.nextflow/
+.nextflow.log*
+
+# Local env / caches
+.venv/
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# VCS / docs build artifacts
+.git/
+docs/tex/*.pdf
+docs/tex/*.aux
+docs/tex/*.bbl
+docs/tex/*.blg
+docs/tex/*.log
+notebooks/.ipynb_checkpoints/

@@ -216,3 +216,19 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Project artifacts (reproduced by the pipeline, never committed) ---
+data/
+results/
+figures/
+# Nextflow
+.nextflow/
+.nextflow.log*
+work/
+# LaTeX build artifacts
+docs/tex/*.aux
+docs/tex/*.bbl
+docs/tex/*.blg
+docs/tex/*.log
+docs/tex/*.out
+docs/tex/main.pdf

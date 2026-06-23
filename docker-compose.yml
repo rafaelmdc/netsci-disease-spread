@@ -1,0 +1,29 @@
+# One image, two ways to use it.
+#   docker compose build
+#   docker compose run --rm app netgen toy
+#   docker compose run --rm app evaluate run --config configs/toy_sir.yaml
+#   docker compose up notebook   # Jupyter at http://localhost:8888
+
+services:
+  app:
+    build: .
+    image: netsci-disease-spread:latest
+    working_dir: /app
+    volumes:
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./figures:/app/figures
+      - ./configs:/app/configs
+
+  notebook:
+    image: netsci-disease-spread:latest
+    working_dir: /app
+    entrypoint: []
+    command: >
+      uv run --with jupyterlab
+      jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+      --NotebookApp.token=''
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/app

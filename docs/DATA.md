@@ -57,6 +57,13 @@ topology, invalidating the degree–betweenness comparison. So:
 
 See [`METHODOLOGY.md`](METHODOLOGY.md) § "Comparison-axis consistency".
 
+**Node identity.** Layers share a node set keyed by **city/place**:
+airports, rail stations and ports each map onto a canonical place id (via a
+nearest-city / station→city / port→city mapping), and every layer
+contributes edges between those places. This is what makes air+land+water
+overlay cleanly; see [`ARCHITECTURE.md`](ARCHITECTURE.md) § "Stack & node
+identity".
+
 **Modelling note.** Air, rail/road, and sea operate at *different time and
 distance scales*. The literature-backed way to combine them is a
 **multilayer / multiplex metapopulation network** with layer-specific

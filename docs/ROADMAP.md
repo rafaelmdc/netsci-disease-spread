@@ -10,15 +10,25 @@ Living document. Tracks what exists, what's next, and open decisions.
 | Paper draft (KDD) | ✅ `docs/tex/main.tex` compiles (4 pp.) |
 | Literature review | ✅ `docs/literature-review.md` (verified refs) |
 | Design docs | ✅ architecture, data, methodology |
-| Simulation code | ⛔ not started — layout designed only |
+| Implementation plan | ✅ approved (uv, city-nodes, Nextflow+Docker, ORCA) |
+| Slice 0 (skeleton + Docker) | ✅ toy pipeline runs end-to-end on host and in Docker; 12 tests green |
+| Simulation code | 🚧 Slice 1 (Europe/air MVP) next |
+
+> Build proceeds as **vertical slices** (each runs end-to-end). See the
+> approved plan for the full slice list; phases below mirror it.
 
 ## Phases
 
-### Phase 0 — Foundations (now)
+### Phase 0 — Foundations (done)
 - [x] Convert blueprint → KDD double-column paper.
 - [x] Repo-level docs + verified literature.
 - [ ] Pick a license; fill author metadata in `main.tex`.
-- [ ] Resolve open decisions (below).
+
+### Phase 0.5 — Scaffolding + Docker (Slice 0, done)
+- [x] `pyproject.toml` (uv) + `src/` layout + pydantic config + `run_id`.
+- [x] `typer` CLI; ruff + pytest config (12 tests green).
+- [x] Multi-stage `Dockerfile`, `docker-compose.yml`, `nextflow.config`, CI.
+- [x] Toy end-to-end walking skeleton proving the I/O contracts (host + Docker).
 
 ### Phase 1 — Core Europe / air result (MVP)
 - [ ] `retrieve`: OpenFlights fetcher + provenance.

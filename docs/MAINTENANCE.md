@@ -16,6 +16,24 @@ at future-us and any collaborator picking this up cold.
 - **Pin the environment.** Lock dependencies (`requirements.txt` /
   `pyproject.toml` + lockfile). Record Python and key library versions.
 
+## Docker workflow
+
+The container is the source of truth for the environment — no manual
+installs. Build once with `docker compose build`; run any module with
+`docker compose run --rm app <command>` (the `app` service entrypoint is the
+typer CLI). A `notebook` service exposes Jupyter for exploration. Nextflow
+uses the *same* image (`docker.enabled = true`, `process.container` in
+`nextflow.config`), so pipeline and interactive runs are byte-identical.
+For local dev without Docker, `uv sync` reproduces the locked environment.
+
+## run_id convention
+
+Every run is tagged with a `run_id` = stable hash of its **resolved**
+pydantic config (model, params, strategy, coverage, efficacy, seed, network,
+horizon, τ). Outputs are written under that id, so identical inputs overwrite
+rather than duplicate, and the sweep can cache/`-resume`. Never derive a
+`run_id` from anything outside the config.
+
 ## Conventions
 
 - **Add a layer** → new fetcher in `src/retrieve/` + standardiser in

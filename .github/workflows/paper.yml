@@ -1,0 +1,26 @@
+name: Paper
+
+on:
+  push:
+    paths:
+      - "docs/tex/**"
+      - ".github/workflows/paper.yml"
+  pull_request:
+    paths:
+      - "docs/tex/**"
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tectonic
+        uses: wtfjoke/setup-tectonic@v3
+      - name: Build paper
+        working-directory: docs/tex
+        run: tectonic main.tex
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper
+          path: docs/tex/main.pdf

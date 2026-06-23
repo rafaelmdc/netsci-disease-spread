@@ -64,6 +64,25 @@ evaluations* — making layer combinations a first-class, comparable axis.
   the centrality-regime spectrum, with Europe as the open question. Start
   with `europe`; the rest is `-resume` away once the pipeline is solid.
 
+## Stack & node identity
+
+**Stack:** Python 3.12, `uv` (lockfile), `pydantic` configs, `typer` CLIs,
+`networkx`/`numpy`/`pandas`, `pyvis`/`plotly`/`pydeck` for HTML viz, ORCA
+(compiled) for graphlets, Nextflow + Docker for the sweep, `pytest`/`ruff`.
+
+**Node identity (canonicalization).** Combining layers requires a shared
+node set, so nodes are keyed by **city/place**, not by airport: airports,
+rail stations and ports each map onto a canonical place id, and each layer
+contributes edges between those places. The air-only MVP may key nodes by
+airport directly and introduce the place mapping when land/water land. Node
+attributes: `id, name, city, country, region, lat, lon, population`.
+
+**Canonical formats:** networks as `GraphML` (portable, Gephi-readable;
+optional `.gpickle` cache); run outputs as `JSON` (summary + metadata) plus
+`parquet` (per-day time series); visuals as standalone `HTML` (+ `GEXF`).
+Every run is identified by a `run_id` = hash of its resolved config, so a
+run is a pure function of `(config, seed)`.
+
 ## Design principles
 
 - **One graph, swappable dynamics.** The network substrate is built once
