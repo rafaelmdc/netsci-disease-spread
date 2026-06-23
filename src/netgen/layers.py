@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 from src.config import Layer, NetworkConfig
-from src.netgen.flows import radiation_flows, top_k_edges
+from src.netgen.flows import haversine_km, radiation_flows, top_k_edges
 from src.netgen.regions import in_region
 from src.paths import raw_dir
 from src.registry import Registry
@@ -107,5 +107,47 @@ def build_land_layer(region: str, k: int = 8) -> nx.DiGraph:
             layer=Layer.LAND.value,
             raw_weight=w,
             weight=w / flux_max * air_max,
+        )
+    return graph
+
+
+@LAYER_REGISTRY.register(Layer.WATER)
+def build_water_layer(
+    region: str, k: int = 4, d_min_km: float = 40.0, d_max_km: float = 500.0
+) -> nx.DiGraph:
+    """Short-sea / ferry passenger layer (proxy).
+
+    Radiation flows restricted to a ferry-plausible distance band and scaled to
+    a fraction of air intensity (ferries carry far fewer people than flights).
+
+    NOTE (gap to close in iteration): this is a geographic proxy, NOT real
+    OSM ferry routes or port-call data, and does not distinguish sea crossings
+    from over-land pairs (no coastline data). Tracked in ROADMAP.
+    """
+    air = build_air_layer(region)
+    nodes = list(air.nodes())
+    defaults = NetworkConfig()
+    pop = np.array([defaults.p0 + air.degree(n) * defaults.p_route for n in nodes], dtype=float)
+    lat = np.array([air.nodes[n]["lat"] for n in nodes])
+    lon = np.array([air.nodes[n]["lon"] for n in nodes])
+
+    dist = haversine_km(lat, lon)
+    flux = radiation_flows(pop, lat, lon)
+    flux = np.where((dist >= d_min_km) & (dist <= d_max_km), flux, 0.0)
+    edges = top_k_edges(flux, k)
+
+    air_max = max((d["weight"] for *_, d in air.edges(data=True)), default=1.0)
+    flux_max = max((w for *_, w in edges), default=1.0)
+    intensity = 0.3  # ferries << flights in passenger volume
+
+    graph = nx.DiGraph()
+    for node, data in air.nodes(data=True):
+        graph.add_node(node, **data)
+    for i, j, w in edges:
+        graph.add_edge(
+            nodes[i], nodes[j],
+            layer=Layer.WATER.value,
+            raw_weight=w,
+            weight=w / flux_max * air_max * intensity,
         )
     return graph

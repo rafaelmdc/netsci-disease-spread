@@ -32,5 +32,6 @@ def test_top_k_edges_limits_out_degree():
     assert all(v <= 2 for v in out_degree.values())
 
 
-def test_land_layer_registered():
+def test_land_and_water_layers_registered():
     assert Layer.LAND in LAYER_REGISTRY
+    assert Layer.WATER in LAYER_REGISTRY
