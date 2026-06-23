@@ -82,7 +82,11 @@ class NetworkConfig(BaseModel):
 
 class SimConfig(BaseModel):
     horizon: int = Field(default=75, gt=0, description="days simulated")
-    tau: float = Field(default=0.0002, ge=0, description="base travel rate")
+    tau: float = Field(default=0.0002, ge=0, description="base travel rate (fallback)")
+    # optional per-layer travel rates, e.g. {"air": 0.0002, "land": 0.001};
+    # layers absent here fall back to `tau`. None => single global tau.
+    tau_by_layer: dict[str, float] | None = None
+    steps_per_day: int = Field(default=1, ge=1, description="sub-steps per day for accuracy")
     seed_size: int = Field(default=2500, ge=0, description="initial infectious seed")
     seed: int = Field(default=0, description="RNG seed; output is a pure function of it")
 

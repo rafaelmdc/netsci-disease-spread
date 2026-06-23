@@ -53,3 +53,21 @@ def test_determinism_same_seed():
     a = simulate(g, _single_node_run(seed=7))
     b = simulate(g, _single_node_run(seed=7))
     assert a.timeseries == b.timeseries
+
+
+def test_per_layer_edge_rate():
+    from src.config import SimConfig
+    from src.evaluate.engine import _edge_rate
+
+    data = {"w_air": 10.0, "w_land": 5.0, "weight": 15.0}
+    sim = SimConfig(tau=0.001, tau_by_layer={"air": 0.001, "land": 0.01})
+    # 0.001*10 (air) + 0.01*5 (land) = 0.06
+    assert abs(_edge_rate(data, sim) - 0.06) < 1e-9
+
+
+def test_global_tau_fallback():
+    from src.config import SimConfig
+    from src.evaluate.engine import _edge_rate
+
+    sim = SimConfig(tau=0.001)
+    assert abs(_edge_rate({"weight": 15.0}, sim) - 0.015) < 1e-9
