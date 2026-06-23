@@ -15,7 +15,7 @@ import numpy as np
 
 from src.config import RunConfig
 from src.evaluate.models import get_model
-from src.evaluate.models.base import CompartmentalModel, State
+from src.evaluate.models.base import VACCINATED, CompartmentalModel, State
 from src.evaluate.strategies import select_targets
 
 
@@ -57,26 +57,29 @@ def simulate(graph: nx.DiGraph, cfg: RunConfig) -> SimResult:
     seed_node = int(rng.integers(len(nodes)))
 
     state: State = model.init_state(population, seed_node, cfg.sim.seed_size)
+    # engine-owned, inert vaccinated compartment (correct for every model)
+    state[VACCINATED] = np.zeros_like(population, dtype=float)
+    tracked = [*model.compartments, VACCINATED]
 
-    # immunization: move coverage*efficacy of S -> immune sink at targets
+    # immunization: move coverage*efficacy of S -> V at targets, before t=0
     targets = select_targets(graph, cfg.strategy, rng)
-    if targets and model.immune_key is not None:
+    if targets:
         frac = cfg.strategy.coverage * cfg.strategy.efficacy
-        tset = {n for n in targets}
+        tset = set(targets)
         mask = np.array([n in tset for n in nodes])
         protected = state[model.susceptible_key] * frac * mask
         state[model.susceptible_key] -= protected
-        state[model.immune_key] += protected
+        state[VACCINATED] += protected
 
     m = _migration_matrix(graph, nodes, cfg.sim.tau)
     row_out = m.sum(axis=1)
 
-    ts: dict[str, list[float]] = {c: [] for c in model.compartments}
+    ts: dict[str, list[float]] = {c: [] for c in tracked}
     for _ in range(cfg.sim.horizon):
-        state = model.reaction(state, cfg.model.params)
-        for c in model.compartments:
-            state[c] = np.clip(_diffuse(state[c], m, row_out), 0.0, None)
-        for c in model.compartments:
+        reacted = model.reaction(state, cfg.model.params)
+        reacted[VACCINATED] = state[VACCINATED]  # V is inert under reaction
+        for c in tracked:
+            state[c] = np.clip(_diffuse(reacted[c], m, row_out), 0.0, None)
             ts[c].append(float(state[c].sum()))
 
     inf = np.array(ts[model.infectious_key])
@@ -85,13 +88,14 @@ def simulate(graph: nx.DiGraph, cfg: RunConfig) -> SimResult:
         "time_to_peak": float(int(inf.argmax())),
         "final_infected": float(inf[-1]),
         "total_population": float(population.sum()),
+        "vaccinated": float(ts[VACCINATED][-1]),
     }
-    if model.immune_key is not None:
-        summary["final_size"] = float(ts[model.immune_key][-1])
+    if "R" in model.compartments:
+        summary["final_recovered"] = float(ts["R"][-1])
 
     return SimResult(
         nodes=nodes,
-        compartments=model.compartments,
+        compartments=tracked,
         timeseries=ts,
         targets=targets,
         seed_node=nodes[seed_node],

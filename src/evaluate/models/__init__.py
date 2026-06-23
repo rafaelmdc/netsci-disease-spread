@@ -1,24 +1,13 @@
-"""Compartmental models, registered by name.
+"""Compartmental models, discovered via the model registry.
 
-Slice 0 ships SIR (the only one the walking skeleton needs). SIS/SEIR/SQIR
-follow in Slice 1 using the same ``CompartmentalModel`` interface.
+Importing this package registers every model (each module self-registers
+with ``@MODEL_REGISTRY.register(...)``), so ``get_model`` resolves any of
+SIR / SIS / SEIR / SQIR.
 """
 
 from __future__ import annotations
 
-from src.config import ModelName
-from src.evaluate.models.base import CompartmentalModel
-from src.evaluate.models.sir import SIR
+from src.evaluate.models import seir, sir, sis, sqir  # noqa: F401  (register on import)
+from src.evaluate.models.registry import MODEL_REGISTRY, get_model
 
-_REGISTRY: dict[ModelName, type[CompartmentalModel]] = {
-    ModelName.SIR: SIR,
-}
-
-
-def get_model(name: ModelName) -> CompartmentalModel:
-    if name not in _REGISTRY:
-        raise NotImplementedError(
-            f"model {name.value!r} not implemented yet (Slice 1). "
-            f"available: {[m.value for m in _REGISTRY]}"
-        )
-    return _REGISTRY[name]()
+__all__ = ["MODEL_REGISTRY", "get_model"]

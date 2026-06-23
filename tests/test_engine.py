@@ -44,8 +44,8 @@ def test_outbreak_grows_then_recovers():
     g = _single_node_graph(pop=1000)
     res = simulate(g, _single_node_run())
     infected = res.timeseries["I"]
-    assert max(infected) > infected[0]          # it grew
-    assert res.summary["final_size"] > 0         # someone recovered
+    assert max(infected) > infected[0]              # it grew
+    assert res.summary["final_recovered"] > 0       # someone recovered
 
 
 def test_determinism_same_seed():
