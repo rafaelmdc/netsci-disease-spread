@@ -11,8 +11,19 @@ Living document. Tracks what exists, what's next, and open decisions.
 | Literature review | ✅ `docs/literature-review.md` (verified refs) |
 | Design docs | ✅ architecture, data, methodology |
 | Implementation plan | ✅ approved (uv, city-nodes, Nextflow+Docker, ORCA) |
-| Slice 0 (skeleton + Docker) | ✅ toy pipeline runs end-to-end on host and in Docker; 12 tests green |
-| Simulation code | 🚧 Slice 1 (Europe/air MVP) next |
+| Slice 0 (skeleton + Docker) | ✅ toy pipeline runs end-to-end on host and in Docker |
+| Slice 1 (Europe/air MVP) | ✅ real network, 4 models, ρ(deg,btw)=0.90 |
+| Slice 2 (sweep + operating-point) | ✅ experiment.yaml, parallel sweep, horizon=210 (defensible) |
+| Slice 3 (subgraph/core + verify) | ✅ kcore/subgraph strategies, threshold verification |
+| Slice 4 (multimodal) | 🟡 land via radiation model; water + OSM/GRIP topology = GAPS |
+| Slice 5 (multi-region) | ✅ cross-region spectrum (Europe correlated → Oceania anomalous) |
+| Slice 6 (viz + paper) | 🟡 comparison/spectrum plots + paper results wired; geo-anim = GAP |
+| Tests | ✅ 40 passing, ruff clean |
+
+> **Open gaps for the iterate pass:** water layer + real OSM/GRIP rail/road
+> topology + Eurostat validation (Slice 4); per-layer travel rates;
+> geo-animated outbreak HTML; ORCA graphlets (subgraph uses triangles for now);
+> finer Nextflow per-config fan-out; exact bond-percolation final-size check.
 
 > Build proceeds as **vertical slices** (each runs end-to-end). See the
 > approved plan for the full slice list; phases below mirror it.

@@ -42,3 +42,27 @@ def strategy_comparison_html(summary: pd.DataFrame, path: str | Path) -> Path:
     )
     fig.write_html(str(path), include_plotlyjs="inline")
     return path
+
+
+def region_spectrum_html(structure: pd.DataFrame, path: str | Path) -> Path:
+    """Bar chart of rho(degree, betweenness) per region — the centrality
+    spectrum from correlated (US-like) to anomalous (worldwide-like)."""
+    path = Path(path)
+    ensure_parent(path)
+    df = structure.sort_values("spearman_deg_btw", ascending=False)
+    fig = px.bar(
+        df,
+        x="region",
+        y="spearman_deg_btw",
+        color="n_anomalous",
+        title="Degree-betweenness correlation by region",
+        labels={"spearman_deg_btw": "rho(degree, betweenness)", "n_anomalous": "# anomalous"},
+        template="plotly_white",
+    )
+    fig.add_annotation(
+        text="Higher rho = US-like (degree & betweenness agree); "
+        "lower = worldwide-like (anomalous gateways).",
+        xref="paper", yref="paper", x=0, y=1.08, showarrow=False, font=dict(size=11),
+    )
+    fig.write_html(str(path), include_plotlyjs="inline")
+    return path

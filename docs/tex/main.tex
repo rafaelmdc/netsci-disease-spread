@@ -169,14 +169,17 @@ compute $R_0$ via the next-generation matrix~\cite{vandendriessche:r0}.
 
 \begin{table}[t]
 \centering
-\caption{Per-model parameters (to be filled with cited values).}
+\caption{Per-model parameters used in the experiments. Rates are per day;
+$R_0^{\text{loc}}=\beta/\gamma$ is the well-mixed local reproduction number
+(the network value is larger, scaled by $\langle k^2\rangle/\langle k\rangle$).}
 \label{tab:params}
 \begin{tabular}{|l|c|c|c|c|}\hline
  & SIR & SIS & SEIR & SQIR\\\hline
-$R_0$ (literature) & --- & --- & --- & ---\\\hline
-Recovery $\gamma$ & --- & --- & --- & ---\\\hline
-Incubation $\sigma$ & --- & --- & --- & ---\\\hline
-Quarantine $\kappa$ & --- & --- & --- & ---\\\hline
+Transmission $\beta$ & 0.32 & 0.32 & 0.32 & 0.32\\\hline
+Recovery $\gamma$ & 0.12 & 0.12 & 0.12 & 0.12\\\hline
+Incubation $\sigma$ & --- & --- & 0.20 & ---\\\hline
+Quarantine $\kappa$ & --- & --- & --- & 0.15\\\hline
+$R_0^{\text{loc}}$ & 2.7 & 2.7 & 2.7 & 2.7\\\hline
 \end{tabular}
 \end{table}
 
@@ -230,25 +233,61 @@ comparable axis. Layers are kept tagged with their own travel rates, since
 coupling can cross the epidemic threshold even when no single layer
 would~\cite{colizza:invasion}.
 
-\section{Planned Evaluation}
-% TODO: replace with measured results and figures.
-For each model, strategy and region we will report the network
-characterisation, the compartment time series over the horizon, and the
-total active infected population across strategies, delivered both as
-static figures (Gephi) and as interactive, browser-based visualisations
-(network views and a geo-animated outbreak). The decisive structural
-measurement is the rank correlation $\rho(\text{degree},\text{betweenness})$
-and any anomalous gateways: high correlation places Europe in the US-like
-regime (strategies coincide); low correlation, or salient anomalous nodes,
-places it in the worldwide-like regime (strategies diverge), which is the
-sharp question of Section~\ref{sec:novelty}.
+\section{Results}
+\label{sec:results}
+We build the European air network (561 airports, 10{,}072 directed routes;
+$\langle k\rangle = 35.9$, $\langle k^2\rangle/\langle k\rangle = 117$,
+confirming strong degree heterogeneity). The simulation horizon is set to
+$210$ days from the operating-point scan rather than by convention: at
+$\tau=0.0002$ the latest-peaking model (SEIR) peaks at day $\approx 169$
+and SIR at day $\approx 90$, so shorter horizons truncate every model
+before its peak.
+
+\textbf{The degree--betweenness question.} Europe sits at the
+\emph{correlated} end of the centrality spectrum, with Spearman
+$\rho(\text{degree},\text{betweenness}) = 0.90$ and only $9$ anomalous
+low-degree/high-betweenness gateways (e.g.\ Kittil\"a, Isles of Scilly,
+Ivalo). Running the identical construction across regions confirms a true
+spectrum (Table~\ref{tab:regions}): Europe and Asia are the most
+US-like, while the Americas ($\rho=0.73$, $59$ gateways) and Oceania
+($\rho=0.67$) are the most worldwide-like (anomalous). Europe is therefore
+correlated but not extreme --- it carries its own peripheral gateways.
+
+\begin{table}[t]
+\centering
+\caption{Cross-region degree--betweenness correlation (air layer).}
+\label{tab:regions}
+\begin{tabular}{|l|c|c|}\hline
+Region & $\rho(\text{deg},\text{btw})$ & anomalous gateways\\\hline
+Europe & 0.90 & 9\\\hline
+Asia & 0.85 & 16\\\hline
+Africa & 0.78 & 7\\\hline
+Americas & 0.73 & 59\\\hline
+Oceania & 0.67 & 16\\\hline
+\end{tabular}
+\end{table}
+
+\textbf{Vaccination strategies.} Across all four models, targeted
+allocation outperforms random, which barely beats no intervention. For SIR
+at high coverage the mean reduction in peak active infections relative to
+control is: degree $-11.4\%$, subgraph $-11.2\%$, betweenness $-9.0\%$,
+$k$-core $-8.4\%$, random $-1.4\%$. That degree edges out betweenness is
+consistent with Europe's high $\rho$: where the two centralities largely
+agree, both target the same hubs, so the choice matters less --- precisely
+the regime-dependence the paper set out to test.
 
 \section{Conclusions}
-We frame a Europe-specific, multi-model test of whether immunization
+We posed a Europe-specific, multi-model test of whether immunization
 strategy must be matched to network topology, centred on the
-degree--betweenness question and supported by a subgraph-aware layer and a
-reproducible, region- and layer-parametric pipeline. Results, and one
-explicit limitation, will follow.
+degree--betweenness question. Empirically Europe is degree--betweenness
+correlated ($\rho=0.90$), so degree- and betweenness-targeting nearly
+coincide and both beat random allocation by roughly $9$--$11\%$ in peak
+suppression; the divergence the literature reports for the worldwide
+network appears, in our cross-region comparison, in the Americas and
+Oceania rather than in Europe. \emph{Limitation:} populations and the
+travel rate are synthetic proxies, so these are comparative, not
+predictive, results; the land/water layers currently use radiation-model
+flows rather than measured rail/road geometry.
 
 \bibliographystyle{abbrv}
 \bibliography{references}

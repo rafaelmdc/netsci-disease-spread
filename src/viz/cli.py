@@ -20,7 +20,7 @@ from src.paths import (
     run_json,
     run_timeseries,
 )
-from src.viz.compare_html import strategy_comparison_html
+from src.viz.compare_html import region_spectrum_html, strategy_comparison_html
 from src.viz.curves_html import curves_to_html
 from src.viz.network_html import network_to_html
 
@@ -83,4 +83,17 @@ def compare(
     df = pd.read_parquet(summary)
     out = ensure_parent(FIGURES / "compare" / "strategy_comparison.html")
     strategy_comparison_html(df, out)
+    typer.echo(f"wrote {out}")
+
+
+@app.command()
+def spectrum(
+    structure: str = typer.Option(str(RESULTS / "structure.parquet"), help="structure table"),
+) -> None:
+    """Render the cross-region degree-betweenness spectrum plot."""
+    import pandas as pd
+
+    df = pd.read_parquet(structure)
+    out = ensure_parent(FIGURES / "compare" / "region_spectrum.html")
+    region_spectrum_html(df, out)
     typer.echo(f"wrote {out}")
