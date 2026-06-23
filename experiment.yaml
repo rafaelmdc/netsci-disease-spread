@@ -1,0 +1,55 @@
+# ===========================================================================
+# experiment.yaml — MASTER CONFIG. The single place to tune everything.
+#
+# This drives both network generation and the full evaluation sweep:
+#   netsci netgen build-all --config experiment.yaml   # build every network
+#   netsci evaluate sweep    --config experiment.yaml   # run the whole grid
+#   netsci evaluate collect                             # aggregate to a table
+#
+# Every list below is a sweep axis: the experiment is the Cartesian product of
+# regions x layer_sets x models x strategies x (budgets x coverages x
+# efficacies) x beta_scales x taus x horizons x seeds.
+# ===========================================================================
+
+# --- Geography: which regions to run -----------------------------------------
+# europe | americas | asia | africa | oceania | world  (add more for Slice 5)
+regions:
+  - europe
+
+# --- Substrate: which transport-layer combinations to run --------------------
+# air is implemented now; land/water arrive in Slice 4. Each inner list is one
+# network, e.g. [air], [air, land], [air, land, water].
+layer_sets:
+  - [air]
+
+# --- Population proxy:  pop(v) = p0 + degree(v) * p_route ---------------------
+population:
+  p0: 150000
+  p_route: 45000
+
+# --- Models: which to run and their parameters -------------------------------
+# Remove a model to skip it. SEIR needs `sigma`; SQIR needs `kappa` + `gamma_q`.
+models:
+  sir:  {beta: 0.32, gamma: 0.12}
+  sis:  {beta: 0.32, gamma: 0.12}
+  seir: {beta: 0.32, gamma: 0.12, sigma: 0.2}
+  sqir: {beta: 0.32, gamma: 0.12, kappa: 0.15, gamma_q: 0.1}
+
+# --- Vaccination strategies --------------------------------------------------
+strategies: [control, random, degree, betweenness]
+budgets:    [15]            # number of cities immunised
+coverages:  [0.01, 0.75]    # low vs high adherence (blueprint comparison)
+efficacies: [0.85]
+
+# --- Sensitivity axes (for ranking-stability / operating-point analysis) -----
+beta_scales: [1.0]          # multiplies every model's beta (R0 sensitivity)
+taus:        [0.0002]       # base travel rate (blueprint value)
+# Horizon = 210 days, chosen from the operating-point scan, NOT the blueprint's
+# arbitrary 75: at tau=0.0002 the latest-peaking model (SEIR, delayed by its
+# latent period) peaks at day ~169; SIR peaks ~day 90. 75 days truncates every
+# model before its peak. 210 captures the peak and most of the decline for all
+# four under one uniform horizon (required for cross-model comparability).
+# Re-check with:  netsci evaluate operating-point --model seir --horizon 300
+horizons:    [210]
+seeds:       [0, 1, 2]      # patient-zero randomisation; results averaged over
+seed_size:   2500           # initial infectious seed

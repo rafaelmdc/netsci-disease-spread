@@ -10,13 +10,17 @@ import typer
 from src.config import load_run_config
 from src.netgen.graph_io import read_graphml
 from src.paths import (
+    FIGURES,
+    RESULTS,
     combo_name,
     ensure_dir,
+    ensure_parent,
     figures_dir,
     processed_graph,
     run_json,
     run_timeseries,
 )
+from src.viz.compare_html import strategy_comparison_html
 from src.viz.curves_html import curves_to_html
 from src.viz.network_html import network_to_html
 
@@ -67,3 +71,16 @@ def build(config: str = typer.Option(..., help="path to the run YAML config")) -
         f"</ul>"
     )
     typer.echo(f"wrote {net_html}\n      {cur_html}\n      {index}")
+
+
+@app.command()
+def compare(
+    summary: str = typer.Option(str(RESULTS / "summary.parquet"), help="collected summary table"),
+) -> None:
+    """Render the cross-strategy / cross-model comparison plot."""
+    import pandas as pd
+
+    df = pd.read_parquet(summary)
+    out = ensure_parent(FIGURES / "compare" / "strategy_comparison.html")
+    strategy_comparison_html(df, out)
+    typer.echo(f"wrote {out}")

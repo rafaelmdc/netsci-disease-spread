@@ -12,6 +12,8 @@ import networkx as nx
 import numpy as np
 from scipy.stats import spearmanr
 
+from src.evaluate.centrality import betweenness
+
 
 def characterize(graph: nx.DiGraph) -> dict[str, float]:
     degrees = np.array([d for _, d in graph.degree()], dtype=float)
@@ -33,8 +35,7 @@ def degree_betweenness(graph: nx.DiGraph, anomaly_quantile: float = 0.75) -> dic
         return {"spearman_deg_btw": float("nan"), "anomalous_gateways": []}
 
     deg = np.array([graph.degree(n) for n in nodes], dtype=float)
-    # unweighted: edge `weight` is frequency, not distance (see strategies)
-    bc_map = nx.betweenness_centrality(graph)
+    bc_map = betweenness(graph)  # cached, topological (see centrality.py)
     bc = np.array([bc_map[n] for n in nodes], dtype=float)
 
     rho = float(spearmanr(deg, bc).statistic)

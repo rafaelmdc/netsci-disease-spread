@@ -14,6 +14,7 @@ import networkx as nx
 import numpy as np
 
 from src.config import StrategyConfig, StrategyName
+from src.evaluate.centrality import betweenness
 from src.registry import Registry
 
 Selector = Callable[[nx.DiGraph, int, np.random.Generator], list[str]]
@@ -38,10 +39,8 @@ def _degree(graph: nx.DiGraph, budget: int, rng: np.random.Generator) -> list[st
 
 @STRATEGY_REGISTRY.register(StrategyName.BETWEENNESS)
 def _betweenness(graph: nx.DiGraph, budget: int, rng: np.random.Generator) -> list[str]:
-    # Topological (unweighted) betweenness: edge `weight` is flight *frequency*,
-    # not a distance, so it must NOT be passed to betweenness (which minimises
-    # summed weight). This matches the structural-bridge / Guimera framing.
-    bc = nx.betweenness_centrality(graph)
+    # topological betweenness, cached per graph (see centrality.py)
+    bc = betweenness(graph)
     return [n for n, _ in sorted(bc.items(), key=lambda kv: kv[1], reverse=True)[:budget]]
 
 
