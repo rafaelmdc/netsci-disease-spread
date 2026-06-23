@@ -28,6 +28,16 @@ def haversine_km(lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
     return 2 * 6371.0 * np.arcsin(np.sqrt(np.clip(a, 0, 1)))
 
 
+def haversine_point(lat0: float, lon0: float, lats: np.ndarray, lons: np.ndarray) -> np.ndarray:
+    """Great-circle distance (km) from one point to an array of points."""
+    rlat0, rlon0 = np.radians(lat0), np.radians(lon0)
+    rlat, rlon = np.radians(lats), np.radians(lons)
+    a = np.sin((rlat - rlat0) / 2) ** 2 + np.cos(rlat0) * np.cos(rlat) * np.sin(
+        (rlon - rlon0) / 2
+    ) ** 2
+    return 2 * 6371.0 * np.arcsin(np.sqrt(np.clip(a, 0, 1)))
+
+
 def radiation_flows(pop: np.ndarray, lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
     """Radiation-model flux matrix T_ij (zero diagonal). Outflow T_i is taken
     proportional to population (T_i = m_i)."""

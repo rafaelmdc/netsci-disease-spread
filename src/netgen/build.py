@@ -43,7 +43,9 @@ def build_network(cfg: NetworkConfig) -> nx.DiGraph:
         for k in keys:
             data.setdefault(k, 0.0)
 
-    # population proxy: pop(v) = p0 + degree(v) * p_route
+    # nodes carry real GeoNames population; only fall back to the degree proxy
+    # for any node that somehow lacks it (or has 0).
     for node, deg in combined.degree():
-        combined.nodes[node]["population"] = int(cfg.p0 + deg * cfg.p_route)
+        if not combined.nodes[node].get("population"):
+            combined.nodes[node]["population"] = int(cfg.p0 + deg * cfg.p_route)
     return combined

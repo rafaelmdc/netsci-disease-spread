@@ -59,6 +59,9 @@ class ExperimentConfig(BaseModel):
     # --- sensitivity axes ---
     beta_scales: list[float] = Field(default_factory=lambda: [1.0])
     taus: list[float] = Field(default_factory=lambda: [0.0002])
+    # per-layer travel rates for multimodal runs (multiplex metapopulation);
+    # None => single global tau (correct for air-only).
+    tau_by_layer: dict[str, float] | None = None
     horizons: list[int] = Field(default_factory=lambda: [75])
     seeds: list[int] = Field(default_factory=lambda: [0])
     seed_size: int = 2500
@@ -95,6 +98,7 @@ class ExperimentConfig(BaseModel):
                                         sim=SimConfig(
                                             horizon=horizon,
                                             tau=tau,
+                                            tau_by_layer=self.tau_by_layer,
                                             seed_size=self.seed_size,
                                             seed=seed,
                                         ),

@@ -1,22 +1,24 @@
-"""Per-layer network builders, via a registry.
+"""Per-layer network builders, all on the shared GeoNames *city* node set.
 
-A layer builder is ``(region) -> nx.DiGraph`` returning a directed graph
-whose edges are tagged ``layer=<name>`` with a ``raw_weight`` frequency and
-a ``weight`` used by diffusion. ``netgen.build`` composes the requested
-layers onto a shared node set. Adding land/water (Slice 4) is one more
-registered builder; nothing else changes.
+A layer builder is ``(region) -> nx.DiGraph`` whose nodes are city ids and
+whose edges are tagged ``layer=<name>`` with a ``raw_weight`` and a ``weight``
+used by diffusion. Airports and ferry terminals are snapped to their nearest
+city, so air, land and water overlay on the same real cities (with real
+populations). ``netgen.build`` composes the requested layers.
 """
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 
-from src.config import Layer, NetworkConfig
-from src.netgen.flows import haversine_km, radiation_flows, top_k_edges
+from src.config import Layer
+from src.netgen.flows import radiation_flows, top_k_edges
+from src.netgen.places import region_cities, snap
 from src.netgen.regions import in_region
 from src.paths import raw_dir
 from src.registry import Registry
@@ -33,42 +35,53 @@ _ROUTE_COLS = [
     "dst", "dst_id", "codeshare", "stops", "equipment",
 ]
 
+_LAND_TOP_N = 1000  # cap land node set to the N most populous cities (tractability)
+_SNAP_KM = 100.0    # airport/ferry-terminal -> nearest city match radius
 
-@LAYER_REGISTRY.register(Layer.AIR)
-def build_air_layer(region: str) -> nx.DiGraph:
-    """Air layer from OpenFlights: airports in `region` + direct routes between them."""
-    air = raw_dir("air")
-    airports = pd.read_csv(
-        air / "airports.dat", header=None, names=_AIRPORT_COLS, na_values="\\N"
-    )
-    routes = pd.read_csv(
-        air / "routes.dat", header=None, names=_ROUTE_COLS, na_values="\\N"
-    )
 
-    airports = airports[airports["iata"].notna()].copy()
-    airports = airports[airports["tz"].map(lambda tz: in_region(tz, region))]
-    airports = airports.drop_duplicates(subset="iata", keep="first")
-    region_iatas = set(airports["iata"])
-
-    # direct flights (stops == 0) between two in-region airports
-    routes = routes[(routes["stops"] == 0)]
-    routes = routes[routes["src"].isin(region_iatas) & routes["dst"].isin(region_iatas)]
-    edges = routes.groupby(["src", "dst"]).size().reset_index(name="raw_weight")
-
-    graph = nx.DiGraph()
-    attrs = airports.set_index("iata")
-    used = set(edges["src"]) | set(edges["dst"])
-    for iata in used:
-        row = attrs.loc[iata]
+def _add_city_nodes(
+    graph: nx.DiGraph, city_ids: set[str], cities: pd.DataFrame, region: str
+) -> None:
+    attrs = cities.set_index("city_id")
+    for cid in city_ids:
+        row = attrs.loc[cid]
         graph.add_node(
-            iata,
+            cid,
             name=str(row["name"]),
-            city=str(row["city"]),
             country=str(row["country"]),
             region=region,
             lat=float(row["lat"]),
             lon=float(row["lon"]),
+            population=int(row["population"]),
         )
+
+
+@LAYER_REGISTRY.register(Layer.AIR)
+def build_air_layer(region: str) -> nx.DiGraph:
+    """Air layer: OpenFlights routes aggregated to the cities their airports serve."""
+    cities = region_cities(region)
+    air = raw_dir("air")
+    airports = pd.read_csv(air / "airports.dat", header=None, names=_AIRPORT_COLS, na_values="\\N")
+    airports = airports[
+        airports["iata"].notna() & airports["tz"].map(lambda t: in_region(t, region))
+    ]
+
+    city_of = snap(airports["lat"].to_numpy(), airports["lon"].to_numpy(), cities, _SNAP_KM)
+    iata_to_city = {
+        iata: cid for iata, cid in zip(airports["iata"], city_of, strict=True) if cid is not None
+    }
+
+    routes = pd.read_csv(air / "routes.dat", header=None, names=_ROUTE_COLS, na_values="\\N")
+    routes = routes[routes["stops"] == 0]
+    routes["src_city"] = routes["src"].map(iata_to_city)
+    routes["dst_city"] = routes["dst"].map(iata_to_city)
+    routes = routes.dropna(subset=["src_city", "dst_city"])
+    routes = routes[routes["src_city"] != routes["dst_city"]]
+    edges = routes.groupby(["src_city", "dst_city"]).size().reset_index(name="w")
+
+    graph = nx.DiGraph()
+    used = set(edges["src_city"]) | set(edges["dst_city"])
+    _add_city_nodes(graph, used, cities, region)
     for src, dst, w in edges.itertuples(index=False):
         graph.add_edge(src, dst, layer=Layer.AIR.value, raw_weight=float(w), weight=float(w))
     return graph
@@ -76,78 +89,59 @@ def build_air_layer(region: str) -> nx.DiGraph:
 
 @LAYER_REGISTRY.register(Layer.LAND)
 def build_land_layer(region: str, k: int = 8) -> nx.DiGraph:
-    """Ground-mobility layer over the same city node set, with flow weights from
-    the radiation model (Simini et al.) — applied uniformly to every region.
+    """Ground-mobility layer (aggregated multilayer metapopulation, GLEAM/Balcan).
 
-    NOTE (gap to close in iteration): topology here reuses the air node set and
-    radiation-estimated flows, NOT real OSM/GRIP rail/road geometry, and is not
-    yet validated against Eurostat. Those refinements are tracked in ROADMAP.
+    Edge weight is the radiation-model *per-capita* commuting kernel
+    K_ij = flux_ij / pop_i (Simini 2012): the fraction of city i's residents
+    whose nearest opportunity-weighted destination is j. The engine multiplies
+    it by the land travel rate (a commuting fraction), so no arbitrary
+    rescaling is needed. Real GeoNames populations, capped to the top-N cities.
+    GAP: not yet validated against Eurostat; OSM/GRIP geometry TBD.
     """
-    air = build_air_layer(region)
-    nodes = list(air.nodes())
-    defaults = NetworkConfig()
-    pop = np.array([defaults.p0 + air.degree(n) * defaults.p_route for n in nodes], dtype=float)
-    lat = np.array([air.nodes[n]["lat"] for n in nodes])
-    lon = np.array([air.nodes[n]["lon"] for n in nodes])
+    cities = region_cities(region, top_n=_LAND_TOP_N)
+    pop = cities["population"].to_numpy(dtype=float)
+    lat = cities["lat"].to_numpy()
+    lon = cities["lon"].to_numpy()
+    ids = cities["city_id"].to_numpy()
 
     flux = radiation_flows(pop, lat, lon)
-    edges = top_k_edges(flux, k)
-
-    # scale land weights to the air layer's max so the two are comparable when
-    # overlaid under one travel rate (per-layer travel rates: future work)
-    air_max = max((d["weight"] for *_, d in air.edges(data=True)), default=1.0)
-    flux_max = max((w for *_, w in edges), default=1.0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        kernel = np.where(pop[:, None] > 0, flux / pop[:, None], 0.0)  # per-capita K_ij
+    edges = top_k_edges(kernel, k)
 
     graph = nx.DiGraph()
-    for node, data in air.nodes(data=True):
-        graph.add_node(node, **data)
+    _add_city_nodes(graph, set(ids), cities, region)
     for i, j, w in edges:
-        graph.add_edge(
-            nodes[i], nodes[j],
-            layer=Layer.LAND.value,
-            raw_weight=w,
-            weight=w / flux_max * air_max,
-        )
+        graph.add_edge(ids[i], ids[j], layer=Layer.LAND.value, raw_weight=w, weight=w)
     return graph
 
 
 @LAYER_REGISTRY.register(Layer.WATER)
-def build_water_layer(
-    region: str, k: int = 4, d_min_km: float = 40.0, d_max_km: float = 500.0
-) -> nx.DiGraph:
-    """Short-sea / ferry passenger layer (proxy).
+def build_water_layer(region: str) -> nx.DiGraph:
+    """Sea/ferry layer from the real OSM global ferry dump, snapped to cities.
 
-    Radiation flows restricted to a ferry-plausible distance band and scaled to
-    a fraction of air intensity (ferries carry far fewer people than flights).
-
-    NOTE (gap to close in iteration): this is a geographic proxy, NOT real
-    OSM ferry routes or port-call data, and does not distinguish sea crossings
-    from over-land pairs (no coastline data). Tracked in ROADMAP.
+    Edge weight is ferry-route frequency between the two cities (a passenger-
+    volume proxy, like air; OSM has no passenger counts). The engine multiplies
+    it by the water travel rate.
     """
-    air = build_air_layer(region)
-    nodes = list(air.nodes())
-    defaults = NetworkConfig()
-    pop = np.array([defaults.p0 + air.degree(n) * defaults.p_route for n in nodes], dtype=float)
-    lat = np.array([air.nodes[n]["lat"] for n in nodes])
-    lon = np.array([air.nodes[n]["lon"] for n in nodes])
+    path = raw_dir("water") / "ferries_world.json"
+    routes = json.loads(path.read_text()) if path.exists() else []
+    cities = region_cities(region)
 
-    dist = haversine_km(lat, lon)
-    flux = radiation_flows(pop, lat, lon)
-    flux = np.where((dist >= d_min_km) & (dist <= d_max_km), flux, 0.0)
-    edges = top_k_edges(flux, k)
+    pts_lat, pts_lon = [], []
+    for r in routes:
+        pts_lat += [r["a"][0], r["b"][0]]
+        pts_lon += [r["a"][1], r["b"][1]]
+    snapped = snap(np.array(pts_lat), np.array(pts_lon), cities, _SNAP_KM) if routes else []
 
-    air_max = max((d["weight"] for *_, d in air.edges(data=True)), default=1.0)
-    flux_max = max((w for *_, w in edges), default=1.0)
-    intensity = 0.3  # ferries << flights in passenger volume
+    pair_counts: dict[tuple[str, str], int] = {}
+    for idx in range(len(routes)):
+        a, b = snapped[2 * idx], snapped[2 * idx + 1]
+        if a and b and a != b:
+            pair_counts[(a, b)] = pair_counts.get((a, b), 0) + 1
 
     graph = nx.DiGraph()
-    for node, data in air.nodes(data=True):
-        graph.add_node(node, **data)
-    for i, j, w in edges:
-        graph.add_edge(
-            nodes[i], nodes[j],
-            layer=Layer.WATER.value,
-            raw_weight=w,
-            weight=w / flux_max * air_max * intensity,
-        )
+    _add_city_nodes(graph, {c for pair in pair_counts for c in pair}, cities, region)
+    for (a, b), w in pair_counts.items():
+        graph.add_edge(a, b, layer=Layer.WATER.value, raw_weight=float(w), weight=float(w))
     return graph

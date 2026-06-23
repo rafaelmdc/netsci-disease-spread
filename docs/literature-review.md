@@ -138,6 +138,29 @@ boat/ground question). These are **real, citable** anchors per modality.
   network", arXiv:2002.12280). Good support for a **rail** layer — confirm
   the exact citation before adding to the `.bib`.
 
+- **Soriano-Paños, Lotero, Arenas & Gómez (2018), *Phys. Rev. X* —
+  multiplex metapopulations.** `sorianopanos:multiplex`. The *more general*
+  formalism: the population at each node is partitioned by mobility class, each
+  class confined to its own layer, and the threshold depends non-trivially on
+  the per-layer patterns. **We do NOT implement this strict form** (it needs
+  per-class fractions we cannot calibrate). We implement the **aggregated
+  multilayer** metapopulation — one population pool per city, mobility summed
+  over layers with per-layer travel rates — which is the standard GLEAM/Balcan
+  treatment (`balcan:gleam`, `balcan:multiscale`, `colizza:reactiondiffusion`).
+  The strict multiplex is a future refinement, not a claim of this work.
+
+**How flows become coupling (so we don't invent it).** In the metapopulation
+framework the migration term is the *per-capita* mobility flux: the fraction
+of a city's residents moving to each neighbour per day. So:
+- **Land** uses the radiation-model **kernel** `K_ij = flux_ij / pop_i`
+  (`simini:radiation`) — a per-capita commuting probability — times a land
+  travel rate (a commuting fraction); validated against Eurostat within Europe.
+- **Air / water** use route/ferry **frequency** as a passenger-volume proxy
+  (no passenger counts in OpenFlights/OSM), each times its own travel rate.
+There is **no arbitrary rescaling between layers** — the per-layer travel
+rates carry the relative intensities (commuting flux ≫ air, per
+`balcan:multiscale`), which is the documentable, citable choice.
+
 **Modelling lesson from the multilayer literature:** coupling layers can
 push the system *over* the epidemic threshold even when no single layer
 would sustain an outbreak alone. So a multimodal model is not just "more
