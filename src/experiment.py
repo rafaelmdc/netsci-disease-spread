@@ -62,6 +62,8 @@ class ExperimentConfig(BaseModel):
     # per-layer travel rates for multimodal runs (multiplex metapopulation);
     # None => single global tau (correct for air-only).
     tau_by_layer: dict[str, float] | None = None
+    # optional in-transit transmission (refinement axis); None => off
+    transit: dict[str, dict[str, float]] | None = None
     horizons: list[int] = Field(default_factory=lambda: [75])
     seeds: list[int] = Field(default_factory=lambda: [0])
     seed_size: int = 2500
@@ -99,6 +101,7 @@ class ExperimentConfig(BaseModel):
                                             horizon=horizon,
                                             tau=tau,
                                             tau_by_layer=self.tau_by_layer,
+                                            transit=self.transit,
                                             seed_size=self.seed_size,
                                             seed=seed,
                                         ),

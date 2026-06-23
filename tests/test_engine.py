@@ -104,6 +104,54 @@ def test_no_land_means_no_commuting():
     assert _commuting_matrix(g, ["A"], SimConfig()) is None
 
 
+def _two_city_water_graph():
+    import networkx as nx
+
+    g = nx.DiGraph()
+    g.add_node("A", population=100_000, lat=40.0, lon=0.0)
+    g.add_node("B", population=100_000, lat=49.0, lon=0.0)  # ~1000 km
+    for a, b in [("A", "B"), ("B", "A")]:
+        g.add_edge(a, b, layer="water", w_water=1.0, weight=1.0)
+    return g
+
+
+def _water_run(transit):
+    from src.config import (
+        Layer,
+        ModelConfig,
+        ModelName,
+        ModelParams,
+        NetworkConfig,
+        RunConfig,
+        SimConfig,
+        StrategyConfig,
+        StrategyName,
+    )
+    from src.evaluate.engine import simulate
+
+    cfg = RunConfig(
+        network=NetworkConfig(region="toy", layers=[Layer.WATER]),
+        model=ModelConfig(name=ModelName.SIR, params=ModelParams(beta=0.3, gamma=0.12)),
+        strategy=StrategyConfig(name=StrategyName.CONTROL, budget=0, coverage=0.0, efficacy=0.0),
+        sim=SimConfig(
+            horizon=150, seed=0, seed_size=50, tau_by_layer={"water": 0.02}, transit=transit
+        ),
+    )
+    return simulate(_two_city_water_graph(), cfg)
+
+
+def test_in_transit_transmission_and_onboard_control():
+    base = _water_run(None)
+    intense = _water_run({"water": {"beta": 2.0}})
+    controlled = _water_run({"water": {"beta": 2.0, "control": 0.9}})
+    # in-transit super-spreading raises the peak; onboard control brings it back
+    assert intense.summary["peak_infected"] > base.summary["peak_infected"]
+    assert controlled.summary["peak_infected"] < intense.summary["peak_infected"]
+    # population conserved with transit on
+    total = sum(intense.timeseries[c][-1] for c in intense.compartments)
+    assert abs(total - 200_000) < 1e-3
+
+
 def test_recurrent_commuting_couples_without_relocating():
     # A is seeded; A<->B linked only by land (commuting). B should become
     # infected via shared-location mixing, yet no air/water => no relocation,

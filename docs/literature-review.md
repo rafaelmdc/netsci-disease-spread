@@ -255,3 +255,4 @@ write-up.
 - Balcan et al. 2009 (H1N1 likelihood calibration) — <https://doi.org/10.1186/1741-7015-7-45>
 - Balcan & Vespignani 2011 (recurrent mobility) — <https://doi.org/10.1038/nphys1944>
 - Soriano-Paños et al. 2018 (multiplex metapopulations) — <https://doi.org/10.1103/PhysRevX.8.031039>
+- Rocklöv et al. 2020 (Diamond Princess in-transit/onboard) — <https://doi.org/10.1093/jtm/taaa030>

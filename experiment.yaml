@@ -17,12 +17,17 @@ regions:
   - europe
 
 # --- Substrate: which transport-layer combinations to run --------------------
-# air is implemented now; land/water arrive in Slice 4. Each inner list is one
-# network, e.g. [air], [air, land], [air, land, water].
+# air, land and water are all implemented (real data + city nodes). Each inner
+# list is one network, e.g. [air], [air, land], [air, land, water]. Add more
+# lists to compare combinations side by side.
 layer_sets:
   - [air]
+  # - [air, land]
+  # - [air, land, water]
 
-# --- Population proxy:  pop(v) = p0 + degree(v) * p_route ---------------------
+# --- Population proxy (fallback only) -----------------------------------------
+# Real GeoNames city populations are used for nodes; this proxy
+# pop(v)=p0+degree(v)*p_route only fills any node lacking a real population.
 population:
   p0: 150000
   p_route: 45000
@@ -43,10 +48,21 @@ efficacies: [0.85]
 
 # --- Sensitivity axes (for ranking-stability / operating-point analysis) -----
 beta_scales: [1.0]          # multiplies every model's beta (R0 sensitivity)
-taus:        [0.0002]       # base travel rate (blueprint value)
+taus:        [0.0002]       # base/global travel rate (used for air-only runs)
+# Per-layer mobility rates for MULTIMODAL runs. air/water are diffusive
+# (relocation); land is recurrent commuting (its rate = commuting fraction).
+# Leave null for air-only. Example for [air, land, water]:
+#   tau_by_layer: {air: 0.0002, land: 0.3, water: 0.0005}
+tau_by_layer: null
+# Optional in-transit transmission (refinement axis). null => transmission only
+# at cities. When set, travellers undergo the full model dynamics during the
+# trip (duration = distance/speed, so ferries dominate). `control` in [0,1] is
+# onboard-intervention effectiveness (screening / onboard quarantine / hospital
+# ship). Example:
+#   transit: {water: {speed_kmh: 40, beta: 0.3, control: 0.0},
+#             air:   {speed_kmh: 800, beta: 0.1, control: 0.0}}
+transit: null
 # Horizon = 210 days, chosen from the operating-point scan, NOT the blueprint's
-# arbitrary 75: at tau=0.0002 the latest-peaking model (SEIR, delayed by its
-# latent period) peaks at day ~169; SIR peaks ~day 90. 75 days truncates every
 # model before its peak. 210 captures the peak and most of the decline for all
 # four under one uniform horizon (required for cross-model comparability).
 # Re-check with:  netsci evaluate operating-point --model seir --horizon 300

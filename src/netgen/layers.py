@@ -134,14 +134,17 @@ def build_water_layer(region: str) -> nx.DiGraph:
         pts_lon += [r["a"][1], r["b"][1]]
     snapped = snap(np.array(pts_lat), np.array(pts_lon), cities, _SNAP_KM) if routes else []
 
+    # ferries are bidirectional services: count per unordered city pair
     pair_counts: dict[tuple[str, str], int] = {}
     for idx in range(len(routes)):
         a, b = snapped[2 * idx], snapped[2 * idx + 1]
         if a and b and a != b:
-            pair_counts[(a, b)] = pair_counts.get((a, b), 0) + 1
+            key = (a, b) if a < b else (b, a)
+            pair_counts[key] = pair_counts.get(key, 0) + 1
 
     graph = nx.DiGraph()
     _add_city_nodes(graph, {c for pair in pair_counts for c in pair}, cities, region)
     for (a, b), w in pair_counts.items():
         graph.add_edge(a, b, layer=Layer.WATER.value, raw_weight=float(w), weight=float(w))
+        graph.add_edge(b, a, layer=Layer.WATER.value, raw_weight=float(w), weight=float(w))
     return graph

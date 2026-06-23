@@ -17,6 +17,7 @@ from src.evaluate.models.registry import MODEL_REGISTRY
 @MODEL_REGISTRY.register(ModelName.SEIR)
 class SEIR(CompartmentalModel):
     compartments = ["S", "E", "I", "R"]
+    entry_key = "E"  # newly infected become Exposed (latent), not yet infectious
 
     def reaction(self, state: State, params: ModelParams, pressure: np.ndarray) -> State:
         s, e, i, r = state["S"], state["E"], state["I"], state["R"]

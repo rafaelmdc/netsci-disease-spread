@@ -41,6 +41,17 @@ layer as diffusion is a known error (`balcan:recurrent`), so we separate:
   $\pi_i=I_i/N_i$ (plain diffusive). This follows the GLEAM/Balcan and
   movement-interaction-return frameworks (`sorianopanos:multiplex`).
 
+**In-transit transmission (optional refinement axis).** By default transmission
+happens only at cities. Turning on `sim.transit` lets travellers be infected
+*during* the trip — most important for long confined journeys (ferries,
+`rocklov:diamondprincess`). We run the model's **full reaction** on each
+travelling cohort for the trip duration (`distance/speed`) at an onboard contact
+rate, so passengers can be infected *and* recover/incubate/quarantine en route
+(not a one-way toggle). An `control` ∈ [0,1] per layer reduces onboard
+transmission (screening, onboard quarantine, hospital ship) — this is how the
+"quarantine on boats" experiments are run. Toggleable, so it is a clean
+comparison axis (base vs in-transit, with vs without onboard control).
+
 > **Why it matters (professor-facing):** on the European air+land network,
 > modelling commuting as recurrent rather than diffusive lowers the peak
 > active infection ~5× (~277M → ~49M) — recurrent commuting couples

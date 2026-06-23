@@ -87,6 +87,13 @@ class SimConfig(BaseModel):
     # layers absent here fall back to `tau`. None => single global tau.
     tau_by_layer: dict[str, float] | None = None
     steps_per_day: int = Field(default=1, ge=1, description="sub-steps per day for accuracy")
+    # Optional in-transit transmission (refinement axis). None => base model
+    # (transmission only at cities). When present, travellers can be infected
+    # during the trip, per layer: {layer: {speed_kmh, beta, control}}. Trip
+    # duration = distance/speed, so long confined trips (ferries) dominate.
+    # `control` in [0,1] is onboard-intervention effectiveness (screening,
+    # quarantine, hospital ship), reducing transit beta.
+    transit: dict[str, dict[str, float]] | None = None
     seed_size: int = Field(default=2500, ge=0, description="initial infectious seed")
     seed: int = Field(default=0, description="RNG seed; output is a pure function of it")
 

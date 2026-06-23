@@ -1,0 +1,21 @@
+# Multimodal experiment: air + land + water on real city nodes.
+# Run with:  netsci netgen build-all  --config configs/experiment_multimodal.yaml
+#            netsci evaluate sweep     --config configs/experiment_multimodal.yaml
+#   or via Nextflow:  nextflow run workflow/main.nf --config configs/experiment_multimodal.yaml
+regions:
+  - europe
+layer_sets:
+  - [air]
+  - [air, land]
+  - [air, land, water]
+models:
+  sir:  {beta: 0.32, gamma: 0.12}
+  seir: {beta: 0.32, gamma: 0.12, sigma: 0.2}
+strategies: [control, degree, betweenness]
+budgets:    [15]
+coverages:  [0.75]
+efficacies: [0.85]
+# air/water diffusive (relocation); land recurrent commuting (rate = commuting fraction)
+tau_by_layer: {air: 0.0002, land: 0.3, water: 0.0005}
+horizons: [210]
+seeds:    [0, 1]

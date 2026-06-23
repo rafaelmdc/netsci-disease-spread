@@ -28,9 +28,23 @@ from src.config import ModelParams, RunConfig, SimConfig
 from src.evaluate.models import get_model
 from src.evaluate.models.base import VACCINATED, CompartmentalModel, State
 from src.evaluate.strategies import select_targets
+from src.netgen.flows import haversine_point
 
 _RATE_FIELDS = ("beta", "gamma", "sigma", "kappa", "gamma_q")
 _DEFAULT_LAND_COMMUTE = 0.3  # commuting participation fraction if land has no explicit rate
+
+# Default in-transit transmission per layer: trip duration = distance/speed, so
+# long confined trips (ferries) dominate; `beta` is the onboard contact rate and
+# `control` in [0,1] is onboard-intervention effectiveness.
+_TRANSIT_DEFAULTS: dict[str, dict[str, float]] = {
+    "air": {"speed_kmh": 800.0, "beta": 0.10, "control": 0.0},
+    "water": {"speed_kmh": 40.0, "beta": 0.30, "control": 0.0},
+    "land": {"speed_kmh": 60.0, "beta": 0.05, "control": 0.0},
+}
+
+
+def _transit_params(transit: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
+    return {layer: {**d, **transit.get(layer, {})} for layer, d in _TRANSIT_DEFAULTS.items()}
 
 
 @dataclass
@@ -58,19 +72,6 @@ def diffusion_rate(data: dict, sim: SimConfig) -> float:
     return air_r * float(data.get("w_air", 0.0)) + water_r * float(data.get("w_water", 0.0))
 
 
-def _diffusion_matrix(graph: nx.DiGraph, nodes: list[str], sim: SimConfig) -> np.ndarray:
-    idx = {n: k for k, n in enumerate(nodes)}
-    m = np.zeros((len(nodes), len(nodes)), dtype=float)
-    for u, v, data in graph.edges(data=True):
-        r = diffusion_rate(data, sim)
-        if r:
-            m[idx[u], idx[v]] += r
-    row = m.sum(axis=1, keepdims=True)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        scale = np.where(row > 0.99, 0.99 / row, 1.0)
-    return m * scale
-
-
 def _commuting_matrix(graph: nx.DiGraph, nodes: list[str], sim: SimConfig) -> np.ndarray | None:
     """Row-stochastic commuting matrix C (C_ii = stay-home), from land per-capita
     kernels times the land commuting rate. None if the network has no land layer."""
@@ -94,6 +95,71 @@ def _commuting_matrix(graph: nx.DiGraph, nodes: list[str], sim: SimConfig) -> np
         row = c.sum(axis=1)
     c[np.diag_indices(n)] += 1.0 - row  # stay-home fraction
     return c
+
+
+def _layer_diffusion(
+    graph: nx.DiGraph, nodes: list[str], sim: SimConfig
+) -> tuple[dict[str, np.ndarray], np.ndarray]:
+    """Per-diffusive-layer migration matrices {air, water}, jointly row-capped,
+    plus their sum (the combined diffusion operator)."""
+    idx = {n: k for k, n in enumerate(nodes)}
+    n = len(nodes)
+    tbl = sim.tau_by_layer
+    mats: dict[str, np.ndarray] = {}
+    for u, v, data in graph.edges(data=True):
+        i, j = idx[u], idx[v]
+        if not any(k in data for k in ("w_air", "w_water", "w_land")):
+            w = float(data.get("weight", 1.0))
+            mats.setdefault("air", np.zeros((n, n)))[i, j] += sim.tau * w
+            continue
+        for layer in ("air", "water"):
+            w = float(data.get(f"w_{layer}", 0.0))
+            if w > 0:
+                rate = tbl.get(layer, sim.tau) if tbl else sim.tau
+                mats.setdefault(layer, np.zeros((n, n)))[i, j] += rate * w
+    combined = sum(mats.values()) if mats else np.zeros((n, n))
+    row = combined.sum(axis=1, keepdims=True)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        scale = np.where(row > 0.99, 0.99 / row, 1.0)
+    for layer in mats:
+        mats[layer] = mats[layer] * scale
+    return mats, combined * scale
+
+
+def _transit_setup(graph: nx.DiGraph, nodes: list[str], sim: SimConfig) -> dict | None:
+    """Per-layer onboard params and mean trip duration (days), or None if off.
+    Duration = distance/speed, so long confined trips (ferries) get more
+    in-transit dynamics than short ones (flights, commutes)."""
+    if sim.transit is None:
+        return None
+    p = _transit_params(sim.transit)
+    idx = {n: k for k, n in enumerate(nodes)}
+    lat = np.array([float(graph.nodes[n].get("lat", 0.0)) for n in nodes])
+    lon = np.array([float(graph.nodes[n].get("lon", 0.0)) for n in nodes])
+    acc = {layer: [0.0, 0] for layer in ("air", "water", "land")}
+    for u, v, data in graph.edges(data=True):
+        i, j = idx[u], idx[v]
+        d_km = float(haversine_point(lat[i], lon[i], lat[j : j + 1], lon[j : j + 1])[0])
+        if d_km <= 0:
+            continue
+        for layer in ("air", "water", "land"):
+            if float(data.get(f"w_{layer}", 0.0)) > 0:
+                acc[layer][0] += d_km / p[layer]["speed_kmh"] / 24.0
+                acc[layer][1] += 1
+    dur = {layer: (s / c if c else 0.0) for layer, (s, c) in acc.items()}
+    return {"params": p, "dur": dur}
+
+
+def _transit_model_params(base: ModelParams, beta_transit: float, control: float, dur: float):
+    """Model params for one trip: rates x trip-duration, transmission at the
+    onboard contact rate reduced by onboard control."""
+    eff = (1.0 - control) * dur
+    update = {"beta": beta_transit * eff}
+    for f in ("gamma", "sigma", "kappa", "gamma_q"):
+        v = getattr(base, f, None)
+        if v is not None:
+            update[f] = v * dur
+    return base.model_copy(update=update)
 
 
 def _pressure(model: CompartmentalModel, state: State, c: np.ndarray | None) -> np.ndarray:
@@ -144,9 +210,26 @@ def simulate(graph: nx.DiGraph, cfg: RunConfig, record_nodes: bool = False) -> S
 
     sub = cfg.sim.steps_per_day
     commute = _commuting_matrix(graph, nodes, cfg.sim)
-    m = _diffusion_matrix(graph, nodes, cfg.sim) / sub
-    row_out = m.sum(axis=1)
+    layer_m, m_combined = _layer_diffusion(graph, nodes, cfg.sim)
+    layer_m = {layer: mat / sub for layer, mat in layer_m.items()}
+    m_combined = m_combined / sub
+    row_out = m_combined.sum(axis=1)
     sub_params = _scale_rates(cfg.model.params, 1.0 / sub)
+
+    # in-transit: per-layer trip params (full reaction on the cohort during the
+    # trip, so travellers can be infected AND recover/incubate/quarantine).
+    transit = _transit_setup(graph, nodes, cfg.sim)
+    t_params = None
+    a_land = None
+    if transit is not None:
+        t_params = {
+            layer: _transit_model_params(
+                cfg.model.params, transit["params"][layer]["beta"],
+                transit["params"][layer]["control"], transit["dur"][layer],
+            )
+            for layer in ("air", "water", "land")
+        }
+        a_land = (1.0 - np.diag(commute)) if commute is not None else None
 
     ts: dict[str, list[float]] = {c: [] for c in tracked}
     node_inf: list[np.ndarray] = []
@@ -155,8 +238,29 @@ def simulate(graph: nx.DiGraph, cfg: RunConfig, record_nodes: bool = False) -> S
             pressure = _pressure(model, state, commute)
             reacted = model.reaction(state, sub_params, pressure)
             reacted[VACCINATED] = state[VACCINATED]  # inert under reaction
-            for c in tracked:
-                state[c] = np.clip(_diffuse(reacted[c], m, row_out), 0.0, None)
+
+            if transit is None:
+                for c in tracked:
+                    state[c] = np.clip(_diffuse(reacted[c], m_combined, row_out), 0.0, None)
+            else:
+                vehicle_p = _pressure(model, reacted, None)  # confined cohort mixing
+                # each diffusive cohort undergoes its trip's dynamics, then arrives
+                rt = {}
+                for layer in layer_m:
+                    r = model.reaction(reacted, t_params[layer], vehicle_p)
+                    r[VACCINATED] = reacted[VACCINATED]
+                    rt[layer] = r
+                land_delta = None
+                if a_land is not None:
+                    rl = model.reaction(reacted, t_params["land"], vehicle_p)
+                    rl[VACCINATED] = reacted[VACCINATED]
+                    land_delta = {c: a_land * (rl[c] - reacted[c]) for c in tracked}
+                for c in tracked:
+                    inflow = sum(layer_m[layer].T @ rt[layer][c] for layer in layer_m)
+                    new = reacted[c] - row_out * reacted[c] + inflow
+                    if land_delta is not None:
+                        new = new + land_delta[c]
+                    state[c] = np.clip(new, 0.0, None)
         for c in tracked:
             ts[c].append(float(state[c].sum()))
         if record_nodes:

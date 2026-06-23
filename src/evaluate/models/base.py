@@ -30,6 +30,8 @@ class CompartmentalModel(ABC):
     compartments: list[str]
     susceptible_key: str = "S"
     infectious_key: str = "I"
+    #: compartment a newly-infected susceptible enters (E for SEIR, else I)
+    entry_key: str = "I"
 
     def init_state(self, population: np.ndarray, seed_node: int, seed_size: int) -> State:
         """All susceptible except `seed_size` infectious at `seed_node`."""

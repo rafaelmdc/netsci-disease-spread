@@ -175,6 +175,17 @@ commuting couples neighbours without permanently transporting the seed
 population across the continent --- exactly the threshold-shifting effect
 reported by~\cite{balcan:recurrent}.
 
+\textbf{In-transit transmission (refinement axis).} Optionally, travellers can
+be infected \emph{during} the journey, which matters most for long confined
+trips such as ferries~\cite{rocklov:diamondprincess}. We model this by running
+the \emph{full} compartmental reaction on each travelling cohort for the trip
+duration (distance$/$speed) at an onboard contact rate --- so passengers can be
+infected, recover, incubate or be quarantined en route, not merely toggled
+infected. An onboard-control parameter ($0$--$1$) reduces the onboard
+transmission, representing screening, onboard quarantine or a hospital ship, so
+the same machinery answers ``how well do onboard measures work?''. This is a
+toggleable refinement: with it off, transmission occurs only at cities.
+
 \subsection{Parameter choice}
 We fix clinical rates ($\gamma,\sigma,\kappa$) from each disease's
 epidemiology and set $\beta$ to a literature $R_0$. On a heterogeneous
