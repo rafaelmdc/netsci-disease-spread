@@ -44,6 +44,22 @@ def _betweenness(graph: nx.DiGraph, budget: int, rng: np.random.Generator) -> li
     return [n for n, _ in sorted(bc.items(), key=lambda kv: kv[1], reverse=True)[:budget]]
 
 
+@STRATEGY_REGISTRY.register(StrategyName.KCORE)
+def _kcore(graph: nx.DiGraph, budget: int, rng: np.random.Generator) -> list[str]:
+    # innermost k-shell first: the network core where the best spreaders sit
+    # (Kitsak et al.). Computed on the undirected projection.
+    core = nx.core_number(nx.DiGraph(graph).to_undirected())
+    return [n for n, _ in sorted(core.items(), key=lambda kv: kv[1], reverse=True)[:budget]]
+
+
+@STRATEGY_REGISTRY.register(StrategyName.SUBGRAPH)
+def _subgraph(graph: nx.DiGraph, budget: int, rng: np.random.Generator) -> list[str]:
+    # dense-motif proxy: triangle participation (cities embedded in tightly
+    # interconnected clusters). A full graphlet (ORCA) score is future work.
+    tri = nx.triangles(nx.DiGraph(graph).to_undirected())
+    return [n for n, _ in sorted(tri.items(), key=lambda kv: kv[1], reverse=True)[:budget]]
+
+
 def select_targets(graph: nx.DiGraph, cfg: StrategyConfig, rng: np.random.Generator) -> list[str]:
     budget = min(cfg.budget, graph.number_of_nodes())
     if cfg.name is StrategyName.CONTROL or budget == 0:

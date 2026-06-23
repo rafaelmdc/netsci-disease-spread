@@ -36,7 +36,7 @@ models:
   sqir: {beta: 0.32, gamma: 0.12, kappa: 0.15, gamma_q: 0.1}
 
 # --- Vaccination strategies --------------------------------------------------
-strategies: [control, random, degree, betweenness]
+strategies: [control, random, degree, betweenness, kcore, subgraph]
 budgets:    [15]            # number of cities immunised
 coverages:  [0.01, 0.75]    # low vs high adherence (blueprint comparison)
 efficacies: [0.85]
