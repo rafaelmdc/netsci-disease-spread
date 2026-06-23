@@ -24,7 +24,7 @@ def run(config: str = typer.Option(..., help="path to a run YAML config")) -> No
     """Load a config, simulate, and write <run_id>.json + timeseries.parquet."""
     record = run_and_save(load_run_config(config))
     typer.echo(
-        f"run_id={record['run_id']}  peak_infected={record['summary']['peak_infected']:,.0f}"
+        f"{record['label']}  peak_infected={record['summary']['peak_infected']:,.0f}"
     )
 
 
@@ -128,9 +128,9 @@ def collect(out: str = typer.Option("results/summary.parquet")) -> None:
         cfg, summ, struct = d["config"], d["summary"], d["structural"]
         rows.append(
             {
+                "label": d.get("label", d["run_id"]),
                 "region": cfg["network"]["region"],
                 "combo": combo_name([layer for layer in cfg["network"]["layers"]]),
-                "run_id": d["run_id"],
                 "model": cfg["model"]["name"],
                 "beta": cfg["model"]["params"]["beta"],
                 "gamma": cfg["model"]["params"]["gamma"],
@@ -141,9 +141,10 @@ def collect(out: str = typer.Option("results/summary.parquet")) -> None:
                 "tau": cfg["sim"]["tau"],
                 "horizon": cfg["sim"]["horizon"],
                 "seed": cfg["sim"]["seed"],
-                "spearman_deg_btw": struct["spearman_deg_btw"],
+                "spearman_deg_btw": round(struct["spearman_deg_btw"], 3),
                 "n_anomalous": len(struct["anomalous_gateways"]),
-                **{k: summ[k] for k in summ},
+                # round counts to whole people for readability
+                **{k: round(v) for k, v in summ.items()},
             }
         )
     if not rows:

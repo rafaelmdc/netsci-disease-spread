@@ -26,13 +26,15 @@ uses the *same* image (`docker.enabled = true`, `process.container` in
 `nextflow.config`), so pipeline and interactive runs are byte-identical.
 For local dev without Docker, `uv sync` reproduces the locked environment.
 
-## run_id convention
+## run_id and human-readable labels
 
-Every run is tagged with a `run_id` = stable hash of its **resolved**
-pydantic config (model, params, strategy, coverage, efficacy, seed, network,
-horizon, τ). Outputs are written under that id, so identical inputs overwrite
-rather than duplicate, and the sweep can cache/`-resume`. Never derive a
-`run_id` from anything outside the config.
+Every run has a `run_id` = stable hash of its **resolved** pydantic config
+(model, params, strategy, coverage, seed, network, horizon, τ, …) — used for
+dedup/caching. Files are named by a human-readable **`label`** instead, e.g.
+`sir_betweenness_cov75_seed0_7c21a4.json` (model, strategy, coverage, seed +
+a short run_id suffix for uniqueness). `results/summary.csv` (from
+`evaluate collect`) is the human-facing table, led by `label` with rounded
+counts. Never derive either from anything outside the config.
 
 ## Conventions
 

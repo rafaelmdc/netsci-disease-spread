@@ -37,9 +37,9 @@ def build(config: str = typer.Option(..., help="path to the run YAML config")) -
     graph_path = cfg.network.graph_path or processed_graph(region, combo)
     graph = read_graphml(graph_path)
 
-    record = json.loads(run_json(region, combo, cfg.run_id).read_text())
+    record = json.loads(run_json(region, combo, cfg.label).read_text())
     targets = record.get("targets", [])
-    ts = pd.read_parquet(run_timeseries(region, combo, cfg.run_id))
+    ts = pd.read_parquet(run_timeseries(region, combo, cfg.label))
 
     out_dir = ensure_dir(figures_dir(region, combo))
     net_html = network_to_html(graph, out_dir / "network.html", targets=targets)
@@ -57,13 +57,13 @@ def build(config: str = typer.Option(..., help="path to the run YAML config")) -
         f"peak active infections: {record['summary']['peak_infected']:,.0f}"
     )
     cur_html = curves_to_html(
-        ts, out_dir / f"{cfg.run_id}_curves.html", title=title, subtitle=subtitle
+        ts, out_dir / f"{cfg.label}_curves.html", title=title, subtitle=subtitle
     )
 
     index = out_dir / "index.html"
     index.write_text(
         "<!doctype html><meta charset='utf-8'>"
-        f"<h1>{region} / {combo} / {cfg.run_id}</h1>"
+        f"<h1>{region} / {combo} / {cfg.label}</h1>"
         f"<p>model={cfg.model.name.value} strategy={cfg.strategy.name.value}</p>"
         f"<ul>"
         f"<li><a href='{net_html.name}'>interactive network</a></li>"

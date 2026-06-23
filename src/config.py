@@ -114,6 +114,17 @@ class RunConfig(BaseModel):
         canonical = json.dumps(self.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(canonical.encode()).hexdigest()[:12]
 
+    @property
+    def label(self) -> str:
+        """Human-readable run name, e.g. 'sir_betweenness_cov75_seed0_aecbfd'.
+        Carries a short run_id suffix so it stays unique across all sweep axes."""
+        parts = [self.model.name.value, self.strategy.name.value]
+        if self.strategy.name is not StrategyName.CONTROL:
+            parts.append(f"cov{int(round(self.strategy.coverage * 100))}")
+        parts.append(f"seed{self.sim.seed}")
+        parts.append(self.run_id[:6])
+        return "_".join(parts)
+
 
 def load_run_config(path: str | Path) -> RunConfig:
     """Load and validate a RunConfig from a YAML file."""

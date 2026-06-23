@@ -37,6 +37,7 @@ def run_and_save(cfg: RunConfig, graph: nx.DiGraph | None = None) -> dict:
     combo = _combo(cfg)
 
     record = {
+        "label": cfg.label,
         "run_id": cfg.run_id,
         "config": cfg.model_dump(mode="json"),
         "versions": {"python": platform.python_version()},
@@ -47,11 +48,11 @@ def run_and_save(cfg: RunConfig, graph: nx.DiGraph | None = None) -> dict:
         "summary": result.summary,
     }
 
-    out_json = run_json(cfg.network.region, combo, cfg.run_id)
+    out_json = run_json(cfg.network.region, combo, cfg.label)
     ensure_parent(out_json)
     out_json.write_text(json.dumps(record, indent=2))
 
     ts = pd.DataFrame(result.timeseries)
     ts.index.name = "day"
-    ts.to_parquet(run_timeseries(cfg.network.region, combo, cfg.run_id))
+    ts.to_parquet(run_timeseries(cfg.network.region, combo, cfg.label))
     return record
