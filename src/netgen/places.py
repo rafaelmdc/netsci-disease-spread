@@ -14,11 +14,16 @@ Two assignment routes, in order of authority:
    alternate names, disambiguating same-name cities by proximity). This is
    curated ground truth, not inference, and covers ~93% of air *traffic*.
 2. **Gravity catchment basin (fallback / label-less layers).** When no served
-   city is given (OSM ferry terminals) or the curated town is below GeoNames'
-   15k cutoff, we fall back to geometry: within a catchment radius pick the
-   city maximising population / distance (Heathrow -> London, not the village
-   it sits in) — GLEAM's airport-basin idea (Balcan & Vespignani 2009).
-   Nearest-city snapping, by contrast, fragments and mislabels metro hubs.
+   city is given (OSM ferry terminals) or the curated name doesn't resolve, we
+   fall back to geometry: within a catchment radius pick the city maximising
+   population / distance (Heathrow -> London, not the village it sits in) —
+   GLEAM's airport-basin idea (Balcan & Vespignani 2009). Nearest-city snapping,
+   by contrast, fragments and mislabels metro hubs.
+
+The base node set is GeoNames cities1000 (places >1000 pop, plus admin seats),
+so small towns and islands most airports/ferries serve have a real node. The
+few airports whose served place is below even that floor keep their own node
+(``apt:<IATA>``) in netgen, so no route is ever dropped.
 """
 
 from __future__ import annotations
@@ -33,7 +38,7 @@ from src.netgen.flows import haversine_point
 from src.netgen.regions import in_region
 from src.paths import raw_dir
 
-# GeoNames cities15000.txt columns we use (tab-separated, 19 columns total).
+# GeoNames cities1000.txt columns we use (tab-separated, 19 columns total).
 # Col 3 is the comma-separated multilingual alternate-name list (exonyms like
 # "Cologne"/"Kiev"/"Turin"), which lets us resolve OpenFlights' English city
 # names to the native-named GeoNames node.
@@ -53,7 +58,7 @@ def _norm(s: object) -> str:
 @lru_cache(maxsize=1)
 def _all_cities() -> pd.DataFrame:
     df = pd.read_csv(
-        raw_dir("geonames") / "cities15000.txt",
+        raw_dir("geonames") / "cities1000.txt",
         sep="\t",
         header=None,
         usecols=list(_COLS),
@@ -118,9 +123,12 @@ def snap(
     return out
 
 
-# A name resolved to a node >150 km from its airport is almost certainly a
-# same-name city elsewhere, not the served one — reject and fall back.
-_RESOLVE_MAX_KM = 150.0
+# A curated name resolving to a node >100 km from its airport is almost
+# certainly a same-name city elsewhere (Villafranca in Lunigiana 143 km from
+# Verona's airport), not the served one — reject it and let gravity catchment
+# pick the actual nearby metro. 100 km still admits genuine far-sited airports
+# (Stockholm-Skavsta, 89 km). Validated in scripts/validate_snap.py.
+_RESOLVE_MAX_KM = 100.0
 
 
 def _name_index(cities: pd.DataFrame) -> dict[str, list[int]]:
@@ -146,24 +154,32 @@ def resolve_served_cities(
     """Assign each (served-city *name*, lat, lon) to a GeoNames city_id.
 
     Authoritative route first: match the curated name against city names +
-    alternate names, disambiguating same-name cities by proximity to the point
-    (rejecting matches beyond ``_RESOLVE_MAX_KM``). Where the name doesn't
-    resolve (town below the 15k cutoff, or missing), fall back to the gravity
-    catchment :func:`snap`. Returns ``None`` only if both routes fail.
+    alternate names. Among matches within ``_RESOLVE_MAX_KM`` we pick the one
+    with the highest gravity score ``population / max(distance, floor)`` — the
+    same basin logic as :func:`snap`. That favours the principal city over an
+    administrative sub-entry when they're co-located ("London" -> London 8.9M,
+    not the tiny "City of London" next door) yet still prefers a *nearby*
+    same-name town over a more populous one far away ("Villafranca" -> the one
+    by Verona, not Villafranca in Lunigiana 140 km off). Where the name doesn't
+    resolve at all, fall back to the gravity catchment :func:`snap`. Returns
+    ``None`` only if both routes fail.
     """
     idx = _name_index(cities)
     clat = cities["lat"].to_numpy()
     clon = cities["lon"].to_numpy()
+    cpop = cities["population"].to_numpy(dtype=float)
     ids = cities["city_id"].to_numpy()
     fallback = snap(plat, plon, cities, max_km)
     out: list[str | None] = []
     for name, la, lo, fb in zip(names, plat, plon, fallback, strict=True):
-        rows = idx.get(_norm(name), [])
-        if rows:
+        rows = np.array(idx.get(_norm(name), []), dtype=int)
+        if rows.size:
             d = haversine_point(float(la), float(lo), clat[rows], clon[rows])
-            j = int(d.argmin())
-            if d[j] <= _RESOLVE_MAX_KM:
-                out.append(str(ids[rows[j]]))
+            mask = d <= _RESOLVE_MAX_KM
+            if mask.any():
+                near, dn = rows[mask], d[mask]
+                score = cpop[near] / np.maximum(dn, _DIST_FLOOR_KM)
+                out.append(str(ids[near[int(score.argmax())]]))
                 continue
         out.append(fb)  # gravity-catchment fallback (may itself be None)
     return out

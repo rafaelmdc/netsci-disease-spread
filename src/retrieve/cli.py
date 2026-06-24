@@ -19,7 +19,7 @@ def openflights() -> None:
 
 @app.command()
 def geonames() -> None:
-    """Download GeoNames cities15000 (the canonical city node set)."""
+    """Download GeoNames cities1000 (the canonical city node set)."""
     typer.echo(f"retrieved GeoNames cities -> {fetch_geonames()}")
 
 

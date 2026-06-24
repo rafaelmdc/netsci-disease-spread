@@ -58,7 +58,8 @@ topology, invalidating the degree–betweenness comparison. So:
 See [`METHODOLOGY.md`](METHODOLOGY.md) § "Comparison-axis consistency".
 
 **Node identity.** Layers share a node set keyed by **city/place** (real
-GeoNames cities, ≥15k). Airports and ferry terminals map onto the city they
+GeoNames cities, **cities1000**: >1k pop plus admin seats, so small towns and
+islands have a real node). Airports and ferry terminals map onto the city they
 *serve* by two routes, in order of authority:
 
 1. **Curated served-city (air).** OpenFlights records a human-curated served
@@ -67,10 +68,12 @@ GeoNames cities, ≥15k). Airports and ferry terminals map onto the city they
    same-name cities by proximity, rejecting hits >150 km). This is ground-truth
    data, not inference, and covers **~93 % of air traffic**.
 2. **Gravity catchment basin (fallback + ferries).** When no served city is
-   given (OSM ferry terminals) or the curated town is below the 15k cutoff, we
-   fall back to geometry: within a 60 km basin pick the city maximising
+   given (OSM ferry terminals) or the curated name doesn't resolve, we fall
+   back to geometry: within a 60 km basin pick the city maximising
    `population / max(distance, 10 km)` — GLEAM's airport-basin idea (Balcan &
-   Vespignani 2009).
+   Vespignani 2009). Airports whose served place is below GeoNames' floor
+   entirely keep their **own node** (`apt:<IATA>`), so no route is ever dropped
+   — this recovered the remote-island air traffic (Oceania 79% → 100%).
 
 Both make all five London airports collapse onto *London*. Plain nearest-city
 snapping does **not**: it put Heathrow on a 63k-pop village and gave the real

@@ -63,7 +63,7 @@ def main(region: str = "europe") -> None:
     resolvable = set(_name_index(cities))
 
     n = len(ap)
-    by_name = by_fallback = dropped = 0
+    by_name = by_fallback = own_node = 0
     tw = tw_named = 0.0
     far_rows = []
     metro_count: Counter[str] = Counter()
@@ -71,7 +71,7 @@ def main(region: str = "europe") -> None:
         w = float(r["traffic"])
         tw += w
         if cid is None:
-            dropped += 1
+            own_node += 1  # kept as its own airport-node (apt:<IATA>), not dropped
             continue
         metro_count[cid] += 1
         if _norm(r["city"]) in resolvable:
@@ -90,10 +90,10 @@ def main(region: str = "europe") -> None:
     print(f"   assigned by curated name : {by_name:>4}/{n}  "
           f"({100*tw_named/tw:.1f}% of traffic)")
     print(f"   gravity-catchment fallback: {by_fallback:>4}/{n}")
-    print(f"   dropped (no city in range): {dropped:>4}/{n}\n")
+    print(f"   own airport-node (apt:IATA): {own_node:>4}/{n}  (remote, below GeoNames floor)\n")
 
     print(f"2. Geometric sanity  (assignments > {_FAR_KM:.0f} km flagged)")
-    print(f"   flagged: {len(far_rows)}/{n - dropped}")
+    print(f"   flagged: {len(far_rows)}/{n - own_node}")
     for t, iata, of, got, d in sorted(far_rows, reverse=True)[:10]:
         print(f"     {iata} trf={t:>3}  '{of}' -> '{got}' ({d:.0f} km)")
 
