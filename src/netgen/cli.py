@@ -5,6 +5,7 @@ from __future__ import annotations
 import typer
 
 from src.config import Layer, NetworkConfig
+from src.experiment import load_experiment_config
 from src.netgen.build import build_network
 from src.netgen.graph_io import write_graphml
 from src.netgen.toy import build_toy_graph
@@ -38,3 +39,20 @@ def build(
         f"{region}/{combo_name([layer.value for layer in layer_list])}: "
         f"{graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges -> {out}"
     )
+
+
+@app.command(name="build-all")
+def build_all(
+    config: str = typer.Option("experiment.yaml", help="master experiment config"),
+) -> None:
+    """Build every (region x layer-set) network named in the experiment config."""
+    exp = load_experiment_config(config)
+    for net in exp.networks():
+        graph = build_network(net)
+        combo = combo_name([layer.value for layer in net.layers])
+        out = processed_graph(net.region, combo)
+        write_graphml(graph, out)
+        typer.echo(
+            f"{net.region}/{combo}: {graph.number_of_nodes()} nodes, "
+            f"{graph.number_of_edges()} edges -> {out}"
+        )

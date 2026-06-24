@@ -30,11 +30,21 @@ For local dev without Docker, `uv sync` reproduces the locked environment.
 
 Every run has a `run_id` = stable hash of its **resolved** pydantic config
 (model, params, strategy, coverage, seed, network, horizon, τ, …) — used for
-dedup/caching. Files are named by a human-readable **`label`** instead, e.g.
-`sir_betweenness_cov75_seed0_7c21a4.json` (model, strategy, coverage, seed +
-a short run_id suffix for uniqueness). `results/summary.csv` (from
-`evaluate collect`) is the human-facing table, led by `label` with rounded
-counts. Never derive either from anything outside the config.
+dedup/caching. On disk a run is a **self-contained folder** named by a
+human-readable **`label`**:
+
+```
+results/<region>/<combo>/<label>/
+    summary.json        # config + network stats + structural + summary
+    timeseries.parquet  # per-day compartment totals
+```
+
+e.g. `results/europe/air/sir_betweenness_cov75_seed0_7c21a4/` — the label is
+`<model>_<strategy>_cov<coverage>_seed<seed>_<run_id[:6]>` (the short run_id
+suffix keeps otherwise-identical labels unique). `evaluate collect` walks
+`results/**/summary.json` into `results/summary.csv`/`.parquet`, the
+human-facing comparison table led by `label` with rounded counts. Never
+derive any of this from anything outside the config.
 
 ## Conventions
 

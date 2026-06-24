@@ -80,8 +80,11 @@ attributes: `id, name, city, country, region, lat, lon, population`.
 **Canonical formats:** networks as `GraphML` (portable, Gephi-readable;
 optional `.gpickle` cache); run outputs as `JSON` (summary + metadata) plus
 `parquet` (per-day time series); visuals as standalone `HTML` (+ `GEXF`).
-Every run is identified by a `run_id` = hash of its resolved config, so a
-run is a pure function of `(config, seed)`.
+Each run lands in its own human-readable folder,
+`results/<region>/<combo>/<label>/{summary.json,timeseries.parquet}`, where
+`label` is `<model>_<strategy>_cov<coverage>_seed<seed>_<run_id[:6]>`. Every
+run is also identified by a `run_id` = hash of its resolved config, so a run
+is a pure function of `(config, seed)`.
 
 ## Design principles
 

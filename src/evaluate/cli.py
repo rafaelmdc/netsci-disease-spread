@@ -21,7 +21,7 @@ app = typer.Typer(help="Module 3: evaluation.")
 
 @app.command()
 def run(config: str = typer.Option(..., help="path to a run YAML config")) -> None:
-    """Load a config, simulate, and write <run_id>.json + timeseries.parquet."""
+    """Load a config, simulate, and write <label>/summary.json + timeseries.parquet."""
     record = run_and_save(load_run_config(config))
     typer.echo(
         f"{record['label']}  peak_infected={record['summary']['peak_infected']:,.0f}"
@@ -123,7 +123,7 @@ def structure(
 def collect(out: str = typer.Option("results/summary.parquet")) -> None:
     """Aggregate every run's JSON into one tidy table for comparison."""
     rows = []
-    for path in sorted(RESULTS.rglob("*.json")):
+    for path in sorted(RESULTS.rglob("summary.json")):
         d = json.loads(path.read_text())
         cfg, summ, struct = d["config"], d["summary"], d["structural"]
         rows.append(

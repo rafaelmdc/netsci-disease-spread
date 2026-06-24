@@ -37,12 +37,17 @@ def results_dir(region: str, combo: str) -> Path:
     return RESULTS / region / combo
 
 
-def run_json(region: str, combo: str, run_id: str) -> Path:
-    return results_dir(region, combo) / f"{run_id}.json"
+def run_dir(region: str, combo: str, label: str) -> Path:
+    """One self-contained folder per run, named by its human-readable label."""
+    return results_dir(region, combo) / label
 
 
-def run_timeseries(region: str, combo: str, run_id: str) -> Path:
-    return results_dir(region, combo) / f"{run_id}_timeseries.parquet"
+def run_json(region: str, combo: str, label: str) -> Path:
+    return run_dir(region, combo, label) / "summary.json"
+
+
+def run_timeseries(region: str, combo: str, label: str) -> Path:
+    return run_dir(region, combo, label) / "timeseries.parquet"
 
 
 def figures_dir(region: str, combo: str) -> Path:
