@@ -31,17 +31,22 @@ def run(config: str = typer.Option(..., help="path to a run YAML config")) -> No
 def sweep(
     config: str = typer.Option("experiment.yaml", help="path to the master experiment config"),
     workers: int = typer.Option(4, help="parallel worker threads"),
+    maps: bool = typer.Option(
+        False, "--maps", help="also record per-node history (node_timeseries.parquet) so the "
+        "explorer can draw every run's animated map with no re-simulation (~2 GB for the full grid)"
+    ),
 ) -> None:
     """Expand the experiment config and run the whole grid, per network."""
     exp = load_experiment_config(config)
     groups = exp.grouped_by_network()
     total = sum(len(v) for v in groups.values())
-    typer.echo(f"running {total} configs across {len(groups)} network(s) ...")
+    typer.echo(f"running {total} configs across {len(groups)} network(s)"
+               f"{' (recording per-node maps)' if maps else ''} ...")
     for (region, combo), cfgs in groups.items():
         graph = read_graphml(processed_graph(region, combo))
         betweenness(graph)  # warm the cache once before threads share the graph
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            list(pool.map(lambda c, g=graph: run_and_save(c, g), cfgs))
+            list(pool.map(lambda c, g=graph: run_and_save(c, g, record_nodes=maps), cfgs))
         typer.echo(f"  {region}/{combo}: {len(cfgs)} runs -> results/{region}/{combo}/")
 
 

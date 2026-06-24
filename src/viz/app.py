@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import dash_bootstrap_components as dbc
 import pandas as pd
-from dash import Dash, Input, Output, State, callback, ctx, dcc, html, no_update
+from dash import Dash, Input, Output, State, callback, dcc, html
 
 from src.evaluate.runner import run_and_save
 from src.paths import RESULTS
@@ -25,10 +25,6 @@ from src.viz.curves_html import curves_figure
 from src.viz.spread_html import spread_figure
 
 _ALL = "— all —"
-
-
-def _find(label: str) -> RunEntry | None:
-    return next((e for e in scan_runs() if e.label == label), None)
 
 
 def _options(values) -> list[dict]:
@@ -47,13 +43,31 @@ def _filtered(df: pd.DataFrame, network: str, model: str, strategy: str) -> pd.D
     return df
 
 
-def _run_label(row: pd.Series) -> str:
-    cov = "" if row["strategy"] == "control" else f" · cov {row['coverage']:.0%}"
-    dot = "●" if row["has_nodes"] else "○"
-    return (
-        f"{dot} {row['network']} · {row['model'].upper()} · "
-        f"{row['strategy']}{cov} · seed {row['seed']}"
+_SEP = "‖"
+
+
+def _group_key(row: pd.Series) -> str:
+    """Stable id for one configuration *across seeds* (the run dropdown unit)."""
+    return _SEP.join(
+        [row["region"], row["combo"], row["model"], row["strategy"], str(row["coverage"])]
     )
+
+
+def _group_label(row: pd.Series) -> str:
+    cov = "" if row["strategy"] == "control" else f" · cov {row['coverage']:.0%}"
+    return f"{row['network']} · {row['model'].upper()} · {row['strategy']}{cov}"
+
+
+def _find_run(group_key: str, seed) -> RunEntry | None:
+    if not group_key or seed is None:
+        return None
+    region, combo, model, strategy, cov = group_key.split(_SEP)
+    cov, seed = float(cov), int(seed)
+    for e in scan_runs():
+        if (e.region == region and e.combo == combo and e.model == model
+                and e.strategy == strategy and abs(e.coverage - cov) < 1e-9 and e.seed == seed):
+            return e
+    return None
 
 
 def _layout() -> dbc.Container:
@@ -66,8 +80,9 @@ def _layout() -> dbc.Container:
         [
             html.H3("Disease-spread results explorer", className="mt-3"),
             html.P(
-                "Browse every simulated run. ● = animated map available, ○ = curves only "
-                "(generate the map on the Outbreak map tab).",
+                "Pick a configuration, then a seed. Runs are deterministic, so the "
+                "outbreak map is the run's real dynamics — rendered (and cached) on first "
+                "view. ● next to a seed = map already cached.",
                 className="text-muted",
             ),
             dbc.Alert(
@@ -92,11 +107,14 @@ def _layout() -> dbc.Container:
                 className="g-2",
             ),
             dbc.Row(
-                dbc.Col([dbc.Label("Run"),
-                         dcc.Dropdown(id="run", clearable=False)], md=12),
+                [
+                    dbc.Col([dbc.Label("Run (model · strategy · coverage)"),
+                             dcc.Dropdown(id="run", clearable=False)], md=9),
+                    dbc.Col([dbc.Label("Seed"),
+                             dcc.Dropdown(id="seed", clearable=False)], md=3),
+                ],
                 className="g-2 mt-1",
             ),
-            dcc.Store(id="gen-signal", data=0),
             dbc.Tabs(
                 [
                     dbc.Tab(label="Outbreak map", tab_id="map"),
@@ -128,16 +146,36 @@ def build_app() -> Dash:
         if df.empty:
             return [], None
         df = df.sort_values(["network", "model", "strategy", "coverage", "seed"])
-        opts = [{"label": _run_label(r), "value": r["label"]} for _, r in df.iterrows()]
+        df = df.drop_duplicates(subset=["region", "combo", "model", "strategy", "coverage"])
+        opts = [{"label": _group_label(r), "value": _group_key(r)} for _, r in df.iterrows()]
         values = {o["value"] for o in opts}
         value = current if current in values else opts[0]["value"]
         return opts, value
 
     @callback(
-        Output("content", "children"),
-        Input("tabs", "active_tab"), Input("run", "value"), Input("gen-signal", "data"),
+        Output("seed", "options"), Output("seed", "value"),
+        Input("run", "value"), State("seed", "value"),
     )
-    def _content(tab, label, _sig):
+    def _seeds(group_key, current):
+        if not group_key:
+            return [], None
+        region, combo, model, strategy, cov = group_key.split(_SEP)
+        cov = float(cov)
+        df = runs_frame()
+        m = ((df["region"] == region) & (df["combo"] == combo) & (df["model"] == model)
+             & (df["strategy"] == strategy) & ((df["coverage"] - cov).abs() < 1e-9))
+        sub = df[m].sort_values("seed")
+        opts = [{"label": f"seed {int(r.seed)}" + (" ●" if r.has_nodes else ""),
+                 "value": int(r.seed)} for _, r in sub.iterrows()]
+        values = {o["value"] for o in opts}
+        value = current if current in values else (opts[0]["value"] if opts else None)
+        return opts, value
+
+    @callback(
+        Output("content", "children"),
+        Input("tabs", "active_tab"), Input("run", "value"), Input("seed", "value"),
+    )
+    def _content(tab, group_key, seed):
         if tab == "compare":
             return _study_fig(RESULTS / "summary.parquet", strategy_comparison_figure,
                               "No runs aggregated yet.")
@@ -145,43 +183,19 @@ def build_app() -> Dash:
             return _gap_table()
         if tab == "spectrum":
             return _spectrum()
-        if not label:
-            return dbc.Alert("Select a run.", color="secondary")
-        entry = _find(label)
+        entry = _find_run(group_key, seed)
         if entry is None:
-            return dbc.Alert("Run not found on disk.", color="danger")
+            return dbc.Alert("Select a run and seed.", color="secondary")
         if tab == "curves":
             ts = pd.read_parquet(entry.timeseries_path)
             return dcc.Graph(figure=curves_figure(ts, title=entry.label), style={"height": "78vh"})
-        # map tab
-        if entry.has_nodes:
-            node_ts = pd.read_parquet(entry.node_timeseries_path)
-            sub = f"{entry.strategy} · seed {entry.seed} · peak {entry.peak:,.0f}"
-            return dcc.Graph(figure=spread_figure(node_ts, title=entry.label, subtitle=sub),
-                             style={"height": "80vh"})
-        return html.Div(
-            [
-                dbc.Alert("This run has no per-node history yet, so the animated map "
-                          "can't be drawn. Generate it (re-simulates this one run):",
-                          color="info"),
-                dbc.Button("⚙ Generate map", id="gen-btn", color="primary"),
-            ]
-        )
-
-    @callback(
-        Output("gen-signal", "data"),
-        Input("gen-btn", "n_clicks"),
-        State("run", "value"), State("gen-signal", "data"),
-        prevent_initial_call=True,
-    )
-    def _generate(n_clicks, label, sig):
-        if not n_clicks or not label or ctx.triggered_id != "gen-btn":
-            return no_update
-        entry = _find(label)
-        if entry is None:
-            return no_update
-        run_and_save(entry.config, record_nodes=True)  # writes node_timeseries.parquet
-        return (sig or 0) + 1
+        # map tab — render the run's per-node history (deterministic; cached on first view)
+        if not entry.has_nodes:
+            run_and_save(entry.config, record_nodes=True)  # materialise this run's map, then cache
+        node_ts = pd.read_parquet(entry.node_timeseries_path)
+        sub = f"{entry.strategy} · seed {entry.seed} · peak {entry.peak:,.0f}"
+        return dcc.Graph(figure=spread_figure(node_ts, title=entry.label, subtitle=sub),
+                         style={"height": "80vh"})
 
     return app
 
