@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
@@ -120,38 +119,41 @@ def structure(
 
 
 @app.command()
-def collect(out: str = typer.Option("results/summary.parquet")) -> None:
-    """Aggregate every run's JSON into one tidy table for comparison."""
-    rows = []
-    for path in sorted(RESULTS.rglob("summary.json")):
-        d = json.loads(path.read_text())
-        cfg, summ, struct = d["config"], d["summary"], d["structural"]
-        rows.append(
-            {
-                "label": d.get("label", d["run_id"]),
-                "region": cfg["network"]["region"],
-                "combo": combo_name([layer for layer in cfg["network"]["layers"]]),
-                "model": cfg["model"]["name"],
-                "beta": cfg["model"]["params"]["beta"],
-                "gamma": cfg["model"]["params"]["gamma"],
-                "strategy": cfg["strategy"]["name"],
-                "budget": cfg["strategy"]["budget"],
-                "coverage": cfg["strategy"]["coverage"],
-                "efficacy": cfg["strategy"]["efficacy"],
-                "tau": cfg["sim"]["tau"],
-                "horizon": cfg["sim"]["horizon"],
-                "seed": cfg["sim"]["seed"],
-                "spearman_deg_btw": round(struct["spearman_deg_btw"], 3),
-                "n_anomalous": len(struct["anomalous_gateways"]),
-                # round counts to whole people for readability
-                **{k: round(v) for k, v in summ.items()},
-            }
-        )
-    if not rows:
+def interdiction(
+    config: str = typer.Option(..., help="run YAML config (use the flagship multilayer network)"),
+    k: int = typer.Option(10, help="how many top airports to close in scenarios D1/D2"),
+) -> None:
+    """Air-interdiction experiment (scenarios A–D): close flight routes and see
+    whether land+water still carry the outbreak. Writes interdiction.html into
+    the network folder. Best run on europe/air+land+water."""
+    from src.evaluate.interdiction import run_scenarios
+    from src.paths import network_figure
+    from src.viz.interdiction_html import interdiction_to_html
+
+    cfg = load_run_config(config)
+    combo = combo_name([layer.value for layer in cfg.network.layers])
+    region = cfg.network.region
+    graph = read_graphml(cfg.network.graph_path or processed_graph(region, combo))
+
+    results = run_scenarios(graph, cfg, k=k)
+    out = interdiction_to_html(
+        results, network_figure(region, combo, "interdiction.html"),
+        title=f"Air interdiction — {region} / {combo}",
+    )
+    for name, r in results.items():
+        typer.echo(f"  {name:42s} peak={r['summary']['peak_infected']:,.0f}")
+    typer.echo(f"wrote {out}")
+
+
+@app.command()
+def collect() -> None:
+    """Aggregate every run's JSON into tidy tables (summary + strategy gap)."""
+    from src.evaluate.aggregate import collect as collect_runs
+
+    df = collect_runs(write=True)
+    if df.empty:
         typer.echo("no results found under results/")
         raise typer.Exit(1)
-    df = pd.DataFrame(rows)
-    out_path = RESULTS / "summary.parquet" if out == "results/summary.parquet" else out
-    df.to_parquet(out_path)
-    df.to_csv(str(out_path).replace(".parquet", ".csv"), index=False)
-    typer.echo(f"collected {len(df)} runs -> {out_path}")
+    typer.echo(f"collected {len(df)} runs -> {RESULTS / 'summary.parquet'}")
+    if (RESULTS / "strategy_gap.parquet").exists():
+        typer.echo(f"wrote degree-vs-betweenness gap -> {RESULTS / 'strategy_gap.parquet'}")

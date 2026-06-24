@@ -10,13 +10,21 @@ import json
 import platform
 
 import networkx as nx
+import numpy as np
 import pandas as pd
 
 from src.config import RunConfig
 from src.evaluate.engine import simulate
 from src.evaluate.metrics import characterize, degree_betweenness
 from src.netgen.graph_io import read_graphml
-from src.paths import combo_name, ensure_parent, processed_graph, run_json, run_timeseries
+from src.paths import (
+    combo_name,
+    ensure_parent,
+    processed_graph,
+    run_json,
+    run_node_timeseries,
+    run_timeseries,
+)
 
 
 def resolve_graph_path(cfg: RunConfig):
@@ -29,11 +37,17 @@ def _combo(cfg: RunConfig) -> str:
     return combo_name([layer.value for layer in cfg.network.layers])
 
 
-def run_and_save(cfg: RunConfig, graph: nx.DiGraph | None = None) -> dict:
+def run_and_save(
+    cfg: RunConfig, graph: nx.DiGraph | None = None, record_nodes: bool = False
+) -> dict:
+    """Simulate one run and persist it. When ``record_nodes`` is set, also
+    write the per-node, per-day infection history (``node_timeseries.parquet``)
+    that the geo-animation consumes — opt-in, since storing per-node x per-day
+    for every run in a sweep would be wasteful."""
     if graph is None:
         graph = read_graphml(resolve_graph_path(cfg))
 
-    result = simulate(graph, cfg)
+    result = simulate(graph, cfg, record_nodes=record_nodes)
     combo = _combo(cfg)
 
     record = {
@@ -55,4 +69,29 @@ def run_and_save(cfg: RunConfig, graph: nx.DiGraph | None = None) -> dict:
     ts = pd.DataFrame(result.timeseries)
     ts.index.name = "day"
     ts.to_parquet(run_timeseries(cfg.network.region, combo, cfg.label))
+
+    if record_nodes and result.node_infectious is not None:
+        _save_node_timeseries(graph, result, cfg.network.region, combo, cfg.label)
     return record
+
+
+def _save_node_timeseries(graph, result, region: str, combo: str, label: str) -> None:
+    """Tidy long table [day, node, name, lat, lon, infectious] for animation.
+
+    Nodes that never carry infection are dropped (they only bloat the file);
+    the network backdrop is drawn from the graph itself by the viz layer."""
+    inf = np.array(result.node_infectious)  # (days, n_nodes)
+    keep = inf.max(axis=0) > 0.5  # at least one whole person, at some point
+    nodes = result.nodes
+    days, idx = inf.shape[0], np.where(keep)[0]
+    name = {n: str(graph.nodes[n].get("name", n)) for n in nodes}
+    lat = {n: float(graph.nodes[n].get("lat", 0.0)) for n in nodes}
+    lon = {n: float(graph.nodes[n].get("lon", 0.0)) for n in nodes}
+
+    frames = []
+    for d in range(days):
+        for i in idx:
+            n = nodes[i]
+            frames.append((d, n, name[n], lat[n], lon[n], float(inf[d, i])))
+    df = pd.DataFrame(frames, columns=["day", "node", "name", "lat", "lon", "infectious"])
+    df.to_parquet(run_node_timeseries(region, combo, label))

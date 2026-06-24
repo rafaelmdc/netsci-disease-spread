@@ -11,19 +11,30 @@
 # efficacies) x beta_scales x taus x horizons x seeds.
 # ===========================================================================
 
-# --- Geography: which regions to run -----------------------------------------
-# europe | americas | asia | africa | oceania | world  (add more for Slice 5)
-regions:
-  - europe
+# --- Geography & substrate: the 8 networks we build & study ------------------
+# Explicit `networks` list (overrides regions x layer_sets). The substrate is
+# deliberately ASYMMETRIC, see docs/EXPERIMENTS.md:
+#   * air-only across every region  -> fair cross-region comparison (uniform
+#     OpenFlights data everywhere => differences reflect topology, not data);
+#   * air+land+water for EUROPE only -> the multilayer flagship, where ground
+#     and ferry flow data is dense enough to be defensible (validated vs
+#     Eurostat). Europe also gets the air and air+land rungs so the ladder
+#     (air -> +land -> +water) is an apples-to-apples comparison.
+networks:
+  # -- Europe ladder (same region, more realism each step) --
+  - {region: europe,   layers: [air, land, water]}   # 1 (flagship)
+  - {region: europe,   layers: [air, land]}          # 2
+  - {region: europe,   layers: [air]}                # 3  (shared pivot)
+  # -- Cross-region spectrum (same layer everywhere, fair comparison) --
+  - {region: americas, layers: [air]}                # 4
+  - {region: asia,     layers: [air]}                # 5
+  - {region: africa,   layers: [air]}                # 6
+  - {region: oceania,  layers: [air]}                # 7
+  - {region: world,    layers: [air]}                # 8
 
-# --- Substrate: which transport-layer combinations to run --------------------
-# air, land and water are all implemented (real data + city nodes). Each inner
-# list is one network, e.g. [air], [air, land], [air, land, water]. Add more
-# lists to compare combinations side by side.
-layer_sets:
-  - [air]
-  # - [air, land]
-  # - [air, land, water]
+# Legacy cartesian axes (ignored while `networks` above is set; kept as docs).
+regions:    [europe]
+layer_sets: [[air]]
 
 # --- Population proxy (fallback only) -----------------------------------------
 # Real GeoNames city populations are used for nodes; this proxy
@@ -41,7 +52,9 @@ models:
   sqir: {beta: 0.32, gamma: 0.12, kappa: 0.15, gamma_q: 0.1}
 
 # --- Vaccination strategies --------------------------------------------------
-strategies: [control, random, degree, betweenness, kcore, subgraph]
+# Blueprint set (control, random, degree, betweenness) + subgraph (novelty).
+# kcore available in the registry but excluded to keep the grid focused.
+strategies: [control, random, degree, betweenness, subgraph]
 budgets:    [15]            # number of cities immunised
 coverages:  [0.01, 0.75]    # low vs high adherence (blueprint comparison)
 efficacies: [0.85]

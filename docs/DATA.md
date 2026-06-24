@@ -10,17 +10,19 @@ source here so the pipeline is reproducible from scratch.
 | Source | OpenFlights — <https://openflights.org/data.html> |
 | Files | `airports.dat`, `routes.dat` |
 | License | OpenFlights / ODbL-style; see their site, attribute on use |
-| Nodes | Airports (filtered to Europe) |
+| Nodes | **GeoNames cities** that airports map onto (see node identity below) |
 | Edges | Routes; weight = flight frequency proxy |
 | Notes | Static snapshot; no timetable/temporal info |
 
-**Population proxy.** Airports have no population field, so we estimate it
-from degree: `pop(v) = 150_000 + degree(v) * 45_000`. This is an
-assumption (more routes ⇒ bigger city), not ground truth — flag it as a
-limitation and consider replacing with real city population (e.g.
-GeoNames / Eurostat) joined by airport→city.
+**Population is real, not a proxy.** Nodes are GeoNames cities
+(**cities1000**: >1k population plus admin seats), so each node carries a
+**real** population. Airports map onto the city they serve (next section). The
+degree-based `pop(v) = p0 + degree(v)·p_route` in `experiment.yaml` is only a
+*fallback* for the rare node that still lacks a real population — not the
+default. (Earlier versions keyed nodes by airport and estimated population from
+degree; that was replaced.)
 
-## Planned: ground & sea layers (multimodal)
+## Ground & sea layers (multimodal)
 
 Adding boat and ground networks is feasible **and supported by published
 work** — each modality has been studied as a transmission network in its
@@ -115,10 +117,12 @@ goal vs the core Europe/air result.
 ## Reproducing the data step
 
 ```bash
-python -m src.retrieve.openflights        # MODULE 1 → data/raw/air/
-python -m src.netgen.build --region europe --layers air \
-    --out data/processed/europe/air.graphml   # MODULE 2: filter + weight + populate
+netsci retrieve openflights               # MODULE 1 → data/raw/air/
+netsci retrieve geonames                  # cities1000 → data/raw/geonames/
+netsci retrieve ferries                   # OSM ferry routes → data/raw/water/
+netsci netgen build-all                   # MODULE 2: every network in experiment.yaml
+# or one network:  netsci netgen build --region europe --layers air
 ```
 
 Record the download date and any source version in
-`data/raw/PROVENANCE.txt` (the data itself is not committed).
+`data/raw/<layer>/PROVENANCE.txt` (the data itself is not committed).

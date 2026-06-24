@@ -6,19 +6,18 @@ from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 from src.paths import ensure_parent
+from src.viz.assets import plotlyjs_ref
 
 
-def strategy_comparison_html(summary: pd.DataFrame, path: str | Path) -> Path:
+def strategy_comparison_figure(summary: pd.DataFrame) -> go.Figure:
     """Grouped bars: mean peak infections per model, per strategy.
 
     Averaged over seeds; non-control strategies shown at high coverage so the
     comparison is like-for-like. Lower bars = better containment.
     """
-    path = Path(path)
-    ensure_parent(path)
-
     hi = summary["coverage"].max()
     df = summary[(summary["strategy"] == "control") | (summary["coverage"] == hi)]
     agg = (
@@ -40,15 +39,55 @@ def strategy_comparison_html(summary: pd.DataFrame, path: str | Path) -> Path:
         text="Lower is better; targeted strategies should sit below control/random.",
         xref="paper", yref="paper", x=0, y=1.08, showarrow=False, font=dict(size=11),
     )
-    fig.write_html(str(path), include_plotlyjs="inline")
+    return fig
+
+
+def strategy_comparison_html(summary: pd.DataFrame, path: str | Path) -> Path:
+    path = Path(path)
+    ensure_parent(path)
+    strategy_comparison_figure(summary).write_html(str(path), include_plotlyjs=plotlyjs_ref(path))
     return path
 
 
-def region_spectrum_html(structure: pd.DataFrame, path: str | Path) -> Path:
-    """Bar chart of rho(degree, betweenness) per region — the centrality
-    spectrum from correlated (US-like) to anomalous (worldwide-like)."""
+def strategy_panel_figure(summary: pd.DataFrame, title: str = "") -> go.Figure:
+    """One network's deliverable panel: a facet per disease model, bars over
+    strategies, split by coverage. Averaged over seeds; lower = better
+    containment. This is the cell-grid read across models for a fixed network.
+    """
+    df = summary.copy()
+    df["coverage_label"] = df.apply(
+        lambda r: "control" if r["strategy"] == "control" else f"{r['coverage']:.0%} coverage",
+        axis=1,
+    )
+    agg = (
+        df.groupby(["model", "strategy", "coverage_label"], as_index=False)["peak_infected"]
+        .mean()
+    )
+    fig = px.bar(
+        agg.sort_values("model"),
+        x="strategy", y="peak_infected", color="coverage_label",
+        facet_col="model", facet_col_wrap=2, barmode="group",
+        title=title or "Peak infections by strategy, per disease model",
+        labels={"peak_infected": "mean peak infected", "coverage_label": "coverage"},
+        template="plotly_white",
+    )
+    fig.update_layout(height=760)
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1].upper()))
+    return fig
+
+
+def strategy_panel_html(summary: pd.DataFrame, path: str | Path, title: str = "") -> Path:
     path = Path(path)
     ensure_parent(path)
+    strategy_panel_figure(summary, title=title).write_html(
+        str(path), include_plotlyjs=plotlyjs_ref(path)
+    )
+    return path
+
+
+def region_spectrum_figure(structure: pd.DataFrame) -> go.Figure:
+    """Bar chart of rho(degree, betweenness) per region — the centrality
+    spectrum from correlated (US-like) to anomalous (worldwide-like)."""
     df = structure.sort_values("spearman_deg_btw", ascending=False)
     fig = px.bar(
         df,
@@ -64,5 +103,11 @@ def region_spectrum_html(structure: pd.DataFrame, path: str | Path) -> Path:
         "lower = worldwide-like (anomalous gateways).",
         xref="paper", yref="paper", x=0, y=1.08, showarrow=False, font=dict(size=11),
     )
-    fig.write_html(str(path), include_plotlyjs="inline")
+    return fig
+
+
+def region_spectrum_html(structure: pd.DataFrame, path: str | Path) -> Path:
+    path = Path(path)
+    ensure_parent(path)
+    region_spectrum_figure(structure).write_html(str(path), include_plotlyjs=plotlyjs_ref(path))
     return path

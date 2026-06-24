@@ -2,28 +2,28 @@
 
 Living document. Tracks what exists, what's next, and open decisions.
 
-## Status (2026-06-23)
+## Status (2026-06-24)
 
 | Area | Status |
 |------|--------|
 | Project blueprint | ✅ in `docs/sources/` |
 | Paper draft (KDD) | ✅ `docs/tex/main.tex` compiles (4 pp.) |
-| Literature review | ✅ `docs/literature-review.md` (verified refs) |
-| Design docs | ✅ architecture, data, methodology |
-| Implementation plan | ✅ approved (uv, city-nodes, Nextflow+Docker, ORCA) |
-| Slice 0 (skeleton + Docker) | ✅ toy pipeline runs end-to-end on host and in Docker |
-| Slice 1 (Europe/air MVP) | ✅ real network, 4 models, ρ(deg,btw)=0.90 |
-| Slice 2 (sweep + operating-point) | ✅ experiment.yaml, parallel sweep, horizon=210 (defensible) |
-| Slice 3 (subgraph/core + verify) | ✅ kcore/subgraph strategies, threshold verification |
-| Slice 4 (multimodal) | 🟡 land via radiation model; water + OSM/GRIP topology = GAPS |
-| Slice 5 (multi-region) | ✅ cross-region spectrum (Europe correlated → Oceania anomalous) |
-| Slice 6 (viz + paper) | 🟡 comparison/spectrum plots + paper results wired; geo-anim = GAP |
-| Tests | ✅ 40 passing, ruff clean |
+| Literature review | ✅ `docs/literature-review.md` (verified refs; Tanaka→Sun fixed) |
+| Design docs | ✅ architecture, data, methodology, experiments, visualization |
+| Slice 0 (skeleton) | ✅ toy pipeline runs end-to-end |
+| Slice 1 (Europe/air MVP) | ✅ real network, 4 models, ρ(deg,btw)≈0.89 |
+| Slice 2 (sweep + operating-point) | ✅ experiment.yaml (8 networks), parallel sweep, horizon=210 |
+| Slice 3 (subgraph/core + verify) | ✅ subgraph strategy, threshold verification |
+| Slice 4 (multimodal) | 🟡 air+land+water built for Europe; water + OSM/GRIP global coverage = GAPS |
+| Slice 5 (multi-region) | ✅ cross-region spectrum (FDR anomalous-gateway detection) |
+| Slice 6 (viz + explorer) | ✅ animated map, structure, panels, interdiction, navigable site, **one-tab Dash app** |
+| Air-interdiction experiment | ✅ scenarios A–D (`netsci evaluate interdiction`) |
+| Tests | ✅ 70 passing, ruff clean |
 
-> **Open gaps for the iterate pass:** water layer + real OSM/GRIP rail/road
-> topology + Eurostat validation (Slice 4); per-layer travel rates;
-> geo-animated outbreak HTML; ORCA graphlets (subgraph uses triangles for now);
-> finer Nextflow per-config fan-out; exact bond-percolation final-size check.
+> **Open gaps:** real OSM/GRIP rail/road topology + Eurostat validation (land
+> currently radiation-model); ORCA graphlets (subgraph uses k-core/triangles);
+> running the full cross-region sweep (only Europe graphs built so far);
+> refreshing paper Table 1 on the corrected networks.
 
 > Build proceeds as **vertical slices** (each runs end-to-end). See the
 > approved plan for the full slice list; phases below mirror it.
@@ -53,9 +53,10 @@ Living document. Tracks what exists, what's next, and open decisions.
 - [x] `viz`: interactive HTML network + curves (Europe rendered).
 - [ ] First paper figures + fill Table 1 (Slice 6).
 
-> **First real result:** Europe air ρ(degree, betweenness) ≈ **0.90** with
-> ~9 anomalous gateways (e.g. Kittilä, Isles of Scilly, Newquay) — high
-> correlation (US-like) but with worldwide-like peripheral gateways.
+> **First real result:** Europe air ρ(degree, betweenness) ≈ **0.89** with
+> a handful of FDR-significant anomalous gateways (e.g. Kittilä, Ivalo,
+> Lycksele, Vilhelmina) — high correlation (US-like) but with worldwide-like
+> remote peripheral gateways.
 > **Science fix:** betweenness is computed **unweighted** (edge `weight` is
 > flight frequency, not a distance).
 
@@ -65,12 +66,13 @@ Living document. Tracks what exists, what's next, and open decisions.
       stable (see `METHODOLOGY.md`).
 - [ ] Low (1%) vs high (75%) coverage comparison.
 
-### Phase 2b — Interactive visualizers (**must**, graded highly)
-- [ ] `pyvis` interactive network (hubs, communities, node state).
-- [ ] `plotly` epidemic curves (HTML, toggle strategies).
-- [ ] Geo-animated outbreak over the horizon (`pydeck`/`kepler.gl`/Leaflet).
-- [ ] Combined standalone HTML dashboard per region/combination.
-      See [`ARCHITECTURE.md`](ARCHITECTURE.md) § Interactive visualization.
+### Phase 2b — Interactive visualizers (**must**, graded highly) — done
+- [x] `pyvis` interactive network (geographic layout, vaccinated nodes).
+- [x] `plotly` epidemic curves (HTML).
+- [x] Geo-animated outbreak over the horizon (`plotly` geo, play + slider).
+- [x] Navigable co-located static site (`netsci viz site`) + **one-tab Dash
+      explorer** (`netsci viz app`) that builds its own tables on launch.
+      See [`VISUALIZATION.md`](VISUALIZATION.md).
 
 ### Phase 3 — Multimodal layers
 - [ ] `retrieve`/`netgen` for land (commuting/rail) and water (ferry).
@@ -79,7 +81,7 @@ Living document. Tracks what exists, what's next, and open decisions.
 
 ### Phase 4 — Multi-region
 - [ ] Region axis: Europe → North America, Asia, Africa, Oceania, World.
-- [ ] Cross-region centrality-regime comparison (Tanaka↔Guimerà spectrum).
+- [ ] Cross-region centrality-regime comparison (Sun↔Guimerà spectrum).
 
 ### Phase 5 — Stretch
 - [ ] Temporal network (timetables) — `holme:temporal`.
@@ -89,8 +91,8 @@ Living document. Tracks what exists, what's next, and open decisions.
 
 | # | Decision | Options | Lean |
 |---|----------|---------|------|
-| 1 | Workflow engine | Nextflow vs Makefile vs Python sweep | Nextflow if cluster access; Makefile fallback |
-| 2 | Tanaka 2014 reference | get full citation & verify | **blocking** — needed for novelty framing |
+| 1 | Workflow engine | Nextflow vs Python sweep | ✅ local `typer` sweep implemented; Nextflow optional |
+| 2 | ~~Tanaka 2014 reference~~ | ✅ **resolved** — replaced by verified Sun, Hu & Zhu (2023), `sun:anomalous` | done |
 | 3 | Per-model R₀ / rates | which literature values | fill Table 1 with cited ranges |
 | 4 | Population proxy | degree-based vs real city pop (GeoNames) | start degree-based, note as limitation |
 | 5 | Graphlet tooling | ORCA vs graph-tool vs networkx | decide when Phase 2 starts |

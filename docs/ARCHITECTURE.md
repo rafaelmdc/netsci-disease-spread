@@ -1,7 +1,9 @@
 # Architecture
 
-How the pipeline is organised and why. This is the **intended** design;
-implementation status is tracked in [`ROADMAP.md`](ROADMAP.md).
+How the pipeline is organised and why. The design below is **implemented**;
+status and remaining gaps are tracked in [`ROADMAP.md`](ROADMAP.md), the
+experiment design in [`EXPERIMENTS.md`](EXPERIMENTS.md), and the outputs in
+[`VISUALIZATION.md`](VISUALIZATION.md).
 
 ## Three-module pipeline
 
@@ -38,8 +40,8 @@ evaluations* — making layer combinations a first-class, comparable axis.
 |----------------|----------------|-----------------|----------|
 | **1. `retrieve`** | Pull raw data per modality (air/land/water), record provenance. One sub-fetcher per source. | `data/raw/<layer>/` + `PROVENANCE.txt` | `pandas`, `requests`, `osmnx` |
 | **2. `netgen`** | Filter to a **region**, map each layer onto a shared node set, weight edges, assign populations, then emit **every layer combination** as a tagged multilayer graph | `data/processed/<region>/<combo>.graphml` (the *X networks*) | `networkx` |
-| **3. `evaluate`** | For each network: run epidemic models, vaccination strategies, and structural metrics; emit one record per (network × model × strategy) | `results/<combo>/<run>.json` (the *X evaluations*) | `numpy`, `networkx` |
-| `viz` (shared) | Static plots **and interactive HTML** (graded deliverable, see below) | `figures/`, `*.gexf`, `*.html` | `matplotlib`, `pyvis`, `plotly`, `pydeck`/`kepler.gl` |
+| **3. `evaluate`** | For each network: run epidemic models, vaccination strategies, structural metrics, and the air-interdiction experiment; aggregate to study tables | `results/<region>/<combo>/<label>/{summary.json,timeseries.parquet}` + `summary`/`strategy_gap`/`structure` parquet | `numpy`, `networkx` |
+| `viz` (shared) | Interactive standalone HTML **and a one-tab Dash explorer** (graded deliverable, see below) | co-located `*.html` under `results/` + `netsci viz app` | `pyvis`, `plotly`, `dash` |
 
 ### Why this shape
 
@@ -67,8 +69,10 @@ evaluations* — making layer combinations a first-class, comparable axis.
 ## Stack & node identity
 
 **Stack:** Python 3.12, `uv` (lockfile), `pydantic` configs, `typer` CLIs,
-`networkx`/`numpy`/`pandas`, `pyvis`/`plotly`/`pydeck` for HTML viz, ORCA
-(compiled) for graphlets, Nextflow + Docker for the sweep, `pytest`/`ruff`.
+`networkx`/`numpy`/`pandas`, `pyvis`/`plotly` for HTML viz, `dash` for the
+interactive explorer, `pytest`/`ruff`. A local `typer` sweep
+(`concurrent.futures`) is the supported orchestrator; `Dockerfile` and
+`nextflow.config` are optional scaffolding for cluster runs.
 
 **Node identity (canonicalization).** Combining layers requires a shared
 node set, so nodes are keyed by **city/place** (real GeoNames cities), not by
@@ -105,14 +109,15 @@ is a pure function of `(config, seed)`.
 - **Determinism.** Every run takes an explicit RNG seed; results are a
   pure function of `(config, seed)`.
 
-## Why Nextflow for the sweep
+## Orchestrating the sweep
 
-The experiment is a Cartesian product:
-`{regions} × {≤7 layer combinations} × {4 models} × {4 strategies} ×
-{coverage levels} × {seeds}`. That is many independent, embarrassingly
-parallel jobs that must be reproducible and re-runnable without redoing
-finished work. Stage 2 emits the networks; Nextflow fans Stage 3 out over
-them.
+The experiment is `{8 networks} × {4 models} × {5 strategies} ×
+{coverage levels} × {seeds}` — many independent, embarrassingly parallel jobs
+(see [`EXPERIMENTS.md`](EXPERIMENTS.md)). The **implemented** orchestrator is
+`netsci evaluate sweep`: it groups runs by network so each graph (and its
+cached betweenness) loads once, then fans the runs out over a thread pool.
+`Nextflow`/`Docker` remain optional for cluster-scale runs; the rationale for
+that path:
 
 - **Parallelism + caching:** Nextflow runs independent simulations
   concurrently and `-resume` skips completed ones.
@@ -128,21 +133,26 @@ see [`ROADMAP.md`](ROADMAP.md) for the decision.
 
 ## Interactive visualization (graded deliverable)
 
-Interactive, browser-based visuals are an explicit grading criterion, so
-`viz` must emit self-contained **HTML**, not only static figures. Planned
-outputs, cheapest → richest:
+Interactive, browser-based visuals are an explicit grading criterion. `viz`
+emits self-contained **HTML** and a **one-tab Dash explorer**. Implemented
+outputs (full detail in [`VISUALIZATION.md`](VISUALIZATION.md)):
 
-| Output | Tool | Shows |
-|--------|------|-------|
-| Interactive network | `pyvis` (NetworkX → HTML/vis.js) | hubs, communities, vaccinated nodes, node state colouring |
-| Epidemic curves | `plotly` (HTML) | compartment time series with hover/zoom; toggle strategies |
-| Geo-animated outbreak | `pydeck`/`kepler.gl` or Leaflet+D3 | infection spreading across the map over the 75-day horizon |
-| Strategy/region comparison | `plotly` small-multiples | curves per strategy, per layer combination, per region |
+| Output | Module | Shows |
+|--------|--------|-------|
+| Interactive network | `network_html.py` (pyvis) | hubs on a geographic layout, vaccinated nodes |
+| Epidemic curves | `curves_html.py` (plotly) | compartment time series, hover/zoom |
+| Animated outbreak map | `spread_html.py` (plotly geo) | infection spreading across the map, play button + day slider |
+| Degree–betweenness structure | `structure_html.py` | per-node degree vs betweenness, anomalous gateways flagged |
+| Strategy / region comparison | `compare_html.py` | strategy panel, region spectrum |
+| Air-interdiction | `interdiction_html.py` | scenarios A–D (close flights, watch land/water carry it) |
+| **One-tab explorer** | `app.py` (Dash) | all of the above, browseable; builds its tables on launch |
 
-Conventions: outputs are **standalone `.html`** (no server needed) written
-to `figures/<region>/<combo>/`, one per run plus a combined dashboard, so
-they can be opened directly or embedded. Gephi `.gexf` export stays for the
-static, high-control figures that go in the paper.
+Conventions: outputs are **standalone `.html`** written **inside the run/network
+folder they describe** (no separate `figures/` tree), referencing one shared
+`plotly.min.js` at the results root so files stay small and offline. Each level
+has an `index.html` (`netsci viz site`); the Dash app (`netsci viz app`) is the
+interactive shell over the same precomputed data. Node coordinates make every
+network view a real map; `.gexf`/GraphML export stays for Gephi figures.
 
 ## Multimodal substrate (planned extension)
 

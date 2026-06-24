@@ -19,6 +19,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from src.paths import ensure_parent
+from src.viz.assets import plotlyjs_ref
 
 _GLOSSARY = {
     "S": "Susceptible (can catch it)",
@@ -31,15 +32,12 @@ _GLOSSARY = {
 _ACTIVE = ("E", "I", "Q")
 
 
-def curves_to_html(
+def curves_figure(
     timeseries: pd.DataFrame,
-    path: str | Path,
     title: str = "Epidemic curves",
     subtitle: str = "",
-) -> Path:
-    path = Path(path)
-    ensure_parent(path)
-
+) -> go.Figure:
+    """Build the two-panel compartment figure (shared by HTML export + Dash)."""
     cols = list(timeseries.columns)
     active = [c for c in _ACTIVE if c in cols]
 
@@ -81,5 +79,18 @@ def curves_to_html(
     fig.update_xaxes(title_text="day", row=2, col=1)
     fig.update_yaxes(title_text="people", row=1, col=1)
     fig.update_yaxes(title_text="people", row=2, col=1)
-    fig.write_html(str(path), include_plotlyjs="inline")
+    return fig
+
+
+def curves_to_html(
+    timeseries: pd.DataFrame,
+    path: str | Path,
+    title: str = "Epidemic curves",
+    subtitle: str = "",
+) -> Path:
+    """Write the compartment figure as a standalone HTML file."""
+    path = Path(path)
+    ensure_parent(path)
+    fig = curves_figure(timeseries, title=title, subtitle=subtitle)
+    fig.write_html(str(path), include_plotlyjs=plotlyjs_ref(path))
     return path

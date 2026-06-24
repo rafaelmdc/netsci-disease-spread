@@ -16,7 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.config import (
     Layer,
@@ -37,10 +37,28 @@ class Population(BaseModel):
     p_route: int = 45_000
 
 
+class NetworkSpec(BaseModel):
+    """One explicit network to build/run: a region with a specific layer set.
+
+    Listing networks explicitly (vs the regions x layer_sets cartesian product)
+    lets the substrate be *asymmetric* — e.g. air-only across every region for
+    the fair cross-region comparison, but air+land+water for Europe only, where
+    the ground/ferry flow data is dense enough to be defensible.
+    """
+
+    region: str
+    layers: list[Layer]
+
+
 class ExperimentConfig(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     # --- geography & substrate ---
     regions: list[str] = Field(default_factory=lambda: ["europe"])
     layer_sets: list[list[Layer]] = Field(default_factory=lambda: [[Layer.AIR]])
+    # Explicit network list; when given it OVERRIDES regions x layer_sets, so
+    # the substrate can be asymmetric across regions (YAML key: `networks`).
+    networks_spec: list[NetworkSpec] | None = Field(default=None, alias="networks")
     population: Population = Field(default_factory=Population)
     # --- models (which to run + their parameters) ---
     models: dict[ModelName, ModelParams]
@@ -69,6 +87,10 @@ class ExperimentConfig(BaseModel):
     seed_size: int = 2500
 
     def networks(self) -> list[NetworkConfig]:
+        if self.networks_spec is not None:
+            pairs = [(s.region, s.layers) for s in self.networks_spec]
+        else:
+            pairs = [(r, ls) for r in self.regions for ls in self.layer_sets]
         return [
             NetworkConfig(
                 region=region,
@@ -76,8 +98,7 @@ class ExperimentConfig(BaseModel):
                 p0=self.population.p0,
                 p_route=self.population.p_route,
             )
-            for region in self.regions
-            for layers in self.layer_sets
+            for region, layers in pairs
         ]
 
     def expand(self) -> list[RunConfig]:

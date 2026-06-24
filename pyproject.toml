@@ -28,6 +28,11 @@ geo = [
 geoviz = [
     "pydeck>=0.8",
 ]
+# Interactive results explorer — the one-tab Dash app (`netsci viz app`).
+app = [
+    "dash>=2.16",
+    "dash-bootstrap-components>=1.5",
+]
 
 [dependency-groups]
 dev = [

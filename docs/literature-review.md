@@ -104,12 +104,17 @@ literature is the citable backing for that claim.
   `balcan:multiscale`. Couples air travel with short-range commuting in a
   metapopulation model (GLEAM lineage). Future direction if we add ground
   transport.
-- **⚠ UNVERIFIED — "Tanaka (2014)" — US airport network, degree ≈
-  betweenness.** `tanaka:centrality`. Claimed finding: in the US domestic
-  network, big hubs *are* the main bridges, so degree and betweenness are
-  highly correlated and degree- vs betweenness-targeted immunisation give
-  near-identical results. **Action:** get the full citation (authors,
-  title, venue, DOI) from the intro / NotebookLM and verify before use.
+- **Sun, Hu & Zhu (2023), *Eur. Phys. J. Plus* — centrality anomalies in the
+  US domestic air network.** `sun:anomalous`. **The correlated pole of our
+  contrast** (replaces the unverifiable "Tanaka 2014" placeholder, which on
+  checking turned out to be an economic-geography paper, not a centrality one).
+  Builds a false-discovery-rate benchmark and finds betweenness anomalies in
+  the US domestic network are **not statistically significant** over 1995–2020
+  — and vanish once link weights are used — i.e. big hubs *are* the bridges, so
+  degree ≈ betweenness and the two immunisation strategies coincide. Explicitly
+  contrasts this with the *worldwide* network's pronounced anomalies (Guimerà).
+  ⇒ the US end of the US-like ↔ worldwide-like spectrum, with a published
+  anomaly-significance method we mirror in `metrics.anomalous_gateways`.
 
 ## 3b. Multimodal: ground, rail & sea layers
 
@@ -212,7 +217,7 @@ testable angle:
    in the literature (most work is worldwide or US).
 2. **The degree–betweenness question for Europe.** There are two regimes
    in the literature:
-   - *US-like / correlated* (⚠ Tanaka 2014): hubs are also bridges ⇒
+   - *US-like / correlated* (Sun, Hu & Zhu 2023): hubs are also bridges ⇒
      degree ≈ betweenness ⇒ the two immunisation strategies coincide.
    - *Worldwide-like / anomalous* (Guimerà 2005): community + geopolitical
      structure creates low-degree, high-betweenness gateways ⇒ the

@@ -55,3 +55,24 @@ def test_metrics_on_toy():
     db = degree_betweenness(g)
     assert char["n_nodes"] == 12
     assert -1.0 <= db["spearman_deg_btw"] <= 1.0
+
+
+def test_fdr_flags_low_degree_bridge():
+    """A degree-2 node joining two dense clusters should surface as anomalous
+    (high betweenness for its degree); the dense-cluster hubs should not."""
+    import networkx as nx
+
+    from src.evaluate.metrics import anomalous_gateways
+
+    g = nx.DiGraph()
+    for prefix in ("L", "R"):
+        members = [f"{prefix}{i}" for i in range(8)]
+        for a in members:
+            for b in members:
+                if a != b:
+                    g.add_edge(a, b)  # fully-connected cluster => high-degree hubs
+    for u, v in [("L0", "BRIDGE"), ("BRIDGE", "L0"), ("BRIDGE", "R0"), ("R0", "BRIDGE")]:
+        g.add_edge(u, v)  # the only path between clusters runs through BRIDGE
+
+    anomalous = anomalous_gateways(g, fdr_q=0.1)
+    assert "BRIDGE" in anomalous  # low degree, but all inter-cluster paths cross it

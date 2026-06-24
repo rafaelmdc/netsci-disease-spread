@@ -7,24 +7,35 @@ at future-us and any collaborator picking this up cold.
 
 - **A run is a pure function of `(config, seed)`.** No hidden global state,
   no un-seeded randomness. Every stochastic call takes an explicit RNG.
-- **Configs are the source of truth.** One YAML in `configs/` fully
-  specifies a run (region, layers, model, params, strategy, coverage,
-  efficacy, seed). No magic numbers in code.
+- **Config is the source of truth.** `experiment.yaml` at the repo root is the
+  master config — the 8 networks and the whole sweep grid (regions, layers,
+  models, params, strategies, coverages, sensitivity axes, seeds). A single run
+  can also be specified by a small YAML for `netsci evaluate run`. No magic
+  numbers in code.
 - **Data is never committed.** `data/` and `results/` are git-ignored;
-  reproduce them via `src/retrieve` + the workflow. Record source versions
+  reproduce them via `src/retrieve` + the pipeline. Record source versions
   in `data/raw/<layer>/PROVENANCE.txt`.
-- **Pin the environment.** Lock dependencies (`requirements.txt` /
-  `pyproject.toml` + lockfile). Record Python and key library versions.
+- **Pin the environment.** Dependencies are pinned in `pyproject.toml`
+  (+ `uv.lock`); the `app` extra adds the Dash explorer.
 
-## Docker workflow
+## Environment
 
-The container is the source of truth for the environment — no manual
-installs. Build once with `docker compose build`; run any module with
-`docker compose run --rm app <command>` (the `app` service entrypoint is the
-typer CLI). A `notebook` service exposes Jupyter for exploration. Nextflow
-uses the *same* image (`docker.enabled = true`, `process.container` in
-`nextflow.config`), so pipeline and interactive runs are byte-identical.
-For local dev without Docker, `uv sync` reproduces the locked environment.
+`uv sync --extra app` reproduces the locked environment (or
+`pip install -e ".[app]"`). The `netsci` CLI is the entry point for every
+module. A `Dockerfile`/`nextflow.config` exist as optional scaffolding for
+cluster-scale runs, but the local CLI is the supported path.
+
+## Pipeline commands
+
+```bash
+netsci retrieve openflights            # + geonames, ferries → data/raw/
+netsci netgen build-all                # every network in experiment.yaml → data/processed/
+netsci evaluate sweep                  # the whole grid
+netsci evaluate collect                # → summary.parquet + strategy_gap.parquet
+netsci evaluate interdiction --config <run.yaml>   # scenarios A–D → interdiction.html
+netsci viz app                         # one-tab explorer (builds its tables on launch)
+netsci viz site                        # navigable static site of co-located HTML
+```
 
 ## run_id and human-readable labels
 
@@ -35,16 +46,21 @@ human-readable **`label`**:
 
 ```
 results/<region>/<combo>/<label>/
-    summary.json        # config + network stats + structural + summary
-    timeseries.parquet  # per-day compartment totals
+    summary.json            # config + network stats + structural + summary
+    timeseries.parquet      # per-day compartment totals
+    node_timeseries.parquet # per-node infectious/day (only if recorded — for the map)
+    curves.html / spread_geo.html / index.html   # co-located figures (netsci viz site)
 ```
 
 e.g. `results/europe/air/sir_betweenness_cov75_seed0_7c21a4/` — the label is
 `<model>_<strategy>_cov<coverage>_seed<seed>_<run_id[:6]>` (the short run_id
-suffix keeps otherwise-identical labels unique). `evaluate collect` walks
-`results/**/summary.json` into `results/summary.csv`/`.parquet`, the
-human-facing comparison table led by `label` with rounded counts. Never
-derive any of this from anything outside the config.
+suffix keeps otherwise-identical labels unique). `record_nodes` is *not* part of
+the hashed config, so recording the per-node history doesn't fork the `run_id`.
+`evaluate collect` (via `src/evaluate/aggregate.py`) walks `results/**/summary.json`
+into `results/summary.parquet` plus `strategy_gap.parquet` (the degree-vs-
+betweenness thesis number); `structure.parquet` is computed per built network.
+Figures live **inside** the run/network folder, sharing one `plotly.min.js` at
+the results root. Never derive any of this from anything outside the config.
 
 ## Conventions
 
@@ -52,12 +68,14 @@ derive any of this from anything outside the config.
   `src/netgen/`. Do not touch `evaluate`.
 - **Add a strategy** → one file in `src/evaluate/strategies/` with the
   signature `(graph, budget, **params) -> set[node]`.
-- **Add a model** → one file in `src/evaluate/models/` implementing
-  `step(state, graph, params) -> state`. Keep reaction and diffusion
-  separable.
-- **Add a region** → a `--region` value handled in `netgen`; no new module.
-- Keep layers **tagged** in the multilayer graph (edge attribute `layer`);
-  never merge into one untagged edge set.
+- **Add a model** → one file in `src/evaluate/models/` subclassing
+  `CompartmentalModel` with `reaction(state, params, pressure) -> state`; the
+  engine owns diffusion/commuting and the inert `V` compartment, so models stay
+  local-dynamics-only.
+- **Add a region** → a region value in `experiment.yaml`'s `networks` list;
+  no new module.
+- Keep layers **tagged** by per-layer edge weights (`w_air`/`w_water`/`w_land`);
+  never merge into one untagged edge set. Interdiction relies on this tagging.
 
 ## Numerical & scientific hygiene
 
@@ -73,17 +91,22 @@ derive any of this from anything outside the config.
 cd docs/tex && tectonic main.tex        # or latexmk -pdf main.tex
 ```
 Keep `references.bib` the single bibliography. **Never cite an entry marked
-`⚠ UNVERIFIED` / `PLACEHOLDER`** (currently: `tanaka:centrality`) until its
-full citation is confirmed.
+`⚠ UNVERIFIED` / `PLACEHOLDER`** until its full citation is confirmed. (The
+former `tanaka:centrality` placeholder is resolved: replaced by the verified
+`sun:anomalous` — Sun, Hu & Zhu 2023, EPJ Plus, doi:10.1140/epjp/s13360-023-04003-3.)
 
-## Testing (once code exists)
+## Testing
 
-- Unit-test each model against the well-mixed analytic limit (single node,
-  no migration → classic SIR/SEIR curve).
-- Golden-file test one full small run so refactors can't silently change
-  results.
-- Test that strategy selectors return exactly `budget` nodes and are
-  deterministic under a fixed seed.
+`uv run pytest` (70 tests, ruff clean). Coverage includes:
+
+- Each model against the well-mixed analytic limit (single node, no migration
+  → classic SIR/SEIR curve) and conservation of population.
+- Determinism: identical `(config, seed)` → identical outputs / `run_id`.
+- Strategy selectors return the right nodes deterministically.
+- Network generation: gravity catchment, authoritative served-city resolution.
+- Viz layer: per-node recording, figure builders, run catalogue.
+- Interdiction transforms (close layer / close airports) and scenario runner.
+- FDR anomalous-gateway detection flags a planted low-degree bridge.
 
 ## Housekeeping
 

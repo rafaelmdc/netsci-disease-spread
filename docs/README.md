@@ -12,11 +12,15 @@ lives in [`../src`](../src); this folder is the design + writeup.
 3. **[METHODOLOGY.md](METHODOLOGY.md)** — how the models are used and, above
    all, **how parameters are justified** (and why we don't hard-calibrate).
 4. **[ARCHITECTURE.md](ARCHITECTURE.md)** — the three-module pipeline, data
-   flow, I/O contracts, Docker, and interactive-visualization plan.
+   flow, I/O contracts, and the visualization stack.
 5. **[DATA.md](DATA.md)** — data sources, provenance, and the multimodal
    (air/land/water) layers with their coverage and consistency rules.
-6. **[ROADMAP.md](ROADMAP.md)** — status board and the build slices.
-7. **[MAINTENANCE.md](MAINTENANCE.md)** — reproducibility contract and
+6. **[EXPERIMENTS.md](EXPERIMENTS.md)** — the 8 networks we build, what runs
+   on each, and the air-interdiction experiment.
+7. **[VISUALIZATION.md](VISUALIZATION.md)** — the navigable output layout, the
+   animated outbreak map, and the one-tab Dash explorer (`netsci viz app`).
+8. **[ROADMAP.md](ROADMAP.md)** — status board and the build slices.
+9. **[MAINTENANCE.md](MAINTENANCE.md)** — reproducibility contract and
    conventions for extending the code.
 
 ## Reference
@@ -25,8 +29,10 @@ lives in [`../src`](../src); this folder is the design + writeup.
 |-----|----------------|
 | [literature-review.md](literature-review.md) | ~25 verified references, grouped by theme; the novelty argument |
 | [METHODOLOGY.md](METHODOLOGY.md) | Model definitions, parameter strategy, calibration vs. verification, comparison-axis consistency |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, contracts, Nextflow, Docker, HTML visualizers |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, contracts, output layout, HTML visualizers + Dash explorer |
 | [DATA.md](DATA.md) | OpenFlights + land/water sources; topology vs. flow coverage; Eurostat-as-validation |
+| [EXPERIMENTS.md](EXPERIMENTS.md) | The 8 networks, per-network run plan, air-interdiction scenarios A–D |
+| [VISUALIZATION.md](VISUALIZATION.md) | Co-located navigable outputs, animated map, Dash app, shared plotly bundle |
 | [ROADMAP.md](ROADMAP.md) | Phases / vertical slices, open decisions |
 | [MAINTENANCE.md](MAINTENANCE.md) | Determinism, configs, run_id, Docker workflow, testing |
 | [tex/](tex/) | The paper (KDD Explorations double-column). Build: `tectonic tex/main.tex` |
@@ -42,5 +48,4 @@ it.
 
 ## Status legend (used across docs)
 
-- ✅ done · ⛔ not started · ⚠ needs verification (e.g. the unverified
-  *Tanaka 2014* reference, still a placeholder in `tex/references.bib`).
+- ✅ done · ⛔ not started · ⚠ needs verification.

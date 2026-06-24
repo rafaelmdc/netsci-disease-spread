@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import networkx as nx
 import numpy as np
-from scipy.stats import spearmanr
+from scipy.stats import norm, spearmanr
 
 from src.evaluate.centrality import betweenness
 
@@ -27,9 +27,64 @@ def characterize(graph: nx.DiGraph) -> dict[str, float]:
     }
 
 
-def degree_betweenness(graph: nx.DiGraph, anomaly_quantile: float = 0.75) -> dict:
-    """Spearman rho(degree, betweenness) and anomalous gateways
-    (low degree, high betweenness)."""
+def _benjamini_hochberg(pvals: np.ndarray, q: float) -> np.ndarray:
+    """Boolean mask of hypotheses rejected under Benjamini-Hochberg FDR at q."""
+    n = len(pvals)
+    order = np.argsort(pvals)
+    thresh = q * (np.arange(1, n + 1) / n)
+    passed = pvals[order] <= thresh
+    rejected = np.zeros(n, dtype=bool)
+    hits = np.where(passed)[0]
+    if hits.size:  # reject all up to the largest index that passes (BH step-up)
+        rejected[order[: hits.max() + 1]] = True
+    return rejected
+
+
+def anomalous_gateways(
+    graph: nx.DiGraph, fdr_q: float = 0.05, n_bins: int = 10
+) -> list[str]:
+    """Low-degree, high-betweenness 'gateway' airports (Anchorage-style).
+
+    Rather than an arbitrary quantile cut, betweenness is compared *against
+    nodes of similar degree*: we bin nodes by degree, standardise betweenness
+    within each bin, and flag nodes whose betweenness is significantly above its
+    degree peers' under a one-sided test with Benjamini-Hochberg FDR control.
+    This is the degree-conditioned anomaly notion benchmarked by Sun, Hu & Zhu
+    (2023) for the US network — a node is anomalous only if it bridges far more
+    than its number of connections would predict. Restricted to below-median
+    degree so we report genuine low-degree gateways, not expected big hubs.
+    """
+    nodes = list(graph.nodes())
+    n = len(nodes)
+    if n < 10:
+        return []
+    deg = np.array([graph.degree(v) for v in nodes], dtype=float)
+    bc_map = betweenness(graph)
+    bc = np.array([bc_map[v] for v in nodes], dtype=float)
+
+    # z-score of betweenness within each degree bin (peers of similar degree).
+    # Bin count adapts to n so every bin keeps enough peers (>= ~8) to estimate
+    # a within-degree mean/spread — otherwise a uniquely low-degree gateway has
+    # no comparison group and can never be evaluated.
+    z = np.full(n, -np.inf)
+    order = np.argsort(deg)
+    bins = max(1, min(n_bins, n // 8))
+    for grp in np.array_split(order, bins):
+        if grp.size < 3:
+            continue
+        mu, sd = bc[grp].mean(), bc[grp].std(ddof=1)
+        if sd > 0:
+            z[grp] = (bc[grp] - mu) / sd
+    pvals = norm.sf(z)  # one-sided upper tail; z = -inf -> p = 1
+    rejected = _benjamini_hochberg(pvals, fdr_q)
+
+    deg_med = np.median(deg)
+    return [nodes[i] for i in range(n) if rejected[i] and deg[i] <= deg_med]
+
+
+def degree_betweenness(graph: nx.DiGraph, fdr_q: float = 0.05) -> dict:
+    """Spearman rho(degree, betweenness) and the degree-conditioned anomalous
+    gateways (see ``anomalous_gateways``)."""
     nodes = list(graph.nodes())
     if len(nodes) < 3:
         return {"spearman_deg_btw": float("nan"), "anomalous_gateways": []}
@@ -37,13 +92,5 @@ def degree_betweenness(graph: nx.DiGraph, anomaly_quantile: float = 0.75) -> dic
     deg = np.array([graph.degree(n) for n in nodes], dtype=float)
     bc_map = betweenness(graph)  # cached, topological (see centrality.py)
     bc = np.array([bc_map[n] for n in nodes], dtype=float)
-
     rho = float(spearmanr(deg, bc).statistic)
-
-    # anomalous gateway: betweenness above its high quantile but degree below median
-    deg_med = np.median(deg)
-    bc_hi = np.quantile(bc, anomaly_quantile)
-    anomalous = [
-        nodes[i] for i in range(len(nodes)) if bc[i] >= bc_hi and deg[i] <= deg_med
-    ]
-    return {"spearman_deg_btw": rho, "anomalous_gateways": anomalous}
+    return {"spearman_deg_btw": rho, "anomalous_gateways": anomalous_gateways(graph, fdr_q=fdr_q)}

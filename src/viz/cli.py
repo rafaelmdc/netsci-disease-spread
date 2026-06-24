@@ -1,4 +1,8 @@
-"""`netsci viz ...` — render interactive HTML for a run."""
+"""`netsci viz ...` — render interactive, navigable HTML for runs & networks.
+
+Figures are written **inside the run/network folder** they describe (see
+docs/VISUALIZATION.md), so a results folder is self-contained and navigable.
+"""
 
 from __future__ import annotations
 
@@ -8,28 +12,44 @@ import pandas as pd
 import typer
 
 from src.config import load_run_config
+from src.evaluate.runner import run_and_save
 from src.netgen.graph_io import read_graphml
 from src.paths import (
-    FIGURES,
     RESULTS,
     combo_name,
-    ensure_dir,
-    ensure_parent,
-    figures_dir,
+    network_figure,
     processed_graph,
+    results_figure,
+    run_figure,
     run_json,
+    run_node_timeseries,
     run_timeseries,
 )
 from src.viz.compare_html import region_spectrum_html, strategy_comparison_html
 from src.viz.curves_html import curves_to_html
 from src.viz.network_html import network_to_html
+from src.viz.spread_html import spread_to_html
 
 app = typer.Typer(help="Shared module: interactive HTML visualization.")
 
 
+def _run_subtitle(cfg, record: dict) -> str:
+    p = cfg.model.params
+    rates = f"β={p.beta}, γ={p.gamma}" + (f", σ={p.sigma}" if p.sigma else "")
+    return (
+        f"strategy: <b>{cfg.strategy.name.value}</b> "
+        f"({cfg.strategy.budget} cities, {cfg.strategy.coverage:.0%} coverage, "
+        f"{cfg.strategy.efficacy:.0%} efficacy)  ·  rates: {rates}  ·  "
+        f"{cfg.sim.horizon}-day horizon, travel rate τ={cfg.sim.tau}, seed {cfg.sim.seed}  ·  "
+        f"network: {int(record['network']['n_nodes'])} nodes / "
+        f"{int(record['network']['n_edges'])} edges  ·  "
+        f"peak active infections: {record['summary']['peak_infected']:,.0f}"
+    )
+
+
 @app.command()
 def build(config: str = typer.Option(..., help="path to the run YAML config")) -> None:
-    """Render network + curves + a dashboard index for one run."""
+    """Render network + curves + a navigable index for one run (co-located)."""
     cfg = load_run_config(config)
     combo = combo_name([layer.value for layer in cfg.network.layers])
     region = cfg.network.region
@@ -41,36 +61,55 @@ def build(config: str = typer.Option(..., help="path to the run YAML config")) -
     targets = record.get("targets", [])
     ts = pd.read_parquet(run_timeseries(region, combo, cfg.label))
 
-    out_dir = ensure_dir(figures_dir(region, combo))
-    net_html = network_to_html(graph, out_dir / "network.html", targets=targets)
-
-    p = cfg.model.params
-    rates = f"β={p.beta}, γ={p.gamma}" + (f", σ={p.sigma}" if p.sigma else "")
+    # network view is a property of the network -> network folder (shared by runs)
+    net_path = network_figure(region, combo, "network.html")
+    net_html = network_to_html(graph, net_path, targets=targets)
     title = f"{cfg.model.name.value.upper()} on {region} / {combo}"
-    subtitle = (
-        f"strategy: <b>{cfg.strategy.name.value}</b> "
-        f"({cfg.strategy.budget} cities, {cfg.strategy.coverage:.0%} coverage, "
-        f"{cfg.strategy.efficacy:.0%} efficacy)  ·  rates: {rates}  ·  "
-        f"{cfg.sim.horizon}-day horizon, travel rate τ={cfg.sim.tau}, seed {cfg.sim.seed}  ·  "
-        f"network: {int(record['network']['n_nodes'])} nodes / "
-        f"{int(record['network']['n_edges'])} edges  ·  "
-        f"peak active infections: {record['summary']['peak_infected']:,.0f}"
-    )
-    cur_html = curves_to_html(
-        ts, out_dir / f"{cfg.label}_curves.html", title=title, subtitle=subtitle
-    )
+    subtitle = _run_subtitle(cfg, record)
+    cur_html = curves_to_html(ts, run_figure(region, combo, cfg.label, "curves.html"),
+                              title=title, subtitle=subtitle)
 
-    index = out_dir / "index.html"
+    links = ["<li><a href='curves.html'>epidemic curves</a></li>",
+             "<li><a href='../network.html'>interactive network</a></li>"]
+    spread = run_node_timeseries(region, combo, cfg.label)
+    if spread.exists():
+        links.insert(0, "<li><a href='spread_geo.html'>animated outbreak map</a></li>")
+    index = run_figure(region, combo, cfg.label, "index.html")
     index.write_text(
         "<!doctype html><meta charset='utf-8'>"
         f"<h1>{region} / {combo} / {cfg.label}</h1>"
-        f"<p>model={cfg.model.name.value} strategy={cfg.strategy.name.value}</p>"
-        f"<ul>"
-        f"<li><a href='{net_html.name}'>interactive network</a></li>"
-        f"<li><a href='{cur_html.name}'>epidemic curves</a></li>"
-        f"</ul>"
+        f"<p>model={cfg.model.name.value} · strategy={cfg.strategy.name.value} · "
+        f"peak={record['summary']['peak_infected']:,.0f}</p>"
+        f"<ul>{''.join(links)}</ul>"
     )
-    typer.echo(f"wrote {net_html}\n      {cur_html}\n      {index}")
+    typer.echo(f"wrote {cur_html}\n      {net_html}\n      {index}")
+
+
+@app.command()
+def animate(
+    config: str = typer.Option(..., help="path to the run YAML config"),
+    force: bool = typer.Option(False, help="re-simulate even if node history exists"),
+) -> None:
+    """Render the animated geographic outbreak map for one run.
+
+    Needs per-node history; if it isn't on disk yet (or --force), the run is
+    (re)simulated with node recording first, then the map is written next to it.
+    """
+    cfg = load_run_config(config)
+    combo = combo_name([layer.value for layer in cfg.network.layers])
+    region = cfg.network.region
+
+    node_ts_path = run_node_timeseries(region, combo, cfg.label)
+    if force or not node_ts_path.exists():
+        typer.echo("simulating with per-node recording ...")
+        run_and_save(cfg, record_nodes=True)
+
+    node_ts = pd.read_parquet(node_ts_path)
+    record = json.loads(run_json(region, combo, cfg.label).read_text())
+    title = f"{cfg.model.name.value.upper()} outbreak — {region} / {combo}"
+    out = spread_to_html(node_ts, run_figure(region, combo, cfg.label, "spread_geo.html"),
+                         title=title, subtitle=_run_subtitle(cfg, record))
+    typer.echo(f"wrote {out}")
 
 
 @app.command()
@@ -78,11 +117,8 @@ def compare(
     summary: str = typer.Option(str(RESULTS / "summary.parquet"), help="collected summary table"),
 ) -> None:
     """Render the cross-strategy / cross-model comparison plot."""
-    import pandas as pd
-
     df = pd.read_parquet(summary)
-    out = ensure_parent(FIGURES / "compare" / "strategy_comparison.html")
-    strategy_comparison_html(df, out)
+    out = strategy_comparison_html(df, results_figure("strategy_comparison.html"))
     typer.echo(f"wrote {out}")
 
 
@@ -91,9 +127,50 @@ def spectrum(
     structure: str = typer.Option(str(RESULTS / "structure.parquet"), help="structure table"),
 ) -> None:
     """Render the cross-region degree-betweenness spectrum plot."""
-    import pandas as pd
-
     df = pd.read_parquet(structure)
-    out = ensure_parent(FIGURES / "compare" / "region_spectrum.html")
-    region_spectrum_html(df, out)
+    out = region_spectrum_html(df, results_figure("region_spectrum.html"))
     typer.echo(f"wrote {out}")
+
+
+@app.command()
+def site() -> None:
+    """(Re)build the navigable static site: three levels of index.html plus
+    each run's curves/map and each network's structure/strategy panels — all
+    co-located under results/. Reads on-disk runs; never simulates."""
+    from src.viz.site import build_site
+
+    tally = build_site()
+    typer.echo(
+        f"built site for {tally['runs']} runs across {tally['networks']} network(s) "
+        f"→ open {results_figure('index.html')}"
+    )
+
+
+@app.command(name="app")
+def explorer(
+    host: str = typer.Option("127.0.0.1", help="host to bind"),
+    port: int = typer.Option(8050, help="port to serve on"),
+    debug: bool = typer.Option(False, help="Dash debug/hot-reload"),
+    rebuild_structure: bool = typer.Option(
+        False, help="recompute the region-spectrum table even if it exists"
+    ),
+) -> None:
+    """Launch the interactive results explorer (Dash) — one command, everything.
+
+    On startup it builds the study-wide tables itself (aggregates every run,
+    computes the degree-vs-betweenness gap, and the region spectrum) so all tabs
+    populate with no extra steps: outbreak map · curves · strategy comparison ·
+    degree-vs-betweenness gap · region spectrum.
+
+    Requires the `app` extra: `uv sync --extra app` (or `pip install dash
+    dash-bootstrap-components`).
+    """
+    try:
+        from src.viz.app import main as run_app
+    except ImportError as exc:  # pragma: no cover - dependency hint
+        raise typer.BadParameter(
+            "Dash is not installed. Install the explorer extra: uv sync --extra app"
+        ) from exc
+    typer.echo("preparing tables (collect + structure) ...")
+    typer.echo(f"results explorer → http://{host}:{port}  (Ctrl-C to stop)")
+    run_app(host=host, port=port, debug=debug, rebuild_structure=rebuild_structure)
