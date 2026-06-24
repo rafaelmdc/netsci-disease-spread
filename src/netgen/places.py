@@ -22,8 +22,9 @@ Two assignment routes, in order of authority:
 
 The base node set is GeoNames cities1000 (places >1000 pop, plus admin seats),
 so small towns and islands most airports/ferries serve have a real node. The
-few airports whose served place is below even that floor keep their own node
-(``apt:<IATA>``) in netgen, so no route is ever dropped.
+few airports/terminals whose served place has no real city in the basin
+(remote islands below the floor) are dropped, not given a proxy population —
+every node stays a real, populated place. See docs/DATA.md for that bias.
 """
 
 from __future__ import annotations

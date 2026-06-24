@@ -71,9 +71,18 @@ islands have a real node). Airports and ferry terminals map onto the city they
    given (OSM ferry terminals) or the curated name doesn't resolve, we fall
    back to geometry: within a 60 km basin pick the city maximising
    `population / max(distance, 10 km)` — GLEAM's airport-basin idea (Balcan &
-   Vespignani 2009). Airports whose served place is below GeoNames' floor
-   entirely keep their **own node** (`apt:<IATA>`), so no route is ever dropped
-   — this recovered the remote-island air traffic (Oceania 79% → 100%).
+   Vespignani 2009).
+
+**Known limitation (deliberate, conservative).** Airports/terminals whose
+served place has *no* real GeoNames city within the basin (remote islands
+below the 1k floor) are **dropped, not given a proxy population**. A fabricated
+population is not inert: it would seed, transmit and diffuse during the
+simulation, silently driving the dynamics. Keeping every node a *real,
+populated* place is the more defensible choice. The cost is small and
+documented: ~7.6% of airports but only **0–5% of regional air traffic**
+(europe 0.3%, americas 2.5%, **oceania 5.3%**), and ~6% of ferry routes. This
+under-represents remote-island connectivity — a conservative bias, not an
+inflation. `scripts/validate_snap.py` reports the dropped share per region.
 
 Both make all five London airports collapse onto *London*. Plain nearest-city
 snapping does **not**: it put Heathrow on a 63k-pop village and gave the real

@@ -55,23 +55,21 @@ def _add_city_nodes(
         )
 
 
-# Population for an airport-as-node fallback: the served place is below
-# GeoNames' 1000-pop floor (a remote island/atoll), so we floor it at 1000 —
-# a documented proxy, used only for the small-traffic tail no GeoNames city
-# can absorb. These nodes carry id "apt:<IATA>" so they're easy to spot.
-_AIRPORT_NODE_POP = 1000
-
-
 @LAYER_REGISTRY.register(Layer.AIR)
 def build_air_layer(region: str) -> nx.DiGraph:
     """Air layer: OpenFlights routes aggregated to the cities their airports serve.
 
     Each airport is assigned to its city via OpenFlights' curated ``city`` label
-    (resolved to a GeoNames node), with a gravity-catchment fallback for the
-    small-airport tail — see :func:`resolve_served_cities`. This is what makes
-    all five London airports collapse onto the single London node. Airports
-    whose served place is below GeoNames' 1000-pop floor (remote islands) keep
-    their *own* node ("apt:<IATA>") so no route is ever dropped.
+    (resolved to a GeoNames node), with a gravity-catchment fallback to the
+    nearest real city within the basin — see :func:`resolve_served_cities`. This
+    is what makes all five London airports collapse onto the single London node.
+
+    Every node is therefore a **real GeoNames place with a real population**.
+    Airports whose served place has no real city within the catchment basin
+    (remote islands below GeoNames' floor) are *dropped*, not given a proxy
+    population: a fabricated population would silently drive the epidemic
+    dynamics. This loses ~0–5% of regional air *traffic* (most in Oceania) — a
+    documented, conservative bias. See docs/DATA.md and scripts/validate_snap.py.
     """
     cities = region_cities(region)
     air = raw_dir("air")
@@ -86,22 +84,9 @@ def build_air_layer(region: str) -> nx.DiGraph:
         airports["lon"].to_numpy(),
         cities,
     )
-    iata_to_city: dict[str, str] = {}
-    apt_nodes: dict[str, dict] = {}  # airport-as-node fallback attributes
-    for row, cid in zip(airports.itertuples(index=False), city_of, strict=True):
-        if cid is not None:
-            iata_to_city[row.iata] = cid
-        else:  # no GeoNames place to attach to -> keep the airport as its own node
-            nid = f"apt:{row.iata}"
-            iata_to_city[row.iata] = nid
-            apt_nodes[nid] = {
-                "name": str(row.city if isinstance(row.city, str) else row.name),
-                "country": str(row.country),
-                "region": region,
-                "lat": float(row.lat),
-                "lon": float(row.lon),
-                "population": _AIRPORT_NODE_POP,
-            }
+    iata_to_city = {
+        iata: cid for iata, cid in zip(airports["iata"], city_of, strict=True) if cid is not None
+    }
 
     routes = pd.read_csv(air / "routes.dat", header=None, names=_ROUTE_COLS, na_values="\\N")
     routes = routes[routes["stops"] == 0]
@@ -113,9 +98,7 @@ def build_air_layer(region: str) -> nx.DiGraph:
 
     graph = nx.DiGraph()
     used = set(edges["src_city"]) | set(edges["dst_city"])
-    _add_city_nodes(graph, used - apt_nodes.keys(), cities, region)
-    for nid in used & apt_nodes.keys():
-        graph.add_node(nid, **apt_nodes[nid])
+    _add_city_nodes(graph, used, cities, region)
     for src, dst, w in edges.itertuples(index=False):
         graph.add_edge(src, dst, layer=Layer.AIR.value, raw_weight=float(w), weight=float(w))
     return graph
