@@ -71,11 +71,17 @@ evaluations* — making layer combinations a first-class, comparable axis.
 (compiled) for graphlets, Nextflow + Docker for the sweep, `pytest`/`ruff`.
 
 **Node identity (canonicalization).** Combining layers requires a shared
-node set, so nodes are keyed by **city/place**, not by airport: airports,
-rail stations and ports each map onto a canonical place id, and each layer
-contributes edges between those places. The air-only MVP may key nodes by
-airport directly and introduce the place mapping when land/water land. Node
-attributes: `id, name, city, country, region, lat, lon, population`.
+node set, so nodes are keyed by **city/place** (real GeoNames cities), not by
+airport. Airports map onto a place by **curated served-city first**: we use
+OpenFlights' human-curated `city` label (all five London airports say
+"London") and resolve that name to a GeoNames node — authoritative for ~93% of
+air traffic. The geometric **gravity catchment basin** (GLEAM-style; Balcan &
+Vespignani 2009 — assign the city maximising `population / max(distance, 10 km)`
+within a 60 km basin) is the *fallback* for unresolvable labels and the only
+route for label-less layers (OSM ferry terminals). Nearest-city snapping, which
+fragmented metro hubs across suburb nodes, is a correctness bug, not a style
+choice (`scripts/validate_snap.py` validates the mapping). Node attributes:
+`id, name, country, region, lat, lon, population`.
 
 **Canonical formats:** networks as `GraphML` (portable, Gephi-readable;
 optional `.gpickle` cache); run outputs as `JSON` (summary + metadata) plus

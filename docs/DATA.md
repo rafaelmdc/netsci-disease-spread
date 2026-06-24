@@ -57,12 +57,28 @@ topology, invalidating the degree–betweenness comparison. So:
 
 See [`METHODOLOGY.md`](METHODOLOGY.md) § "Comparison-axis consistency".
 
-**Node identity.** Layers share a node set keyed by **city/place**:
-airports, rail stations and ports each map onto a canonical place id (via a
-nearest-city / station→city / port→city mapping), and every layer
-contributes edges between those places. This is what makes air+land+water
-overlay cleanly; see [`ARCHITECTURE.md`](ARCHITECTURE.md) § "Stack & node
-identity".
+**Node identity.** Layers share a node set keyed by **city/place** (real
+GeoNames cities, ≥15k). Airports and ferry terminals map onto the city they
+*serve* by two routes, in order of authority:
+
+1. **Curated served-city (air).** OpenFlights records a human-curated served
+   *city* per airport ("London" for all five London airports); we resolve that
+   name to a GeoNames node (name + multilingual alternate names, disambiguating
+   same-name cities by proximity, rejecting hits >150 km). This is ground-truth
+   data, not inference, and covers **~93 % of air traffic**.
+2. **Gravity catchment basin (fallback + ferries).** When no served city is
+   given (OSM ferry terminals) or the curated town is below the 15k cutoff, we
+   fall back to geometry: within a 60 km basin pick the city maximising
+   `population / max(distance, 10 km)` — GLEAM's airport-basin idea (Balcan &
+   Vespignani 2009).
+
+Both make all five London airports collapse onto *London*. Plain nearest-city
+snapping does **not**: it put Heathrow on a 63k-pop village and gave the real
+London node zero air traffic, which would corrupt the degree↔betweenness
+analysis. We validate the mapping against OpenFlights' independent labels —
+see `scripts/validate_snap.py` (coverage, geometric sanity, hub aggregation).
+Every layer then contributes edges between these shared places. See
+[`ARCHITECTURE.md`](ARCHITECTURE.md) § "Stack & node identity".
 
 **Modelling note.** Air, rail/road, and sea operate at *different time and
 distance scales*. The literature-backed way to combine them is a

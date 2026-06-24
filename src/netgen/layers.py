@@ -18,7 +18,7 @@ import pandas as pd
 
 from src.config import Layer
 from src.netgen.flows import radiation_flows, top_k_edges
-from src.netgen.places import region_cities, snap
+from src.netgen.places import region_cities, resolve_served_cities, snap
 from src.netgen.regions import in_region
 from src.paths import raw_dir
 from src.registry import Registry
@@ -36,7 +36,6 @@ _ROUTE_COLS = [
 ]
 
 _LAND_TOP_N = 1000  # cap land node set to the N most populous cities (tractability)
-_SNAP_KM = 100.0    # airport/ferry-terminal -> nearest city match radius
 
 
 def _add_city_nodes(
@@ -58,7 +57,13 @@ def _add_city_nodes(
 
 @LAYER_REGISTRY.register(Layer.AIR)
 def build_air_layer(region: str) -> nx.DiGraph:
-    """Air layer: OpenFlights routes aggregated to the cities their airports serve."""
+    """Air layer: OpenFlights routes aggregated to the cities their airports serve.
+
+    Each airport is assigned to its city via OpenFlights' curated ``city`` label
+    (resolved to a GeoNames node), with a gravity-catchment fallback for the
+    small-airport tail — see :func:`resolve_served_cities`. This is what makes
+    all five London airports collapse onto the single London node.
+    """
     cities = region_cities(region)
     air = raw_dir("air")
     airports = pd.read_csv(air / "airports.dat", header=None, names=_AIRPORT_COLS, na_values="\\N")
@@ -66,7 +71,12 @@ def build_air_layer(region: str) -> nx.DiGraph:
         airports["iata"].notna() & airports["tz"].map(lambda t: in_region(t, region))
     ]
 
-    city_of = snap(airports["lat"].to_numpy(), airports["lon"].to_numpy(), cities, _SNAP_KM)
+    city_of = resolve_served_cities(
+        airports["city"].tolist(),
+        airports["lat"].to_numpy(),
+        airports["lon"].to_numpy(),
+        cities,
+    )
     iata_to_city = {
         iata: cid for iata, cid in zip(airports["iata"], city_of, strict=True) if cid is not None
     }
@@ -132,7 +142,7 @@ def build_water_layer(region: str) -> nx.DiGraph:
     for r in routes:
         pts_lat += [r["a"][0], r["b"][0]]
         pts_lon += [r["a"][1], r["b"][1]]
-    snapped = snap(np.array(pts_lat), np.array(pts_lon), cities, _SNAP_KM) if routes else []
+    snapped = snap(np.array(pts_lat), np.array(pts_lon), cities) if routes else []
 
     # ferries are bidirectional services: count per unordered city pair
     pair_counts: dict[tuple[str, str], int] = {}
