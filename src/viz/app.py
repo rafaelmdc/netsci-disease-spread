@@ -13,12 +13,15 @@ re-simulation that writes it next to the run and refreshes.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Dash, Input, Output, State, callback, dcc, html
 
 from src.evaluate.runner import run_and_save
-from src.paths import RESULTS
+from src.netgen.graph_io import read_graphml
+from src.paths import RESULTS, network_gexf, processed_graph, run_gexf
 from src.viz.catalog import RunEntry, runs_frame, scan_runs
 from src.viz.compare_html import region_spectrum_figure, strategy_comparison_figure
 from src.viz.curves_html import curves_figure
@@ -115,6 +118,19 @@ def _layout() -> dbc.Container:
                 ],
                 className="g-2 mt-1",
             ),
+            dbc.Row(
+                dbc.Col(
+                    [
+                        dbc.Label("Gephi", className="me-2"),
+                        dbc.Button("Reveal network .gexf", id="gx-net", size="sm",
+                                   color="secondary", outline=True),
+                        dbc.Button("Reveal animated outbreak .gexf", id="gx-run", size="sm",
+                                   color="secondary", outline=True, className="ms-2"),
+                        html.Code(id="gx-path", className="ms-3 small"),
+                    ]
+                ),
+                className="g-2 mt-1 align-items-center",
+            ),
             dbc.Tabs(
                 [
                     dbc.Tab(label="Outbreak map", tab_id="map"),
@@ -197,7 +213,56 @@ def build_app() -> Dash:
         return dcc.Graph(figure=spread_figure(node_ts, title=entry.label, subtitle=sub),
                          style={"height": "80vh"})
 
+    @callback(
+        Output("gx-path", "children", allow_duplicate=True),
+        Input("gx-net", "n_clicks"), State("run", "value"),
+        prevent_initial_call=True,
+    )
+    def _reveal_network_gexf(_clicks, group_key):
+        if not group_key:
+            return "Select a run first."
+        region, combo, *_ = group_key.split(_SEP)
+        out = network_gexf(region, combo)
+        if not out.exists():  # build once; static per network, cached on disk
+            from src.viz.gephi import network_gexf as write_network_gexf
+            write_network_gexf(read_graphml(processed_graph(region, combo)), out)
+        return _reveal(out)
+
+    @callback(
+        Output("gx-path", "children", allow_duplicate=True),
+        Input("gx-run", "n_clicks"), State("run", "value"), State("seed", "value"),
+        prevent_initial_call=True,
+    )
+    def _reveal_run_gexf(_clicks, group_key, seed):
+        entry = _find_run(group_key, seed)
+        if entry is None:
+            return "Select a run and seed first."
+        out = run_gexf(entry.region, entry.combo, entry.label)
+        if not out.exists():
+            if not entry.has_nodes:  # need per-node history; deterministic, cache it
+                run_and_save(entry.config, record_nodes=True)
+            from src.viz.gephi import run_gexf as write_run_gexf
+            node_ts = pd.read_parquet(entry.node_timeseries_path)
+            write_run_gexf(read_graphml(processed_graph(entry.region, entry.combo)), node_ts, out)
+        return _reveal(out)
+
     return app
+
+
+def _reveal(path: Path) -> str:
+    """Open the .gexf on the (local) machine running the app — launches Gephi if
+    .gexf is associated, otherwise the file manager — and return its path to show
+    in the UI. The app is local, so the file is already here; nothing to download."""
+    import contextlib
+    import shutil
+    import subprocess
+
+    opener = next((o for o in ("xdg-open", "open") if shutil.which(o)), None)
+    if opener:
+        with contextlib.suppress(OSError):
+            subprocess.Popen([opener, str(path)],  # noqa: S603 - local, fixed opener
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return str(path)
 
 
 def _study_fig(path, figure_builder, missing_msg: str):

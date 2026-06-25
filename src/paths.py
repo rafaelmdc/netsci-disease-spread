@@ -70,6 +70,16 @@ def network_figure(region: str, combo: str, name: str) -> Path:
     return results_dir(region, combo) / name
 
 
+def network_gexf(region: str, combo: str) -> Path:
+    """Static Gephi export for a whole network (topology + degree/betweenness)."""
+    return results_dir(region, combo) / "network.gexf"
+
+
+def run_gexf(region: str, combo: str, label: str) -> Path:
+    """Dynamic Gephi export for one run (per-node infectious over time)."""
+    return run_dir(region, combo, label) / "outbreak.gexf"
+
+
 def results_figure(name: str) -> Path:
     """A study-wide output at the results root, e.g. 'region_spectrum.html'."""
     return RESULTS / name

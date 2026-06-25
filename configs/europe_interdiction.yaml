@@ -1,0 +1,19 @@
+# Flagship multilayer run for the air-interdiction experiment (scenarios A-D):
+# europe / air+land+water, so closing flights leaves land + ferries to carry it.
+# Build first:  netsci netgen build --region europe --layers air,land,water
+network:
+  region: europe
+  layers: [air, land, water]
+model:
+  name: sir
+  params:
+    beta: 0.32
+    gamma: 0.12
+strategy:
+  name: control
+  coverage: 0.0
+sim:
+  horizon: 210
+  tau: 0.0002
+  seed_size: 2500
+  seed: 0

@@ -21,6 +21,7 @@ from src.netgen.graph_io import read_graphml
 from src.paths import (
     RESULTS,
     network_figure,
+    network_gexf,
     processed_graph,
     results_figure,
     run_figure,
@@ -77,6 +78,7 @@ def _label_for(fname: str) -> str:
         "strategy_panel.html": "strategy comparison panel",
         "interdiction.html": "air-interdiction (A–D)",
         "network.html": "interactive network",
+        "network.gexf": "Gephi file (.gexf, topology)",
     }.get(fname, fname)
 
 
@@ -87,6 +89,10 @@ def _write_network(region: str, combo: str, entries: list[RunEntry], summary: pd
         structure_to_html(graph, network_figure(region, combo, "structure.html"),
                           title=f"{region} / {combo}")
         figures.append("structure.html")
+        from src.viz.gephi import network_gexf as write_network_gexf
+
+        write_network_gexf(graph, network_gexf(region, combo))
+        figures.append("network.gexf")  # download for Gephi (desktop)
         try:  # pyvis is optional; the rest of the site shouldn't depend on it
             from src.viz.network_html import network_to_html
 
