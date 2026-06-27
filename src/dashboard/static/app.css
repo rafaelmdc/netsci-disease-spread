@@ -118,6 +118,27 @@ h1 { font-size: 2rem; }
 }
 .btn-ghost:hover { border-color: var(--c-s); color: var(--text); }
 
+/* ---- sweep (list) fields: rows of values with + add / × remove ------------ */
+.list-rows { display: flex; flex-direction: column; gap: .45rem; margin-bottom: .55rem; }
+.list-row { display: flex; gap: .45rem; align-items: center; }
+.list-row input { flex: 1 1 auto; }
+.list-rm {
+  flex: 0 0 auto; width: 2.1rem; height: 2.1rem; padding: 0; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; color: var(--muted);
+  background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--r-sm);
+  cursor: pointer; transition: color .12s ease, border-color .12s ease, background .12s ease;
+}
+.list-rm:hover { color: var(--c-i); border-color: var(--c-i); background: rgba(255,107,94,.08); }
+.list-add {
+  font-family: var(--font-mono); font-size: .76rem; letter-spacing: .04em;
+  background: transparent; color: var(--muted);
+  border: 1px dashed var(--line); border-radius: var(--r-sm);
+  padding: .42rem .85rem; cursor: pointer;
+  transition: color .12s ease, border-color .12s ease;
+}
+.list-add:hover { color: var(--c-s); border-color: var(--c-s); }
+
 /* ---- forms ---------------------------------------------------------------- */
 .field { margin-bottom: 1rem; }
 .field label {

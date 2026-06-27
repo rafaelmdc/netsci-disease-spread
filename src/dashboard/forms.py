@@ -76,10 +76,13 @@ def build_study_config(form) -> dict:
     """Turn the multi-run form into an experiment-config dict (a small sweep).
 
     List fields (β, coverage, τ, seed) become sweep axes; checkbox groups
-    (models, strategies) the others. β values are carried as ``beta_scales`` on a
-    base β of 1.0, so each model's β ends up exactly the value entered."""
+    (models, strategies, transport networks) the others — each ticked network
+    combo ("air", "air+land+water", …) becomes its own substrate in the sweep.
+    β values are carried as ``beta_scales`` on a base β of 1.0, so each model's β
+    ends up exactly the value entered."""
     region = form.get("region", "europe")
-    layers = form.getlist("layers") or ["air"]
+    combos = form.getlist("combos") or ["air"]
+    networks = [{"region": region, "layers": c.split("+")} for c in combos]
     models_sel = form.getlist("models") or ["sir"]
     strategies = form.getlist("strategies") or ["control"]
 
@@ -99,7 +102,7 @@ def build_study_config(form) -> dict:
         models[m] = params
 
     cfg: dict = {
-        "networks": [{"region": region, "layers": layers}],
+        "networks": networks,
         "models": models,
         "strategies": strategies,
         "budgets": [int(form.get("budget", 15))],
@@ -111,7 +114,8 @@ def build_study_config(form) -> dict:
         "seeds": _ints(form, "seeds", [0]),
         "seed_size": int(form.get("seed_size", 2500)),
     }
-    if any(layer in ("land", "water") for layer in layers):
+    all_layers = {layer for net in networks for layer in net["layers"]}
+    if all_layers & {"land", "water"}:
         cfg["tau_by_layer"] = {"air": 0.0002, "land": 0.3, "water": 0.0005}
     return cfg
 

@@ -12,6 +12,7 @@
 #
 # Other targets:
 #   make app        # launch the simulator web app (http://127.0.0.1:8000)
+#   make app-down   # stop the web app (frees the port for another checkout)
 #   make bake       # same pipeline WITHOUT Docker, in your active env (conda etc.)
 #   make clean      # wipe results/ (keeps downloaded data/)
 
@@ -20,7 +21,7 @@ INTERDICTION ?= configs/europe_interdiction.yaml
 RESULTS      ?= results
 NFARGS       ?=
 
-.PHONY: default run build bake retrieve netgen sweep collect structure interdiction site app nextflow clean cleaner
+.PHONY: default run build bake retrieve netgen sweep collect structure interdiction site app app-down nextflow clean cleaner
 
 default: run
 
@@ -68,6 +69,10 @@ site: structure
 ## app: launch the simulator web app (dashboard + worker + redis) at http://127.0.0.1:8000
 app:
 	docker compose up --build dashboard worker redis
+
+## app-down: stop the web app and remove its containers (frees port 8000 + redis)
+app-down:
+	docker compose down dashboard worker redis
 
 ## nextflow: same pipeline via Nextflow, local executor, no Docker
 nextflow:

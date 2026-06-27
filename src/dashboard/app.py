@@ -208,21 +208,24 @@ async def study_run(request: Request):
             "error": f"Invalid configuration: {exc}",
         }, status_code=400)
 
-    net = cfg["networks"][0]
-    if not graph_is_built(net["region"], net["layers"]):
-        return templates.TemplateResponse(request, "study.html", {
-            "networks": available_networks(),
-            "models": [m.value for m in ModelName],
-            "strategies": [s.value for s in StrategyName],
-            "error": f"Network '{net['region']} / {combo_name(net['layers'])}' is not built "
-                     f"— build it on the Data page first.",
-        }, status_code=400)
+    for net in cfg["networks"]:
+        if not graph_is_built(net["region"], net["layers"]):
+            return templates.TemplateResponse(request, "study.html", {
+                "networks": available_networks(),
+                "models": [m.value for m in ModelName],
+                "strategies": [s.value for s in StrategyName],
+                "error": f"Network '{net['region']} / {combo_name(net['layers'])}' is not "
+                         f"built — build it on the Data page first.",
+            }, status_code=400)
 
     n_runs = len(exp.expand())
     maps = form.get("maps") == "on"
 
     studies = ensure_dir(RESULTS / "studies")
-    title = f"{net['region']}/{combo_name(net['layers'])} · {n_runs} runs"
+    region = cfg["networks"][0]["region"]
+    n_nets = len(cfg["networks"])
+    nets_label = f"{n_nets} networks" if n_nets > 1 else combo_name(cfg["networks"][0]["layers"])
+    title = f"{region} · {nets_label} · {n_runs} runs"
     job_id = jobs.create_job("study", title)
     config_path = studies / f"{job_id}.yaml"
     config_path.write_text(yaml.safe_dump(cfg, sort_keys=False))

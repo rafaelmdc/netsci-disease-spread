@@ -5,12 +5,12 @@
 <div class="field">
   <label>{{ label }} <span class="muted">(swept)</span></label>
   <div class="list-rows" data-name="{{ name }}">
-    <div class="list-row" style="display:flex;gap:.4rem;margin-bottom:.35rem">
+    <div class="list-row">
       <input name="{{ name }}" value="{{ default }}">
-      <button type="button" class="list-rm" aria-label="remove">×</button>
+      <button type="button" class="list-rm" aria-label="remove value">&times;</button>
     </div>
   </div>
-  <button type="button" class="list-add" data-target="{{ name }}">+ add</button>
+  <button type="button" class="list-add" data-target="{{ name }}">+ add value</button>
 </div>
 {% endmacro %}
 
@@ -40,12 +40,11 @@
           </select>
         </div>
         <div class="field">
-          <label>Transport layers</label>
-          <div class="chips">
-            <label class="chip layer-chip" data-layer="air"><input type="checkbox" name="layers" value="air" checked> air</label>
-            <label class="chip layer-chip" data-layer="land"><input type="checkbox" name="layers" value="land"> land</label>
-            <label class="chip layer-chip" data-layer="water"><input type="checkbox" name="layers" value="water"> water</label>
-          </div>
+          <label>Transport networks <span class="muted">(swept)</span></label>
+          <div class="chips" id="combo-chips"></div>
+          <p class="muted" style="font-size:.78rem;margin-top:.45rem">Each network you
+            pick is run across the whole parameter grid — tick several (e.g. air-only
+            and air+land+water) to sweep over the substrate too.</p>
         </div>
       </div>
     </div>
@@ -126,18 +125,19 @@
     if (rows.querySelectorAll('.list-row').length > 1) e.target.closest('.list-row').remove();
   });
 
+  // built networks per region: {region: [[layers], ...]}. Each combo is its own
+  // sweepable network — ticking air-only and air+land+water runs both substrates.
   const NETWORKS = {{ networks | tojson }};
-  function syncLayers() {
+  const comboChips = document.getElementById('combo-chips');
+  function renderCombos() {
     const combos = NETWORKS[document.getElementById('region').value] || [];
-    const avail = new Set(); combos.forEach(c => c.forEach(l => avail.add(l)));
-    let any = false;
-    document.querySelectorAll('.layer-chip').forEach(chip => {
-      const inp = chip.querySelector('input'); const ok = avail.has(chip.dataset.layer);
-      chip.hidden = !ok; if (!ok) inp.checked = false; if (inp.checked) any = true;
-    });
-    if (!any) { const f = document.querySelector('.layer-chip:not([hidden]) input'); if (f) f.checked = true; }
+    comboChips.innerHTML = combos.map((layers, i) => {
+      const val = layers.join('+');
+      return `<label class="chip"><input type="checkbox" name="combos" value="${val}"`
+           + `${i === 0 ? ' checked' : ''}> ${layers.join(' + ')}</label>`;
+    }).join('') || '<span class="muted mono">no networks built for this region</span>';
   }
-  document.getElementById('region').addEventListener('change', syncLayers);
-  syncLayers();
+  document.getElementById('region').addEventListener('change', renderCombos);
+  renderCombos();
 </script>
 {% endblock %}
