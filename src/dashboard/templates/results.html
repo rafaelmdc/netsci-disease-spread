@@ -8,7 +8,7 @@
 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
   <div>
     <div class="eyebrow">Run complete</div>
-    <h1 style="margin-bottom:.3rem">{{ job.title }}</h1>
+    <h1 style="margin-bottom:.3rem">{{ title }}</h1>
     <div class="muted mono" style="font-size:.85rem">
       {{ net.region }} / {{ net.layers | join("+") }} ·
       {{ config.model.name | upper }} · {{ config.strategy.name }} ·
@@ -38,7 +38,7 @@
       <div class="mono" style="color:var(--text)">Continue run</div>
       <div class="muted" style="font-size:.85rem">Resume from the final state for additional days.</div>
     </div>
-    <form method="post" action="/sim/{{ job.id }}/continue"
+    <form method="post" action="/run/{{ region }}/{{ combo }}/{{ label }}/continue"
           style="display:flex;align-items:flex-end;gap:.6rem;margin-left:auto">
       <div class="field" style="margin:0">
         <label for="extra_days">Add days</label>
@@ -72,12 +72,13 @@
 <div class="panel">
   <div class="panel-h">Downloads</div>
   <div class="panel-b chips">
-    {% set base = "/files/" ~ job.region ~ "/" ~ job.combo ~ "/" ~ job.label %}
+    {% set base = "/files/" ~ region ~ "/" ~ combo ~ "/" ~ label %}
+    {% set rbase = "/run/" ~ region ~ "/" ~ combo ~ "/" ~ label %}
     <a class="chip" href="{{ base }}/summary.json">summary.json</a>
     <a class="chip" href="{{ base }}/timeseries.parquet">timeseries.parquet</a>
     {% if spread_div %}<a class="chip" href="{{ base }}/node_timeseries.parquet">node_timeseries.parquet</a>{% endif %}
-    <a class="chip" href="/sim/{{ job.id }}/gexf/network">network.gexf (Gephi)</a>
-    {% if spread_div %}<a class="chip" href="/sim/{{ job.id }}/gexf/run">outbreak.gexf (Gephi)</a>{% endif %}
+    <a class="chip" href="{{ rbase }}/gexf/network">network.gexf (Gephi)</a>
+    {% if spread_div %}<a class="chip" href="{{ rbase }}/gexf/run">outbreak.gexf (Gephi)</a>{% endif %}
   </div>
 </div>
 

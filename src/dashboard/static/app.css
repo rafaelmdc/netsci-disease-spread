@@ -204,6 +204,8 @@ h1 { font-size: 2rem; }
   padding: .5rem .6rem; border-bottom: 1px solid var(--line); }
 .runs td { padding: .65rem .6rem; border-bottom: 1px solid var(--line-soft); }
 .runs tr:hover td { background: rgba(255,255,255,.015); }
+.runs td.num, .runs th.num { text-align: right; }
+.runs th[data-sort]:hover { color: var(--text); }
 
 .badge { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em;
   padding: .18rem .5rem; border-radius: 5px; text-transform: uppercase; }

@@ -42,6 +42,7 @@ from src.paths import (
     run_json,
     run_node_timeseries,
 )
+from src.viz.catalog import scan_runs
 from src.viz.gephi import network_gexf as build_network_gexf
 from src.viz.gephi import run_gexf as build_run_gexf
 
@@ -112,14 +113,15 @@ async def sim(request: Request, job_id: str):
     job = jobs.get_job(job_id)
     if not job:
         return HTMLResponse("Unknown job", status_code=404)
-    # studies and data tasks have their own views; the home/jobs lists link here
+    # studies and data tasks have their own views; the console history links here
     if job["kind"] == "study":
         return RedirectResponse(f"/study/{job_id}", status_code=303)
     if job["kind"] == "data":
         return RedirectResponse("/data", status_code=303)
+    # finished sims are identified by their artifacts on disk, not the job row
     if job["status"] == "done":
-        ctx = results_context(job["region"], job["combo"], job["label"])
-        return templates.TemplateResponse(request, "results.html", {"job": job, **ctx})
+        return RedirectResponse(
+            f"/run/{job['region']}/{job['combo']}/{job['label']}", status_code=303)
     return templates.TemplateResponse(request, "monitor.html", {"job": job})
 
 
@@ -161,16 +163,44 @@ async def stream(request: Request, job_id: str):
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
-@app.post("/sim/{job_id}/continue")
-async def continue_sim(request: Request, job_id: str, extra_days: int = Form(...)):
-    src = jobs.get_job(job_id)
-    if not src or src["status"] != "done":
-        return HTMLResponse("Can only continue a finished run", status_code=400)
-    region, combo, label = src["region"], src["combo"], src["label"]
-    record = json.loads(run_json(region, combo, label).read_text())
-    elapsed = int(record["config"]["sim"]["horizon"])
+@app.get("/runs", response_class=HTMLResponse)
+async def runs_browser(request: Request):
+    """Browse every individual run saved under results/ (read straight from disk)."""
+    rows = [
+        {"region": e.region, "combo": e.combo, "network": f"{e.region}/{e.combo}",
+         "model": e.model, "strategy": e.strategy, "coverage": e.coverage,
+         "seed": e.seed, "peak": e.peak, "label": e.label, "has_nodes": e.has_nodes}
+        for e in scan_runs()
+    ]
+    rows.sort(key=lambda r: r["peak"], reverse=True)
+    return templates.TemplateResponse(request, "runs.html", {
+        "rows": rows,
+        "regions": sorted({r["network"] for r in rows}),
+        "models": sorted({r["model"] for r in rows}),
+        "strategies": sorted({r["strategy"] for r in rows}),
+    })
 
-    title = f"{src['title']} · +{extra_days}d"
+
+@app.get("/run/{region}/{combo}/{label}", response_class=HTMLResponse)
+async def run_view(request: Request, region: str, combo: str, label: str):
+    if not run_json(region, combo, label).exists():
+        return HTMLResponse("Unknown run", status_code=404)
+    ctx = results_context(region, combo, label)
+    title = (f"{region}/{combo} · {ctx['config']['model']['name'].upper()} · "
+             f"{ctx['config']['strategy']['name']}")
+    return templates.TemplateResponse(request, "results.html", {
+        "region": region, "combo": combo, "label": label, "title": title, **ctx})
+
+
+@app.post("/run/{region}/{combo}/{label}/continue")
+async def run_continue(request: Request, region: str, combo: str, label: str,
+                       extra_days: int = Form(...)):
+    path = run_json(region, combo, label)
+    if not path.exists():
+        return HTMLResponse("Unknown run", status_code=404)
+    record = json.loads(path.read_text())
+    elapsed = int(record["config"]["sim"]["horizon"])
+    title = f"{region}/{combo} · {label} · +{extra_days}d"
     new_id = jobs.create_job("continue", title, region=region, combo=combo, label=label,
                              extra_days=extra_days)
     await app.state.arq.enqueue_job(
@@ -276,22 +306,14 @@ def _data_ctx() -> dict:
             "jobs": [j for j in jobs.list_jobs(limit=20) if j["kind"] == "data"]}
 
 
-@app.get("/jobs", response_class=HTMLResponse)
-async def job_list(request: Request):
-    return templates.TemplateResponse(request, "jobs.html", {
-        "jobs": jobs.list_jobs(limit=200),
-    })
-
-
 # --- Gephi exports (generated on demand) ------------------------------------
 
-@app.get("/sim/{job_id}/gexf/{which}")
-async def gexf(job_id: str, which: str):
-    job = jobs.get_job(job_id)
-    if not job or job["status"] != "done":
-        return HTMLResponse("No artifacts for this job", status_code=404)
-    region, combo, label = job["region"], job["combo"], job["label"]
-    record = json.loads(run_json(region, combo, label).read_text())
+@app.get("/run/{region}/{combo}/{label}/gexf/{which}")
+async def gexf(region: str, combo: str, label: str, which: str):
+    path = run_json(region, combo, label)
+    if not path.exists():
+        return HTMLResponse("No artifacts for this run", status_code=404)
+    record = json.loads(path.read_text())
     graph = read_graphml(record["config"]["network"].get("graph_path")
                          or processed_graph(region, combo))
     if which == "network":
