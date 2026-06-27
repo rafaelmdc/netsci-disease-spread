@@ -28,5 +28,9 @@
 
 {% endblock %}
 {% block scripts %}
-<script>startMonitor("{{ job.id }}");</script>
+<script>
+  // app.js is deferred, so wait for it (DOMContentLoaded fires after deferred
+  // scripts run) before starting the live stream.
+  document.addEventListener("DOMContentLoaded", () => startMonitor("{{ job.id }}"));
+</script>
 {% endblock %}
