@@ -3,51 +3,117 @@
 {% block main_class %}wide{% endblock %}
 {% block content %}
 
-<h1>Compare runs</h1>
-<p class="lede" style="margin-bottom:1.6rem">Overlay specific runs against each
-  other — e.g. SIR vs SEIR on the same network. Pick runs on
-  <a href="/runs">Browse</a> and hit “Compare selected”.</p>
+<h1>Compare</h1>
 
-{% if n == 0 %}
-  <div class="alert-err">
-    No runs selected. Go to <a href="/runs">Browse</a>, tick the runs you want to
-    compare, then click <span class="mono">Compare selected</span>.
-  </div>
-{% else %}
-
-<div class="panel" style="margin-bottom:1.4rem">
-  <div class="panel-h">Infectious over time — {{ n }} runs overlaid</div>
-  <div class="panel-b">{{ compare_div | safe }}</div>
+<div class="tabs" role="tablist">
+  <button class="tab active" data-tab="runs" role="tab">Compare runs</button>
+  <button class="tab" data-tab="aggregate" role="tab">Aggregate</button>
 </div>
 
-<div class="panel">
-  <div class="panel-h">Summary</div>
-  <div class="panel-b" style="padding:0">
-    <table class="runs">
-      <thead><tr>
-        <th>Run</th><th>Model</th><th>Strategy</th>
-        <th class="num">Peak infectious</th><th class="num">Peak day</th>
-        <th class="num">Attack rate</th><th class="num">Vaccinated</th><th></th>
-      </tr></thead>
-      <tbody>
-      {% for r in stats %}
-        <tr>
-          <td class="mono">{{ r.region }}/{{ r.combo }}
-            <div class="muted mono" style="font-size:.7rem">{{ r.label }}</div></td>
-          <td class="mono">{{ r.model|upper }}</td>
-          <td class="mono">{{ r.strategy }}</td>
-          <td class="num mono">{{ "{:,.0f}".format(r.peak) }}</td>
-          <td class="num mono">{{ r.peak_day }}</td>
-          <td class="num mono">{% if r.attack is not none %}{{ "{:.1%}".format(r.attack) }}{% else %}—{% endif %}</td>
-          <td class="num mono">{{ "{:,.0f}".format(r.vaccinated) }}</td>
-          <td class="num"><a class="mono" href="/run/{{ r.region }}/{{ r.combo }}/{{ r.label }}">open →</a></td>
-        </tr>
+{# ---- tab: overlay specific runs ---------------------------------------- #}
+<section class="tab-panel" data-panel="runs">
+  <p class="lede" style="margin:1rem 0 1.6rem">Overlay specific runs against each
+    other — e.g. SIR vs SEIR on the same network. Pick runs on
+    <a href="/runs">Browse</a> and hit “Compare selected”.</p>
+
+  {% if n == 0 %}
+    <div class="alert-err">
+      No runs selected. Go to <a href="/runs">Browse</a>, tick the runs you want to
+      compare, then click <span class="mono">Compare selected</span>.
+    </div>
+  {% else %}
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Infectious over time — {{ n }} runs overlaid</div>
+    <div class="panel-b">{{ compare_div | safe }}</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-h">Summary</div>
+    <div class="panel-b" style="padding:0">
+      <table class="runs">
+        <thead><tr>
+          <th>Run</th><th>Model</th><th>Strategy</th>
+          <th class="num">Peak infectious</th><th class="num">Peak day</th>
+          <th class="num">Attack rate</th><th class="num">Vaccinated</th><th></th>
+        </tr></thead>
+        <tbody>
+        {% for r in stats %}
+          <tr>
+            <td class="mono">{{ r.region }}/{{ r.combo }}
+              <div class="muted mono" style="font-size:.7rem">{{ r.label }}</div></td>
+            <td class="mono">{{ r.model|upper }}</td>
+            <td class="mono">{{ r.strategy }}</td>
+            <td class="num mono">{{ "{:,.0f}".format(r.peak) }}</td>
+            <td class="num mono">{{ r.peak_day }}</td>
+            <td class="num mono">{% if r.attack is not none %}{{ "{:.1%}".format(r.attack) }}{% else %}—{% endif %}</td>
+            <td class="num mono">{{ "{:,.0f}".format(r.vaccinated) }}</td>
+            <td class="num"><a class="mono" href="/run/{{ r.region }}/{{ r.combo }}/{{ r.label }}">open →</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+{# ---- tab: study-level aggregates --------------------------------------- #}
+<section class="tab-panel" data-panel="aggregate" hidden>
+  <p class="lede" style="margin:1rem 0 1.6rem">Study-level views across all runs
+    and regions, built from the aggregate tables.</p>
+
+  {% if not agg.has_any %}
+    <div class="alert-err">
+      No aggregate tables found. Run a sweep and aggregate first:
+      <div class="mono" style="margin-top:.5rem;font-size:.85rem">
+        netsci evaluate sweep · netsci evaluate collect · netsci evaluate structure
+      </div>
+    </div>
+  {% endif %}
+
+  {% if agg.strategy_div %}
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Vaccination strategy — peak infections by model</div>
+    <div class="panel-b">{{ agg.strategy_div | safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if agg.spectrum_div %}
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Degree–betweenness spectrum by region</div>
+    <div class="panel-b">{{ agg.spectrum_div | safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if agg.interdiction %}
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Air interdiction — scenarios A–D</div>
+    <div class="panel-b">
+      {% for it in agg.interdiction %}
+        <div class="mono muted" style="margin:.2rem 0 .4rem">{{ it.network }}</div>
+        <iframe src="{{ it.url }}" loading="lazy"
+                style="width:100%;height:560px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff"></iframe>
       {% endfor %}
-      </tbody>
-    </table>
+    </div>
   </div>
-</div>
+  {% endif %}
+</section>
 
-{% endif %}
-
+{% endblock %}
+{% block scripts %}
+<script>
+  const tabs = [...document.querySelectorAll(".tab")];
+  const panels = [...document.querySelectorAll(".tab-panel")];
+  function activate(name) {
+    tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+    panels.forEach(p => { p.hidden = p.dataset.panel !== name; });
+    // plotly figures sized while hidden need a resize once shown
+    window.dispatchEvent(new Event("resize"));
+  }
+  tabs.forEach(t => t.addEventListener("click", () => {
+    activate(t.dataset.tab);
+    history.replaceState(null, "", t.dataset.tab === "aggregate" ? "#aggregate" : location.pathname + location.search);
+  }));
+  if (location.hash === "#aggregate") activate("aggregate");
+</script>
 {% endblock %}

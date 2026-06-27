@@ -211,14 +211,11 @@ async def run_continue(request: Request, region: str, combo: str, label: str,
 
 @app.get("/compare", response_class=HTMLResponse)
 async def compare(request: Request):
-    # runs to overlay come from the Browse page as repeated ?r=region/combo/label
+    # one page, two tabs: overlay chosen runs (?r=region/combo/label) + aggregates
     run_ids = request.query_params.getlist("r")
-    return templates.TemplateResponse(request, "compare.html", comparison_context(run_ids))
-
-
-@app.get("/aggregate", response_class=HTMLResponse)
-async def aggregate(request: Request):
-    return templates.TemplateResponse(request, "aggregate.html", aggregate_context())
+    ctx = comparison_context(run_ids)
+    ctx["agg"] = aggregate_context()
+    return templates.TemplateResponse(request, "compare.html", ctx)
 
 
 @app.get("/study", response_class=HTMLResponse)
