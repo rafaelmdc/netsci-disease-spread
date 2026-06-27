@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import redis.asyncio as aioredis
+import yaml
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import FastAPI, Form, Request
@@ -21,11 +22,19 @@ from fastapi.templating import Jinja2Templates
 from src.config import ModelName, StrategyName
 from src.dashboard import events, jobs
 from src.dashboard.figures import compare_context, results_context
-from src.dashboard.forms import available_networks, data_status, graph_is_built, parse_run_form
+from src.dashboard.forms import (
+    available_networks,
+    build_study_config,
+    data_status,
+    graph_is_built,
+    parse_run_form,
+)
+from src.experiment import ExperimentConfig
 from src.netgen.graph_io import read_graphml
 from src.paths import (
     RESULTS,
     combo_name,
+    ensure_dir,
     ensure_parent,
     network_gexf,
     processed_graph,
@@ -103,6 +112,11 @@ async def sim(request: Request, job_id: str):
     job = jobs.get_job(job_id)
     if not job:
         return HTMLResponse("Unknown job", status_code=404)
+    # studies and data tasks have their own views; the home/jobs lists link here
+    if job["kind"] == "study":
+        return RedirectResponse(f"/study/{job_id}", status_code=303)
+    if job["kind"] == "data":
+        return RedirectResponse("/data", status_code=303)
     if job["status"] == "done":
         ctx = results_context(job["region"], job["combo"], job["label"])
         return templates.TemplateResponse(request, "results.html", {"job": job, **ctx})
@@ -172,19 +186,47 @@ async def compare(request: Request):
 
 @app.get("/study", response_class=HTMLResponse)
 async def study_form(request: Request):
-    cfg_dir = Path("configs")
-    configs = sorted(p.name for p in cfg_dir.glob("*.yaml")) if cfg_dir.is_dir() else []
-    return templates.TemplateResponse(request, "study.html", {"configs": configs})
+    return templates.TemplateResponse(request, "study.html", {
+        "networks": available_networks(),
+        "models": [m.value for m in ModelName],
+        "strategies": [s.value for s in StrategyName],
+    })
 
 
 @app.post("/study/run")
 async def study_run(request: Request):
     form = await request.form()
-    config = form.get("config", "experiment.yaml")
-    interdiction = form.get("interdiction", "configs/europe_interdiction.yaml")
+    cfg = build_study_config(form)
+    # validate the generated grid before committing to a job
+    try:
+        exp = ExperimentConfig.model_validate(cfg)
+    except Exception as exc:  # noqa: BLE001
+        return templates.TemplateResponse(request, "study.html", {
+            "networks": available_networks(),
+            "models": [m.value for m in ModelName],
+            "strategies": [s.value for s in StrategyName],
+            "error": f"Invalid configuration: {exc}",
+        }, status_code=400)
+
+    net = cfg["networks"][0]
+    if not graph_is_built(net["region"], net["layers"]):
+        return templates.TemplateResponse(request, "study.html", {
+            "networks": available_networks(),
+            "models": [m.value for m in ModelName],
+            "strategies": [s.value for s in StrategyName],
+            "error": f"Network '{net['region']} / {combo_name(net['layers'])}' is not built "
+                     f"— build it on the Data page first.",
+        }, status_code=400)
+
+    n_runs = len(exp.expand())
     maps = form.get("maps") == "on"
-    job_id = jobs.create_job("pipeline", f"full study · {config}{' · maps' if maps else ''}")
-    await app.state.arq.enqueue_job("run_pipeline", job_id, config, interdiction, maps)
+
+    studies = ensure_dir(RESULTS / "studies")
+    title = f"{net['region']}/{combo_name(net['layers'])} · {n_runs} runs"
+    job_id = jobs.create_job("study", title)
+    config_path = studies / f"{job_id}.yaml"
+    config_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
+    await app.state.arq.enqueue_job("run_study", job_id, str(config_path), maps)
     return RedirectResponse(f"/study/{job_id}", status_code=303)
 
 
@@ -193,7 +235,7 @@ async def study_monitor(request: Request, job_id: str):
     job = jobs.get_job(job_id)
     if not job:
         return HTMLResponse("Unknown job", status_code=404)
-    return templates.TemplateResponse(request, "pipeline.html", {"job": job})
+    return templates.TemplateResponse(request, "study_monitor.html", {"job": job})
 
 
 @app.get("/data", response_class=HTMLResponse)

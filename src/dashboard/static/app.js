@@ -129,23 +129,43 @@ function startMonitor(jobId) {
 
 window.startMonitor = startMonitor;
 
-// Full-study (Nextflow) monitor: stream the pipeline log line by line.
-function startPipeline(jobId) {
-  const logEl = document.getElementById("pipe-log");
-  const statusEl = document.getElementById("pipe-status");
-  const doneBox = document.getElementById("pipe-done");
+// Multi-run study monitor: one progress bar over the whole grid, plus a log of
+// each run as it completes.
+function startStudy(jobId) {
+  const logEl = document.getElementById("study-log");
+  const statusEl = document.getElementById("study-status");
+  const doneBox = document.getElementById("study-done");
+  const bar = document.getElementById("study-bar");
+  const countEl = document.getElementById("study-count");
+  const ofEl = document.getElementById("study-of");
   function append(line) { logEl.textContent += line + "\n"; logEl.scrollTop = logEl.scrollHeight; }
   function setStatus(t, c) { statusEl.textContent = t; statusEl.className = "badge " + c; }
 
   const es = new EventSource(`/sim/${jobId}/stream`);
   es.onmessage = (e) => {
     const ev = JSON.parse(e.data);
-    if (ev.type === "start_pipeline") setStatus("running", "running");
-    else if (ev.type === "log") append(ev.line);
-    else if (ev.type === "done") { setStatus("done", "done"); if (doneBox) doneBox.hidden = false; es.close(); }
-    else if (ev.type === "failed") { setStatus("failed", "failed"); append("FAILED: " + (ev.error || "")); es.close(); }
-    else if (ev.type === "interrupted") { setStatus("interrupted", "interrupted"); es.close(); }
+    if (ev.type === "study_start") {
+      setStatus("running", "running");
+      if (ofEl) ofEl.textContent = ev.total;
+    } else if (ev.type === "run") {
+      countEl.textContent = ev.done;
+      if (ofEl) ofEl.textContent = ev.total;
+      if (bar) bar.style.width = Math.min(100, (ev.done / ev.total) * 100) + "%";
+      append(`[${ev.done}/${ev.total}] ${ev.network} · ${ev.label}`);
+    } else if (ev.type === "done") {
+      if (bar) bar.style.width = "100%";
+      setStatus("done", "done");
+      if (doneBox) doneBox.hidden = false;
+      es.close();
+    } else if (ev.type === "failed") {
+      setStatus("failed", "failed");
+      append("FAILED: " + (ev.error || "see worker logs"));
+      es.close();
+    } else if (ev.type === "interrupted") {
+      setStatus("interrupted", "interrupted");
+      es.close();
+    }
   };
   es.onerror = () => setStatus("reconnecting…", "queued");
 }
-window.startPipeline = startPipeline;
+window.startStudy = startStudy;

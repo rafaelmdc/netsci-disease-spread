@@ -25,13 +25,9 @@ RUN uv sync --frozen --no-dev --extra dashboard
 # --- runtime image: just python + the built venv -------------------------
 FROM python:3.12-slim AS runtime
 
-# procps provides `ps` (Nextflow task metrics); a JRE + the nextflow launcher let
-# the dashboard's worker run the full study via `-profile local`.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        procps default-jre-headless curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -s https://get.nextflow.io | bash \
-    && mv nextflow /usr/local/bin/nextflow && chmod +x /usr/local/bin/nextflow
+# procps provides `ps`, which Nextflow needs to collect per-task metrics.
+RUN apt-get update && apt-get install -y --no-install-recommends procps \
+    && rm -rf /var/lib/apt/lists/*
 
 # uv kept available so the notebook service can add tools ephemerally.
 COPY --from=ghcr.io/astral-sh/uv:0.5 /uv /uvx /bin/

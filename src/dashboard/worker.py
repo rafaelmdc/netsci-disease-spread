@@ -142,40 +142,47 @@ async def run_data_task(
         jobs.mark_failed(job_id, f"{exc}\n{traceback.format_exc()}")
 
 
-async def run_pipeline(
-    ctx: dict, job_id: str, config: str, interdiction: str, maps: bool
-) -> None:
-    """Run the full Nextflow pipeline (`-profile local`, no Docker) and stream
-    its log to the browser. Stages call the same `netsci` CLI in-process."""
-    from src.paths import ROOT
+def _study(job_id: str, config_path: str, maps: bool) -> None:
+    """Expand the generated config into its grid and run each cell, in a thread."""
+    from src.evaluate.aggregate import collect, structure_table
+    from src.evaluate.metrics import betweenness
+    from src.evaluate.runner import run_and_save
+    from src.experiment import load_experiment_config
+    from src.netgen.graph_io import read_graphml
+    from src.paths import processed_graph
+
+    exp = load_experiment_config(config_path)
+    groups = exp.grouped_by_network()
+    total = sum(len(v) for v in groups.values())
+    events.publish(job_id, {"type": "study_start", "total": total})
+
+    done = 0
+    for (region, combo), cfgs in groups.items():
+        graph = read_graphml(processed_graph(region, combo))
+        betweenness(graph)  # warm the cache once, before the runs reuse the graph
+        for cfg in cfgs:
+            run_and_save(cfg, graph, record_nodes=maps)
+            done += 1
+            events.publish(job_id, {"type": "run", "done": done, "total": total,
+                                    "label": cfg.label, "network": f"{region}/{combo}"})
+    collect()
+    structure_table()
+
+
+async def run_study(ctx: dict, job_id: str, config_path: str, maps: bool) -> None:
+    """Run a generated multi-run study (a scoped sweep), streaming per-run progress."""
     try:
         jobs.mark_running(job_id)
-        events.publish(job_id, {"type": "start_pipeline", "config": config, "maps": maps})
-        cmd = [
-            "nextflow", "run", "workflow/main.nf", "-profile", "local", "-ansi-log", "false",
-            "--config", config, "--interdiction", interdiction,
-            "--maps", "true" if maps else "false",
-        ]
-        proc = await asyncio.create_subprocess_exec(
-            *cmd, cwd=str(ROOT),
-            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
-        )
-        async for raw in proc.stdout:
-            events.publish(job_id, {"type": "log", "line": raw.decode(errors="replace").rstrip()})
-        rc = await proc.wait()
-        if rc == 0:
-            jobs.update_job(job_id, status="done", finished_at=time.time())
-            events.publish(job_id, {"type": "done"})
-        else:
-            jobs.mark_failed(job_id, f"nextflow exited with code {rc}")
-            events.publish(job_id, {"type": "failed", "error": f"nextflow exited with code {rc}"})
+        await asyncio.to_thread(_study, job_id, config_path, maps)
+        jobs.update_job(job_id, status="done", finished_at=time.time())
+        events.publish(job_id, {"type": "done"})
     except Exception as exc:  # noqa: BLE001
         jobs.mark_failed(job_id, f"{exc}\n{traceback.format_exc()}")
         events.publish(job_id, {"type": "failed", "error": str(exc)})
 
 
 class WorkerSettings:
-    functions = [run_simulation, continue_simulation, run_data_task, run_pipeline]
+    functions = [run_simulation, continue_simulation, run_data_task, run_study]
     redis_settings = RedisSettings.from_dsn(events.redis_url())
     max_jobs = 1  # one heavy job at a time
     job_timeout = 6 * 60 * 60  # the full sweep can run for ~an hour; give headroom
