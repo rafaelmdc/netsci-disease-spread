@@ -41,11 +41,16 @@
 </div>
 
 <div class="panel">
-  <div class="panel-h"><span id="count">{{ rows|length }}</span> runs</div>
+  <div class="panel-h" style="display:flex;justify-content:space-between;align-items:center">
+    <span><span id="count">{{ rows|length }}</span> runs</span>
+    <a id="compare-btn" class="btn-run disabled" href="#" aria-disabled="true"
+       style="padding:.4rem 1rem;font-size:.78rem">Compare selected (<span id="pick-count">0</span>)</a>
+  </div>
   <div class="panel-b" style="padding:0">
     <div class="scroll-10" style="max-height:none">
       <table class="runs" id="runs-table">
         <thead><tr>
+          <th class="pick"><input type="checkbox" id="pick-all" aria-label="select all"></th>
           <th data-sort="net">Network</th>
           <th data-sort="model">Model</th>
           <th data-sort="strat">Strategy</th>
@@ -60,6 +65,8 @@
           <tr data-net="{{ r.network }}" data-model="{{ r.model }}" data-strat="{{ r.strategy }}"
               data-search="{{ (r.label ~ ' ' ~ r.network ~ ' ' ~ r.model ~ ' ' ~ r.strategy)|lower }}"
               data-coverage="{{ r.coverage }}" data-seed="{{ r.seed }}" data-peak="{{ r.peak }}">
+            <td class="pick"><input type="checkbox" class="pick-run"
+                value="{{ r.region }}/{{ r.combo }}/{{ r.label }}" aria-label="select run"></td>
             <td>{{ r.network }}
               <div class="muted mono" style="font-size:.7rem">{{ r.label }}</div></td>
             <td class="mono">{{ r.model|upper }}</td>
@@ -103,6 +110,31 @@
     countEl.textContent = n;
   }
   [q, fNet, fModel, fStrat].forEach(el => el && el.addEventListener("input", applyFilters));
+
+  // selection → build the /compare?r=… link from the ticked rows
+  const compareBtn = document.getElementById("compare-btn");
+  const pickCount = document.getElementById("pick-count");
+  const pickAll = document.getElementById("pick-all");
+  function syncSelection() {
+    const picked = [...document.querySelectorAll(".pick-run:checked")];
+    pickCount.textContent = picked.length;
+    if (picked.length >= 2) {
+      compareBtn.href = "/compare?" + picked.map(c => "r=" + encodeURIComponent(c.value)).join("&");
+      compareBtn.classList.remove("disabled");
+      compareBtn.setAttribute("aria-disabled", "false");
+    } else {
+      compareBtn.href = "#";
+      compareBtn.classList.add("disabled");
+      compareBtn.setAttribute("aria-disabled", "true");
+    }
+  }
+  document.querySelectorAll(".pick-run").forEach(c => c.addEventListener("change", syncSelection));
+  if (pickAll) pickAll.addEventListener("change", () => {
+    // tick only the rows currently visible after filtering
+    rowsEl().forEach(tr => { if (!tr.hidden) tr.querySelector(".pick-run").checked = pickAll.checked; });
+    syncSelection();
+  });
+  compareBtn.addEventListener("click", e => { if (compareBtn.classList.contains("disabled")) e.preventDefault(); });
 
   // click a header to sort by that column (numeric where marked)
   let sortDir = {};

@@ -111,6 +111,10 @@ h1 { font-size: 2rem; }
 }
 .btn-run:hover { filter: brightness(1.08); color: #1a0c0a; }
 .btn-run:active { transform: translateY(1px); }
+.btn-run.disabled { background: var(--ink-2); color: var(--faint); cursor: default;
+  pointer-events: auto; filter: none; transform: none; border: 1px solid var(--line); }
+.runs td.pick, .runs th.pick { width: 2.2rem; text-align: center; }
+.runs td.pick input, .runs th.pick input { cursor: pointer; }
 .btn-ghost {
   font-family: var(--font-mono); font-size: .82rem; letter-spacing: .03em;
   background: transparent; color: var(--text);

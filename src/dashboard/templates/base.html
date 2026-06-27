@@ -22,6 +22,7 @@
       <a href="/study" class="{{ 'active' if request.url.path == '/study' else '' }}">Study</a>
       <a href="/runs" class="{{ 'active' if request.url.path.startswith('/run') else '' }}">Browse</a>
       <a href="/compare" class="{{ 'active' if request.url.path == '/compare' else '' }}">Compare</a>
+      <a href="/aggregate" class="{{ 'active' if request.url.path == '/aggregate' else '' }}">Aggregate</a>
       <a href="/data" class="{{ 'active' if request.url.path == '/data' else '' }}">Data</a>
     </nav>
   </header>

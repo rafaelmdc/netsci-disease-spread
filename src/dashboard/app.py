@@ -21,7 +21,7 @@ from fastapi.templating import Jinja2Templates
 
 from src.config import ModelName, StrategyName
 from src.dashboard import events, jobs
-from src.dashboard.figures import compare_context, results_context
+from src.dashboard.figures import aggregate_context, comparison_context, results_context
 from src.dashboard.forms import (
     available_networks,
     build_study_config,
@@ -211,7 +211,14 @@ async def run_continue(request: Request, region: str, combo: str, label: str,
 
 @app.get("/compare", response_class=HTMLResponse)
 async def compare(request: Request):
-    return templates.TemplateResponse(request, "compare.html", compare_context())
+    # runs to overlay come from the Browse page as repeated ?r=region/combo/label
+    run_ids = request.query_params.getlist("r")
+    return templates.TemplateResponse(request, "compare.html", comparison_context(run_ids))
+
+
+@app.get("/aggregate", response_class=HTMLResponse)
+async def aggregate(request: Request):
+    return templates.TemplateResponse(request, "aggregate.html", aggregate_context())
 
 
 @app.get("/study", response_class=HTMLResponse)
