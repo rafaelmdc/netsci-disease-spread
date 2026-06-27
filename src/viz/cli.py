@@ -144,33 +144,3 @@ def site() -> None:
         f"built site for {tally['runs']} runs across {tally['networks']} network(s) "
         f"→ open {results_figure('index.html')}"
     )
-
-
-@app.command(name="app")
-def explorer(
-    host: str = typer.Option("127.0.0.1", help="host to bind"),
-    port: int = typer.Option(8050, help="port to serve on"),
-    debug: bool = typer.Option(False, help="Dash debug/hot-reload"),
-    rebuild_structure: bool = typer.Option(
-        False, help="recompute the region-spectrum table even if it exists"
-    ),
-) -> None:
-    """Launch the interactive results explorer (Dash) — one command, everything.
-
-    On startup it builds the study-wide tables itself (aggregates every run,
-    computes the degree-vs-betweenness gap, and the region spectrum) so all tabs
-    populate with no extra steps: outbreak map · curves · strategy comparison ·
-    degree-vs-betweenness gap · region spectrum.
-
-    Requires the `app` extra: `uv sync --extra app` (or `pip install dash
-    dash-bootstrap-components`).
-    """
-    try:
-        from src.viz.app import main as run_app
-    except ImportError as exc:  # pragma: no cover - dependency hint
-        raise typer.BadParameter(
-            "Dash is not installed. Install the explorer extra: uv sync --extra app"
-        ) from exc
-    typer.echo("preparing tables (collect + structure) ...")
-    typer.echo(f"results explorer → http://{host}:{port}  (Ctrl-C to stop)")
-    run_app(host=host, port=port, debug=debug, rebuild_structure=rebuild_structure)
