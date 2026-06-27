@@ -1,8 +1,25 @@
-# One image, two ways to use it.
+# One image, several ways to use it.
 #   docker compose build
-#   docker compose run --rm app netgen toy
-#   docker compose run --rm app evaluate run --config configs/toy_sir.yaml
-#   docker compose up notebook   # Jupyter at http://localhost:8888
+#   docker compose run --rm app netgen toy           # one-off CLI command
+#   docker compose up dashboard worker redis         # the simulator → http://localhost:8000
+#   docker compose up notebook                       # Jupyter at http://localhost:8888
+
+x-artifacts: &artifacts
+  - ./data:/app/data
+  - ./results:/app/results
+  - ./figures:/app/figures
+  - ./configs:/app/configs
+  - ./vendor:/app/vendor
+
+# The web app also mounts the source (editable install) so code changes are
+# picked up on a container restart — `make app` needs no rebuild for src edits.
+x-app-volumes: &app-volumes
+  - ./src:/app/src
+  - ./data:/app/data
+  - ./results:/app/results
+  - ./figures:/app/figures
+  - ./configs:/app/configs
+  - ./vendor:/app/vendor
 
 services:
   app:
@@ -11,15 +28,44 @@ services:
     working_dir: /app
     # write artifacts as the host user, not root (override: `export UID GID`)
     user: "${UID:-1000}:${GID:-1000}"
-    # the Dash explorer (`viz app`) serves here; `--service-ports` publishes it
+    volumes: *artifacts
+
+  # Redis backs the arq job queue + the live progress pub/sub.
+  redis:
+    image: redis:7-alpine
     ports:
-      - "8050:8050"
-    volumes:
-      - ./data:/app/data
-      - ./results:/app/results
-      - ./figures:/app/figures
-      - ./configs:/app/configs
-      - ./vendor:/app/vendor
+      - "6379:6379"
+
+  # The simulator web app (design → run live → explore).
+  dashboard:
+    build: .
+    image: netsci-disease-spread:latest
+    working_dir: /app
+    user: "${UID:-1000}:${GID:-1000}"
+    entrypoint: []
+    # --reload: src is bind-mounted, so code edits are picked up live (no rebuild)
+    command: netsci dashboard --host 0.0.0.0 --port 8000 --reload
+    environment:
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8000:8000"
+    volumes: *app-volumes
+    depends_on:
+      - redis
+
+  # The arq worker that executes queued simulations (one at a time).
+  worker:
+    build: .
+    image: netsci-disease-spread:latest
+    working_dir: /app
+    user: "${UID:-1000}:${GID:-1000}"
+    entrypoint: []
+    command: netsci worker
+    environment:
+      REDIS_URL: redis://redis:6379
+    volumes: *app-volumes
+    depends_on:
+      - redis
 
   notebook:
     image: netsci-disease-spread:latest

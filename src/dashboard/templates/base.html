@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Outbreak console{% endblock %} · netsci</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/vendor/plotly.min.js"></script>
+  <script src="/static/vendor/htmx.min.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand"><span class="dot"></span> netsci<span style="color:var(--c-i)">/</span>outbreak <small>simulator</small></span>
+    <nav class="nav-links">
+      <a href="/" class="{{ 'active' if request.url.path == '/' else '' }}">Console</a>
+      <a href="/new" class="{{ 'active' if request.url.path == '/new' else '' }}">New run</a>
+      <a href="/study" class="{{ 'active' if request.url.path == '/study' else '' }}">Study</a>
+      <a href="/runs" class="{{ 'active' if request.url.path.startswith('/run') else '' }}">Browse</a>
+      <a href="/compare" class="{{ 'active' if request.url.path == '/compare' else '' }}">Compare</a>
+      <a href="/data" class="{{ 'active' if request.url.path == '/data' else '' }}">Data</a>
+    </nav>
+  </header>
+  <main class="wrap {% block main_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -62,6 +62,7 @@ def test_save_node_timeseries_written(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "src.evaluate.runner.run_timeseries", lambda *a, **k: tmp_path / "timeseries.parquet"
     )
+    monkeypatch.setattr("src.evaluate.runner.run_state", lambda *a, **k: tmp_path / "state.npz")
     from src.evaluate.runner import run_and_save
 
     run_and_save(_run(), _line_graph(), record_nodes=True)

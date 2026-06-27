@@ -18,7 +18,7 @@ lives in [`../src`](../src); this folder is the design + writeup.
 6. **[EXPERIMENTS.md](EXPERIMENTS.md)** — the 8 networks we build, what runs
    on each, and the air-interdiction experiment.
 7. **[VISUALIZATION.md](VISUALIZATION.md)** — the navigable output layout, the
-   animated outbreak map, and the one-tab Dash explorer (`netsci viz app`).
+   animated outbreak map, and the simulator web app (`netsci dashboard`).
 8. **[ROADMAP.md](ROADMAP.md)** — status board and the build slices.
 9. **[MAINTENANCE.md](MAINTENANCE.md)** — reproducibility contract and
    conventions for extending the code.
@@ -29,10 +29,10 @@ lives in [`../src`](../src); this folder is the design + writeup.
 |-----|----------------|
 | [literature-review.md](literature-review.md) | ~25 verified references, grouped by theme; the novelty argument |
 | [METHODOLOGY.md](METHODOLOGY.md) | Model definitions, parameter strategy, calibration vs. verification, comparison-axis consistency |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, contracts, output layout, HTML visualizers + Dash explorer |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, contracts, output layout, HTML visualizers + the simulator app |
 | [DATA.md](DATA.md) | OpenFlights + land/water sources; topology vs. flow coverage; Eurostat-as-validation |
 | [EXPERIMENTS.md](EXPERIMENTS.md) | The 8 networks, per-network run plan, air-interdiction scenarios A–D |
-| [VISUALIZATION.md](VISUALIZATION.md) | Co-located navigable outputs, animated map, Dash app, shared plotly bundle |
+| [VISUALIZATION.md](VISUALIZATION.md) | Co-located navigable outputs, animated map, the simulator web app, shared plotly bundle |
 | [ROADMAP.md](ROADMAP.md) | Phases / vertical slices, open decisions |
 | [MAINTENANCE.md](MAINTENANCE.md) | Determinism, configs, run_id, the one-command Nextflow/Docker run, testing |
 | [tex/](tex/) | The paper (KDD Explorations double-column). Build: `tectonic tex/main.tex` |

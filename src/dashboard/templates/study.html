@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Multi-run{% endblock %}
+
+{% macro list_field(name, label, default) %}
+<div class="field">
+  <label>{{ label }} <span class="muted">(swept)</span></label>
+  <div class="list-rows" data-name="{{ name }}">
+    <div class="list-row">
+      <input name="{{ name }}" value="{{ default }}">
+      <button type="button" class="list-rm" aria-label="remove value">&times;</button>
+    </div>
+  </div>
+  <button type="button" class="list-add" data-target="{{ name }}">+ add value</button>
+</div>
+{% endmacro %}
+
+{% block content %}
+
+<h1>Multi-run</h1>
+<p class="lede" style="margin-bottom:1.6rem">Like a single run, but any parameter
+  can take several values — add values with <span class="mono">+</span> and the
+  whole grid is run as one study. The total is the product of every list.</p>
+
+{% if error %}<div class="alert-err" style="margin-bottom:1.4rem">{{ error }}</div>{% endif %}
+
+{% if not networks %}
+  <div class="alert-err">No networks are built yet — build one on the
+    <a href="/data">Data</a> page first.</div>
+{% else %}
+<form method="post" action="/study/run">
+  <div class="grid2" style="gap:1.4rem;align-items:start">
+
+    <div class="panel">
+      <div class="panel-h">Network</div>
+      <div class="panel-b">
+        <div class="field">
+          <label for="region">Region</label>
+          <select id="region" name="region">
+            {% for region in networks.keys() %}<option value="{{ region }}">{{ region|capitalize }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Transport networks <span class="muted">(swept)</span></label>
+          <div class="chips" id="combo-chips"></div>
+          <p class="muted" style="font-size:.78rem;margin-top:.45rem">Each network you
+            pick is run across the whole parameter grid — tick several (e.g. air-only
+            and air+land+water) to sweep over the substrate too.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">Disease models <span class="muted">(swept)</span></div>
+      <div class="panel-b">
+        <div class="field">
+          <label>Models</label>
+          <div class="chips" id="model-chips">
+            {% for m in models %}<label class="chip model-chip"><input type="checkbox" name="models" value="{{ m }}" {{ 'checked' if m=='sir' else '' }} onchange="syncParams()"> {{ m|upper }}</label>{% endfor %}
+          </div>
+        </div>
+        {{ list_field("betas", "β — transmission", "0.32") }}
+        <div class="grid2">
+          <div class="field"><label for="gamma">γ — recovery</label><input id="gamma" name="gamma" value="0.12"></div>
+          <div class="field" data-need="sigma" hidden><label for="sigma">σ — incubation</label><input id="sigma" name="sigma" value="0.2"></div>
+          <div class="field" data-need="kappa" hidden><label for="kappa">κ — quarantine</label><input id="kappa" name="kappa" value="0.15"></div>
+          <div class="field" data-need="gamma_q" hidden><label for="gamma_q">γq — recovery (Q)</label><input id="gamma_q" name="gamma_q" value="0.1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">Vaccination <span class="muted">(swept)</span></div>
+      <div class="panel-b">
+        <div class="field">
+          <label>Strategies</label>
+          <div class="chips">
+            {% for s in strategies %}<label class="chip"><input type="checkbox" name="strategies" value="{{ s }}" {{ 'checked' if s in ('control','betweenness') else '' }}> {{ s }}</label>{% endfor %}
+          </div>
+        </div>
+        {{ list_field("coverages", "Coverage", "0.75") }}
+        <div class="grid2">
+          <div class="field"><label for="budget">Budget — cities</label><input id="budget" name="budget" value="15"></div>
+          <div class="field"><label for="efficacy">Efficacy</label><input id="efficacy" name="efficacy" value="0.85"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">Dynamics</div>
+      <div class="panel-b">
+        {{ list_field("taus", "τ — travel rate", "0.0002") }}
+        {{ list_field("seeds", "RNG seed", "0") }}
+        <div class="grid2">
+          <div class="field"><label for="horizon">Horizon — days</label><input id="horizon" name="horizon" value="210"></div>
+          <div class="field"><label for="seed_size">Seed — infected</label><input id="seed_size" name="seed_size" value="2500"></div>
+        </div>
+        <div class="field"><label class="chip"><input type="checkbox" name="maps" checked> record outbreak maps per run</label></div>
+      </div>
+    </div>
+
+  </div>
+  <div style="margin-top:1.6rem"><button class="btn-run" type="submit">Run study ▸</button></div>
+</form>
+{% endif %}
+
+<script>
+  const NEEDS = { sir: [], sis: [], seir: ["sigma"], sqir: ["sigma","kappa","gamma_q"] };
+  function syncParams() {
+    const need = new Set();
+    document.querySelectorAll('.model-chip input:checked').forEach(i => (NEEDS[i.value]||[]).forEach(n => need.add(n)));
+    document.querySelectorAll('[data-need]').forEach(el => { el.hidden = !need.has(el.getAttribute('data-need')); });
+  }
+  syncParams();
+
+  // list fields: + add / remove rows that share an input name
+  document.querySelectorAll('.list-add').forEach(btn => btn.addEventListener('click', () => {
+    const rows = document.querySelector(`.list-rows[data-name="${btn.dataset.target}"]`);
+    const row = rows.firstElementChild.cloneNode(true);
+    const inp = row.querySelector('input'); inp.value = '';
+    rows.appendChild(row); inp.focus();
+  }));
+  document.addEventListener('click', e => {
+    if (!e.target.classList.contains('list-rm')) return;
+    const rows = e.target.closest('.list-rows');
+    if (rows.querySelectorAll('.list-row').length > 1) e.target.closest('.list-row').remove();
+  });
+
+  // built networks per region: {region: [[layers], ...]}. Each combo is its own
+  // sweepable network — ticking air-only and air+land+water runs both substrates.
+  const NETWORKS = {{ networks | tojson }};
+  const comboChips = document.getElementById('combo-chips');
+  function renderCombos() {
+    const combos = NETWORKS[document.getElementById('region').value] || [];
+    comboChips.innerHTML = combos.map((layers, i) => {
+      const val = layers.join('+');
+      return `<label class="chip"><input type="checkbox" name="combos" value="${val}"`
+           + `${i === 0 ? ' checked' : ''}> ${layers.join(' + ')}</label>`;
+    }).join('') || '<span class="muted mono">no networks built for this region</span>';
+  }
+  document.getElementById('region').addEventListener('change', renderCombos);
+  renderCombos();
+</script>
+{% endblock %}

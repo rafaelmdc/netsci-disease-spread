@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Browse{% endblock %}
+{% block main_class %}wide{% endblock %}
+{% block content %}
+
+<h1>Browse results</h1>
+<p class="lede" style="margin-bottom:1.4rem">Every individual run saved under
+  <span class="mono">results/</span>, read straight from disk. Filter and search,
+  then open one for its curves, spread map and downloads.</p>
+
+{% if not rows %}
+  <div class="alert-err">No runs found under <span class="mono">results/</span>.
+    Launch one from <a href="/new">New run</a> or <a href="/study">Study</a>.</div>
+{% else %}
+
+<div class="panel" style="margin-bottom:1rem">
+  <div class="panel-b" style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:flex-end">
+    <div class="field" style="margin:0;flex:1 1 240px">
+      <label for="q">Search</label>
+      <input id="q" placeholder="label, network, model, strategy…" autocomplete="off">
+    </div>
+    <div class="field" style="margin:0">
+      <label for="f-net">Network</label>
+      <select id="f-net"><option value="">all</option>
+        {% for n in regions %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field" style="margin:0">
+      <label for="f-model">Model</label>
+      <select id="f-model"><option value="">all</option>
+        {% for m in models %}<option value="{{ m }}">{{ m|upper }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field" style="margin:0">
+      <label for="f-strat">Strategy</label>
+      <select id="f-strat"><option value="">all</option>
+        {% for s in strategies %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-h" style="display:flex;justify-content:space-between;align-items:center">
+    <span><span id="count">{{ rows|length }}</span> runs</span>
+    <a id="compare-btn" class="btn-run disabled" href="#" aria-disabled="true"
+       style="padding:.4rem 1rem;font-size:.78rem">Compare selected (<span id="pick-count">0</span>)</a>
+  </div>
+  <div class="panel-b" style="padding:0">
+    <div class="scroll-10" style="max-height:none">
+      <table class="runs" id="runs-table">
+        <thead><tr>
+          <th class="pick"><input type="checkbox" id="pick-all" aria-label="select all"></th>
+          <th data-sort="net">Network</th>
+          <th data-sort="model">Model</th>
+          <th data-sort="strat">Strategy</th>
+          <th data-sort="coverage" class="num">Coverage</th>
+          <th data-sort="seed" class="num">Seed</th>
+          <th data-sort="peak" class="num">Peak infectious</th>
+          <th>Maps</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+        {% for r in rows %}
+          <tr data-net="{{ r.network }}" data-model="{{ r.model }}" data-strat="{{ r.strategy }}"
+              data-search="{{ (r.label ~ ' ' ~ r.network ~ ' ' ~ r.model ~ ' ' ~ r.strategy)|lower }}"
+              data-coverage="{{ r.coverage }}" data-seed="{{ r.seed }}" data-peak="{{ r.peak }}">
+            <td class="pick"><input type="checkbox" class="pick-run"
+                value="{{ r.region }}/{{ r.combo }}/{{ r.label }}" aria-label="select run"></td>
+            <td>{{ r.network }}
+              <div class="muted mono" style="font-size:.7rem">{{ r.label }}</div></td>
+            <td class="mono">{{ r.model|upper }}</td>
+            <td class="mono">{{ r.strategy }}</td>
+            <td class="num mono">{{ "%.0f%%"|format(r.coverage * 100) }}</td>
+            <td class="num mono">{{ r.seed }}</td>
+            <td class="num mono">{{ "{:,.0f}".format(r.peak) }}</td>
+            <td>{% if r.has_nodes %}<span class="chip" style="cursor:default">map</span>{% endif %}</td>
+            <td class="num"><a class="mono" href="/run/{{ r.region }}/{{ r.combo }}/{{ r.label }}">open →</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block scripts %}
+<script>
+  const rowsEl = () => [...document.querySelectorAll("#runs-table tbody tr")];
+  const q = document.getElementById("q");
+  const fNet = document.getElementById("f-net");
+  const fModel = document.getElementById("f-model");
+  const fStrat = document.getElementById("f-strat");
+  const countEl = document.getElementById("count");
+
+  function applyFilters() {
+    const term = q.value.trim().toLowerCase();
+    const net = fNet.value, model = fModel.value, strat = fStrat.value;
+    let n = 0;
+    rowsEl().forEach(tr => {
+      const ok = (!net || tr.dataset.net === net)
+        && (!model || tr.dataset.model === model)
+        && (!strat || tr.dataset.strat === strat)
+        && (!term || tr.dataset.search.includes(term));
+      tr.hidden = !ok;
+      if (ok) n++;
+    });
+    countEl.textContent = n;
+  }
+  [q, fNet, fModel, fStrat].forEach(el => el && el.addEventListener("input", applyFilters));
+
+  // selection → build the /compare?r=… link from the ticked rows
+  const compareBtn = document.getElementById("compare-btn");
+  const pickCount = document.getElementById("pick-count");
+  const pickAll = document.getElementById("pick-all");
+  function syncSelection() {
+    const picked = [...document.querySelectorAll(".pick-run:checked")];
+    pickCount.textContent = picked.length;
+    if (picked.length >= 2) {
+      compareBtn.href = "/compare?" + picked.map(c => "r=" + encodeURIComponent(c.value)).join("&");
+      compareBtn.classList.remove("disabled");
+      compareBtn.setAttribute("aria-disabled", "false");
+    } else {
+      compareBtn.href = "#";
+      compareBtn.classList.add("disabled");
+      compareBtn.setAttribute("aria-disabled", "true");
+    }
+  }
+  document.querySelectorAll(".pick-run").forEach(c => c.addEventListener("change", syncSelection));
+  if (pickAll) pickAll.addEventListener("change", () => {
+    // tick only the rows currently visible after filtering
+    rowsEl().forEach(tr => { if (!tr.hidden) tr.querySelector(".pick-run").checked = pickAll.checked; });
+    syncSelection();
+  });
+  compareBtn.addEventListener("click", e => { if (compareBtn.classList.contains("disabled")) e.preventDefault(); });
+
+  // click a header to sort by that column (numeric where marked)
+  let sortDir = {};
+  document.querySelectorAll("#runs-table th[data-sort]").forEach(th => {
+    th.style.cursor = "pointer";
+    th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      const num = th.classList.contains("num");
+      const dir = sortDir[key] = -(sortDir[key] || 1);
+      const body = document.querySelector("#runs-table tbody");
+      rowsEl().sort((a, b) => {
+        let av = a.dataset[key] ?? a.dataset.search, bv = b.dataset[key] ?? b.dataset.search;
+        if (num) { av = parseFloat(av) || 0; bv = parseFloat(bv) || 0; return (av - bv) * dir; }
+        return String(av).localeCompare(String(bv)) * dir;
+      }).forEach(tr => body.appendChild(tr));
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+
+{% set net = config.network %}
+{% set s = summary %}
+
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+  <div>
+    <div class="eyebrow">Run complete</div>
+    <h1 style="margin-bottom:.3rem">{{ title }}</h1>
+    <div class="muted mono" style="font-size:.85rem">
+      {{ net.region }} / {{ net.layers | join("+") }} ·
+      {{ config.model.name | upper }} · {{ config.strategy.name }} ·
+      {{ config.sim.horizon }} days · seed {{ config.sim.seed }}
+      {% if lineage.segments and lineage.segments|length > 1 %}
+        · extended {{ lineage.segments | join(" + ") }} d
+      {% endif %}
+    </div>
+  </div>
+  <a class="btn-ghost" href="/new">New run</a>
+</div>
+
+<div class="stat-row" style="margin:1.4rem 0">
+  <div class="stat"><div class="k">Peak infectious</div><div class="v">{{ "{:,.0f}".format(s.peak_infected) }}</div></div>
+  <div class="stat"><div class="k">Day of peak</div><div class="v">{{ s.time_to_peak | int }}</div></div>
+  <div class="stat"><div class="k">Still infectious</div><div class="v">{{ "{:,.0f}".format(s.final_infected) }}</div></div>
+  {% if s.final_recovered is defined %}
+  <div class="stat"><div class="k">Attack rate</div><div class="v">{{ "{:.1%}".format(s.final_recovered / s.total_population) }}</div></div>
+  {% endif %}
+  <div class="stat"><div class="k">Vaccinated</div><div class="v">{{ "{:,.0f}".format(s.vaccinated) }}</div></div>
+</div>
+
+{% if has_state %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-b" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <div>
+      <div class="mono" style="color:var(--text)">Continue run</div>
+      <div class="muted" style="font-size:.85rem">Resume from the final state for additional days.</div>
+    </div>
+    <form method="post" action="/run/{{ region }}/{{ combo }}/{{ label }}/continue"
+          style="display:flex;align-items:flex-end;gap:.6rem;margin-left:auto">
+      <div class="field" style="margin:0">
+        <label for="extra_days">Add days</label>
+        <input id="extra_days" name="extra_days" value="30" style="width:110px">
+      </div>
+      <button class="btn-run" type="submit">Continue ▸</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Epidemic curves</div>
+  <div class="panel-b">{{ curves_div | safe }}</div>
+</div>
+
+{% if spread_div %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Outbreak spread — animated</div>
+  <div class="panel-b">{{ spread_div | safe }}</div>
+</div>
+{% endif %}
+
+{% if structure_div %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Network structure — degree vs betweenness</div>
+  <div class="panel-b">{{ structure_div | safe }}</div>
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="panel-h">Downloads</div>
+  <div class="panel-b chips">
+    {% set base = "/files/" ~ region ~ "/" ~ combo ~ "/" ~ label %}
+    {% set rbase = "/run/" ~ region ~ "/" ~ combo ~ "/" ~ label %}
+    <a class="chip" href="{{ base }}/summary.json">summary.json</a>
+    <a class="chip" href="{{ base }}/timeseries.parquet">timeseries.parquet</a>
+    {% if spread_div %}<a class="chip" href="{{ base }}/node_timeseries.parquet">node_timeseries.parquet</a>{% endif %}
+    <a class="chip" href="{{ rbase }}/gexf/network">network.gexf (Gephi)</a>
+    {% if spread_div %}<a class="chip" href="{{ rbase }}/gexf/run">outbreak.gexf (Gephi)</a>{% endif %}
+  </div>
+</div>
+
+{% endblock %}

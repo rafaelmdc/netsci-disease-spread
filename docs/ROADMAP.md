@@ -16,7 +16,8 @@ Living document. Tracks what exists, what's next, and open decisions.
 | Slice 3 (subgraph/core + verify) | ✅ subgraph strategy, threshold verification |
 | Slice 4 (multimodal) | 🟡 air+land+water built for Europe; water + OSM/GRIP global coverage = GAPS |
 | Slice 5 (multi-region) | ✅ cross-region spectrum (FDR anomalous-gateway detection) |
-| Slice 6 (viz + explorer) | ✅ animated map, structure, panels, interdiction, navigable site, **one-tab Dash app** |
+| Slice 6 (viz + explorer) | ✅ animated map, structure, panels, interdiction, navigable site |
+| Simulator web app | ✅ FastAPI + arq/Redis: design → run **live day-by-day** (SSE) → explore + "add days" continuation; replaced the Dash explorer |
 | Air-interdiction experiment | ✅ scenarios A–D (`netsci evaluate interdiction`) |
 | One-command run | ✅ `make run` — Nextflow-in-Docker chains all 3 modules; vendored ferry snapshot + idempotent retrieve make a clean clone deterministic |
 | Tests | ✅ 70 passing, ruff clean |
@@ -78,9 +79,11 @@ Living document. Tracks what exists, what's next, and open decisions.
 - [x] `pyvis` interactive network (geographic layout, vaccinated nodes).
 - [x] `plotly` epidemic curves (HTML).
 - [x] Geo-animated outbreak over the horizon (`plotly` geo, play + slider).
-- [x] Navigable co-located static site (`netsci viz site`) + **one-tab Dash
-      explorer** (`netsci viz app`) that builds its own tables on launch.
-      See [`VISUALIZATION.md`](VISUALIZATION.md).
+- [x] Navigable co-located static site (`netsci viz site`).
+- [x] **Simulator web app** (`netsci dashboard` + `netsci worker`): FastAPI +
+      arq/Redis, design a scenario, watch it stream live day-by-day over SSE,
+      explore results, and continue a finished run for more days. Replaced the
+      earlier Dash explorer. See [`VISUALIZATION.md`](VISUALIZATION.md).
 
 ### Phase 3 — Multimodal layers
 - [ ] `retrieve`/`netgen` for land (commuting/rail) and water (ferry).

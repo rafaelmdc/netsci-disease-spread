@@ -21,7 +21,7 @@ at future-us and any collaborator picking this up cold.
   already-cached file; `--force` refetches. So the pipeline's first stage is a
   no-op on reruns.
 - **Pin the environment.** Dependencies are pinned in `pyproject.toml`
-  (+ `uv.lock`); the `app` extra adds the Dash explorer. The Docker image is
+  (+ `uv.lock`); the `dashboard` extra adds the simulator web app. The Docker image is
   built from the same lockfile (`uv sync --frozen`), so containerised and local
   runs are byte-identical.
 
@@ -32,7 +32,7 @@ host prerequisites are just Docker and Nextflow (Java), no local Python:
 
 ```bash
 make run                               # docker compose build + nextflow run -ansi-log true
-make app                               # explore the result → http://127.0.0.1:8050
+make app                               # simulator web app → http://127.0.0.1:8000
 # customise via Nextflow params:
 make run NFARGS="--maps false"         # skip the heavy (~2 GB) per-node outbreak maps
 make run NFARGS="--config configs/experiment_multimodal.yaml"
@@ -45,8 +45,8 @@ and how `nextflow.config` bind-mounts artifacts onto the host.
 
 ### Without Docker (development)
 
-`uv sync --extra app` reproduces the locked environment (or
-`pip install -e ".[app]"`); then either `make bake` (the same DAG via
+`uv sync --extra dashboard` reproduces the locked environment (or
+`pip install -e ".[dashboard]"`); then either `make bake` (the same DAG via
 `nextflow -profile local`) or the bare `netsci` CLI per stage:
 
 ```bash
@@ -56,8 +56,15 @@ netsci evaluate sweep --maps           # the whole grid (+ per-node history for 
 netsci evaluate collect                # → summary.parquet + strategy_gap.parquet
 netsci evaluate structure              # → structure.parquet (degree–betweenness spectrum)
 netsci evaluate interdiction --config configs/europe_interdiction.yaml  # scenarios A–D
-netsci viz app                         # one-tab explorer (builds its tables on launch)
 netsci viz site                        # navigable static site of co-located HTML
+```
+
+The **simulator app** needs Redis + a worker alongside the web process:
+
+```bash
+docker run -d -p 6379:6379 redis:7-alpine   # or any Redis; set REDIS_URL to point at it
+netsci worker &                              # arq job runner (executes simulations)
+netsci dashboard                             # FastAPI app → http://127.0.0.1:8000
 ```
 
 ## run_id and human-readable labels

@@ -13,14 +13,14 @@ ENV UV_COMPILE_BYTECODE=1 \
 
 # Install dependencies first (cached layer), without the project itself.
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-install-project --no-dev
+RUN uv sync --frozen --no-install-project --no-dev --extra dashboard
 
 # Now install the project (README.md is referenced by pyproject metadata).
 COPY README.md ./
 COPY src ./src
 COPY configs ./configs
 COPY vendor ./vendor
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --extra dashboard
 
 # --- runtime image: just python + the built venv -------------------------
 FROM python:3.12-slim AS runtime

@@ -154,7 +154,8 @@ def _write_root(groups: dict[tuple[str, str], list[RunEntry]]) -> None:
     )
     body = (
         "<h1>Disease-spread results</h1>"
-        "<p>Browse interactively with <code>netsci viz app</code>, or click through below.</p>"
+        "<p>Browse interactively with the simulator app "
+        "(<code>netsci dashboard</code>), or click through the static pages below.</p>"
         f"{spectrum}"
         "<h3>Networks</h3><table><tr><th>network</th><th>runs</th></tr>"
         f"{net_rows}</table>"

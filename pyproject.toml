@@ -28,10 +28,14 @@ geo = [
 geoviz = [
     "pydeck>=0.8",
 ]
-# Interactive results explorer — the one-tab Dash app (`netsci viz app`).
-app = [
-    "dash>=2.16",
-    "dash-bootstrap-components>=1.5",
+# The simulator web app: FastAPI dashboard + arq worker (`netsci dashboard`).
+dashboard = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "arq>=0.25",
+    "redis>=5.0",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.9",
 ]
 
 [dependency-groups]

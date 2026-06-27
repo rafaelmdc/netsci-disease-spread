@@ -1,0 +1,17 @@
+{# self-refreshes while a data job is queued/running; stops polling once idle #}
+{% set active = jobs | selectattr("status", "in", ["queued", "running"]) | list %}
+<div hx-get="/data/jobs" hx-swap="outerHTML"
+     {% if active %}hx-trigger="load delay:3s"{% endif %}>
+  {% if jobs %}
+    <div class="muted mono" style="font-size:.72rem;margin-bottom:.4rem">recent data jobs</div>
+    {% for j in jobs %}
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem">
+        <span class="badge {{ j.status }}">{{ j.status }}</span>
+        <span class="mono" style="font-size:.82rem">{{ j.title }}</span>
+        {% if j.error %}<span class="muted mono" style="font-size:.7rem">{{ j.error.split("\n")[0] }}</span>{% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="muted" style="font-size:.82rem">No data jobs yet.</div>
+  {% endif %}
+</div>

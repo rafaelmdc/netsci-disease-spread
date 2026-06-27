@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Study{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+  <div>
+    <div class="eyebrow">Multi-run study</div>
+    <h1 style="margin-bottom:.2rem">{{ job.title }}</h1>
+    <span id="study-status" class="badge {{ job.status }}">{{ job.status }}</span>
+  </div>
+  <div style="text-align:right">
+    <div class="console-day"><span id="study-count">0</span><span class="of"> / <span id="study-of">—</span> runs</span></div>
+  </div>
+</div>
+
+<div class="track" style="margin:1.2rem 0 1.6rem"><span id="study-bar"></span></div>
+
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Runs completed</div>
+  <div class="panel-b">
+    <pre id="study-log" class="log" style="height:360px;overflow:auto;margin:0"></pre>
+  </div>
+</div>
+
+<div id="study-done" hidden>
+  <a class="btn-run" href="/compare#aggregate">View aggregate ▸</a>
+  <a class="btn-ghost" href="/runs">Browse runs ▸</a>
+</div>
+
+<p class="muted mono" style="font-size:.8rem;margin-top:1rem">
+  Each cell of the grid runs in turn; results land in the usual results tree and
+  are aggregated when the study finishes.</p>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => startStudy("{{ job.id }}"));
+</script>
+{% endblock %}

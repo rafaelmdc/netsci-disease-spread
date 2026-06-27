@@ -19,6 +19,7 @@ plain diffusive model. The run is a pure function of (config, seed).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 import networkx as nx
@@ -29,6 +30,11 @@ from src.evaluate.models import get_model
 from src.evaluate.models.base import VACCINATED, CompartmentalModel, State
 from src.evaluate.strategies import select_targets
 from src.netgen.flows import haversine_point
+
+#: called after each simulated day with (absolute_day_index, compartment_totals)
+ProgressFn = Callable[[int, dict[str, float]], None]
+#: called every N days with (absolute_day_index, per-node infectious array)
+NodeProgressFn = Callable[[int, "np.ndarray"], None]
 
 _RATE_FIELDS = ("beta", "gamma", "sigma", "kappa", "gamma_q")
 _DEFAULT_LAND_COMMUTE = 0.3  # commuting participation fraction if land has no explicit rate
@@ -56,6 +62,8 @@ class SimResult:
     seed_node: str
     summary: dict[str, float] = field(default_factory=dict)
     node_infectious: list[np.ndarray] | None = None
+    #: per-node compartment arrays at the final day — the resume checkpoint
+    final_state: State | None = None
 
 
 # --- mobility operators -----------------------------------------------------
@@ -188,25 +196,73 @@ def _scale_rates(params: ModelParams, factor: float) -> ModelParams:
 
 # --- simulation -------------------------------------------------------------
 
-def simulate(graph: nx.DiGraph, cfg: RunConfig, record_nodes: bool = False) -> SimResult:
+def summarize(
+    ts: dict[str, list[float]], model: CompartmentalModel, total_population: float
+) -> dict[str, float]:
+    """Headline stats from a (possibly extended) compartment time series."""
+    inf = np.array(ts[model.infectious_key])
+    summary = {
+        "peak_infected": float(inf.max()),
+        "time_to_peak": float(int(inf.argmax())),
+        "final_infected": float(inf[-1]),
+        "total_population": total_population,
+        "vaccinated": float(ts[VACCINATED][-1]),
+    }
+    if "R" in model.compartments:
+        summary["final_recovered"] = float(ts["R"][-1])
+    return summary
+
+
+def simulate(
+    graph: nx.DiGraph,
+    cfg: RunConfig,
+    record_nodes: bool = False,
+    progress: ProgressFn | None = None,
+    init_state: State | None = None,
+    day_offset: int = 0,
+    node_progress: NodeProgressFn | None = None,
+    node_every: int = 1,
+) -> SimResult:
+    """Run the metapopulation dynamics for ``cfg.sim.horizon`` days.
+
+    ``progress(day, totals)`` — if given — is called after each simulated day
+    with the absolute day index (``day_offset + i``) and that day's compartment
+    totals, so a caller can stream the outbreak as it builds.
+
+    ``node_progress(day, infectious)`` — if given — is called every
+    ``node_every`` days with the per-node infectious vector, for a live map
+    (throttled because the per-node payload is much larger than the totals).
+
+    ``init_state`` — if given — *resumes* from that per-node ``State`` instead of
+    starting fresh: initial seeding and vaccination are skipped (they already
+    happened in the original run), and only ``cfg.sim.horizon`` *more* days are
+    simulated. ``day_offset`` is the number of days already elapsed, used purely
+    for the ``progress`` day index. See ``runner.continue_run``.
+    """
     nodes = list(graph.nodes())
     rng = np.random.default_rng(cfg.sim.seed)
     model: CompartmentalModel = get_model(cfg.model.name)
 
     population = np.array([float(graph.nodes[n].get("population", 0.0)) for n in nodes])
-    seed_node = int(rng.integers(len(nodes)))
-
-    state: State = model.init_state(population, seed_node, cfg.sim.seed_size)
-    state[VACCINATED] = np.zeros_like(population, dtype=float)
     tracked = [*model.compartments, VACCINATED]
 
-    targets = select_targets(graph, cfg.strategy, rng)
-    if targets:
-        frac = cfg.strategy.coverage * cfg.strategy.efficacy
-        mask = np.array([n in set(targets) for n in nodes])
-        protected = state[model.susceptible_key] * frac * mask
-        state[model.susceptible_key] -= protected
-        state[VACCINATED] += protected
+    if init_state is None:
+        seed_node = int(rng.integers(len(nodes)))
+        state: State = model.init_state(population, seed_node, cfg.sim.seed_size)
+        state[VACCINATED] = np.zeros_like(population, dtype=float)
+
+        targets = select_targets(graph, cfg.strategy, rng)
+        if targets:
+            frac = cfg.strategy.coverage * cfg.strategy.efficacy
+            mask = np.array([n in set(targets) for n in nodes])
+            protected = state[model.susceptible_key] * frac * mask
+            state[model.susceptible_key] -= protected
+            state[VACCINATED] += protected
+    else:
+        # resume: start from the saved state; no re-seeding / re-vaccinating.
+        state = {c: np.asarray(init_state[c], dtype=float).copy() for c in tracked}
+        seed_node = -1
+        targets = []
 
     sub = cfg.sim.steps_per_day
     commute = _commuting_matrix(graph, nodes, cfg.sim)
@@ -233,7 +289,7 @@ def simulate(graph: nx.DiGraph, cfg: RunConfig, record_nodes: bool = False) -> S
 
     ts: dict[str, list[float]] = {c: [] for c in tracked}
     node_inf: list[np.ndarray] = []
-    for _ in range(cfg.sim.horizon):
+    for day in range(cfg.sim.horizon):
         for _ in range(sub):
             pressure = _pressure(model, state, commute)
             reacted = model.reaction(state, sub_params, pressure)
@@ -265,24 +321,20 @@ def simulate(graph: nx.DiGraph, cfg: RunConfig, record_nodes: bool = False) -> S
             ts[c].append(float(state[c].sum()))
         if record_nodes:
             node_inf.append(state[model.infectious_key].copy())
+        if progress is not None:
+            progress(day_offset + day, {c: ts[c][-1] for c in tracked})
+        if node_progress is not None and (day % node_every == 0 or day == cfg.sim.horizon - 1):
+            node_progress(day_offset + day, state[model.infectious_key])
 
-    inf = np.array(ts[model.infectious_key])
-    summary = {
-        "peak_infected": float(inf.max()),
-        "time_to_peak": float(int(inf.argmax())),
-        "final_infected": float(inf[-1]),
-        "total_population": float(population.sum()),
-        "vaccinated": float(ts[VACCINATED][-1]),
-    }
-    if "R" in model.compartments:
-        summary["final_recovered"] = float(ts["R"][-1])
+    summary = summarize(ts, model, float(population.sum()))
 
     return SimResult(
         nodes=nodes,
         compartments=tracked,
         timeseries=ts,
         targets=targets,
-        seed_node=nodes[seed_node],
+        seed_node=nodes[seed_node] if seed_node >= 0 else "",
         summary=summary,
         node_infectious=node_inf if record_nodes else None,
+        final_state={c: state[c].copy() for c in tracked},
     )
