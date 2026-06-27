@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Data{% endblock %}
+{% block content %}
+
+<h1>Data &amp; networks</h1>
+<p class="lede" style="margin-bottom:1.6rem">Prepare the inputs the simulator runs
+  on, without the command line. Actions run as background jobs.</p>
+
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Actions</div>
+  <div class="panel-b" style="display:flex;flex-wrap:wrap;gap:.7rem;align-items:flex-end">
+    <form method="post" action="/data/run"><input type="hidden" name="action" value="retrieve">
+      <button class="btn-ghost" type="submit">Retrieve all sources</button></form>
+    <form method="post" action="/data/run"><input type="hidden" name="action" value="netgen_all">
+      <button class="btn-ghost" type="submit">Build all networks</button></form>
+    <form method="post" action="/data/run"><input type="hidden" name="action" value="aggregate">
+      <button class="btn-ghost" type="submit">Aggregate (collect + structure)</button></form>
+
+    <form method="post" action="/data/run"
+          style="display:flex;gap:.6rem;align-items:flex-end;margin-left:auto">
+      <input type="hidden" name="action" value="netgen_one">
+      <div class="field" style="margin:0"><label for="region">Build one · region</label>
+        <input id="region" name="region" value="europe" style="width:130px"></div>
+      <div class="field" style="margin:0">
+        <label>Layers</label>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" name="layers" value="air" checked> air</label>
+          <label class="chip"><input type="checkbox" name="layers" value="land"> land</label>
+          <label class="chip"><input type="checkbox" name="layers" value="water"> water</label>
+        </div>
+      </div>
+      <button class="btn-run" type="submit">Build</button>
+    </form>
+  </div>
+</div>
+
+<div hx-get="/data/status" hx-trigger="load, every 2s" hx-swap="innerHTML">
+  {% include "_data_status.html" %}
+</div>
+
+{% endblock %}

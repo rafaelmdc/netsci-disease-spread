@@ -1,0 +1,50 @@
+{% if jobs %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Data jobs</div>
+  <div class="panel-b" style="padding:0">
+    <table class="runs">
+      <tbody>
+      {% for j in jobs %}
+        <tr>
+          <td>{{ j.title }}</td>
+          <td style="text-align:right"><span class="badge {{ j.status }}">{{ j.status }}</span>
+            {% if j.error %}<div class="muted mono" style="font-size:.7rem">{{ j.error.split("\n")[0] }}</div>{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Sources</div>
+  <div class="panel-b">
+    {% for s in sources %}
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+        <span class="badge {{ 'done' if s.present else 'failed' }}">{{ 'ready' if s.present else 'missing' }}</span>
+        <span class="mono" style="color:var(--text)">{{ s.label }}</span>
+        <span class="muted" style="font-size:.78rem">{{ s.info }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-h">Networks built</div>
+  <div class="panel-b">
+    {% if networks %}
+      {% for region, combos in networks.items() %}
+        <div style="margin-bottom:.7rem">
+          <div class="mono" style="color:var(--text);text-transform:capitalize">{{ region }}</div>
+          <div class="chips" style="margin-top:.35rem">
+            {% for combo in combos %}<span class="chip" style="cursor:default">{{ combo | join("+") }}</span>{% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">None yet — retrieve sources, then build a network above.</p>
+    {% endif %}
+  </div>
+</div>

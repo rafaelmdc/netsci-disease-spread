@@ -14,7 +14,26 @@ from src.config import (
     StrategyConfig,
     StrategyName,
 )
-from src.paths import PROCESSED, combo_name, processed_graph
+from src.paths import PROCESSED, combo_name, processed_graph, raw_dir
+
+# the canonical file each retrieval produces, used as the "present?" check
+_SOURCES = {
+    "air": ("OpenFlights (air)", "airports.dat"),
+    "geonames": ("GeoNames cities", "cities1000.txt"),
+    "water": ("OSM ferries (water)", "ferries_world.json"),
+}
+
+
+def data_status() -> dict:
+    """Which raw sources are retrieved (+ provenance) and which networks built."""
+    sources = []
+    for key, (label, filename) in _SOURCES.items():
+        d = raw_dir(key)
+        present = (d / filename).exists()
+        prov = d / "PROVENANCE.txt"
+        info = prov.read_text().splitlines()[0] if prov.exists() else ""
+        sources.append({"key": key, "label": label, "present": present, "info": info})
+    return {"sources": sources, "networks": available_networks()}
 
 
 def available_networks() -> dict[str, list[list[str]]]:

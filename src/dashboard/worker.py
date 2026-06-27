@@ -10,6 +10,7 @@ dashboard relays to the browser over SSE. Artifacts are written by the normal
 from __future__ import annotations
 
 import asyncio
+import time
 import traceback
 
 from arq.connections import RedisSettings
@@ -74,8 +75,56 @@ async def continue_simulation(
         events.publish(job_id, {"type": "failed", "error": str(exc)})
 
 
+def _data_action(action: str, region: str | None, layers: list[str] | None) -> None:
+    """Run one data-prep step synchronously (called in a thread)."""
+    if action == "retrieve":
+        from src.retrieve.geonames import fetch as fetch_geonames
+        from src.retrieve.openflights import fetch as fetch_openflights
+        from src.retrieve.osm_ferries import fetch as fetch_ferries
+        fetch_openflights()
+        fetch_geonames()
+        fetch_ferries()
+    elif action == "netgen_all":
+        from src.config import load_experiment_config
+        from src.netgen.build import build_network
+        from src.netgen.graph_io import write_graphml
+        from src.paths import combo_name, processed_graph
+        exp = load_experiment_config("experiment.yaml")
+        for net in exp.networks():
+            graph = build_network(net)
+            combo = combo_name([layer.value for layer in net.layers])
+            write_graphml(graph, processed_graph(net.region, combo))
+    elif action == "netgen_one":
+        from src.config import Layer, NetworkConfig
+        from src.netgen.build import build_network
+        from src.netgen.graph_io import write_graphml
+        from src.paths import combo_name, processed_graph
+        chosen = layers or ["air"]
+        cfg = NetworkConfig(region=region, layers=[Layer(x) for x in chosen])
+        graph = build_network(cfg)
+        write_graphml(graph, processed_graph(region, combo_name(chosen)))
+    elif action == "aggregate":
+        from src.evaluate.aggregate import collect, structure_table
+        collect()
+        structure_table()
+    else:
+        raise ValueError(f"unknown data action: {action}")
+
+
+async def run_data_task(
+    ctx: dict, job_id: str, action: str, region: str | None = None,
+    layers: list[str] | None = None,
+) -> None:
+    try:
+        jobs.mark_running(job_id)
+        await asyncio.to_thread(_data_action, action, region, layers)
+        jobs.update_job(job_id, status="done", finished_at=time.time())
+    except Exception as exc:  # noqa: BLE001
+        jobs.mark_failed(job_id, f"{exc}\n{traceback.format_exc()}")
+
+
 class WorkerSettings:
-    functions = [run_simulation, continue_simulation]
+    functions = [run_simulation, continue_simulation, run_data_task]
     redis_settings = RedisSettings.from_dsn(events.redis_url())
     max_jobs = 1  # one heavy simulation at a time
     job_timeout = 60 * 60  # an hour ceiling for a single run

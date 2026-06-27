@@ -21,7 +21,7 @@ from fastapi.templating import Jinja2Templates
 from src.config import ModelName, StrategyName
 from src.dashboard import events, jobs
 from src.dashboard.figures import compare_context, results_context
-from src.dashboard.forms import available_networks, graph_is_built, parse_run_form
+from src.dashboard.forms import available_networks, data_status, graph_is_built, parse_run_form
 from src.netgen.graph_io import read_graphml
 from src.paths import (
     RESULTS,
@@ -168,6 +168,41 @@ async def continue_sim(request: Request, job_id: str, extra_days: int = Form(...
 @app.get("/compare", response_class=HTMLResponse)
 async def compare(request: Request):
     return templates.TemplateResponse(request, "compare.html", compare_context())
+
+
+@app.get("/data", response_class=HTMLResponse)
+async def data_page(request: Request):
+    return templates.TemplateResponse(request, "data.html", _data_ctx())
+
+
+@app.get("/data/status", response_class=HTMLResponse)
+async def data_status_fragment(request: Request):
+    # polled by htmx so action buttons reflect job progress without a full reload
+    return templates.TemplateResponse(request, "_data_status.html", _data_ctx())
+
+
+@app.post("/data/run")
+async def data_run(request: Request):
+    form = await request.form()
+    action = form.get("action", "")
+    region = form.get("region", "")
+    layers = form.getlist("layers")
+    titles = {
+        "retrieve": "retrieve all sources",
+        "netgen_all": "build all networks",
+        "netgen_one": f"build {region}/{'+'.join(layers) or 'air'}",
+        "aggregate": "aggregate (collect + structure)",
+    }
+    if action not in titles:
+        return HTMLResponse("Unknown action", status_code=400)
+    job_id = jobs.create_job("data", titles[action])
+    await app.state.arq.enqueue_job("run_data_task", job_id, action, region or None, layers or None)
+    return RedirectResponse("/data", status_code=303)
+
+
+def _data_ctx() -> dict:
+    return {**data_status(),
+            "jobs": [j for j in jobs.list_jobs(limit=20) if j["kind"] == "data"]}
 
 
 @app.get("/jobs", response_class=HTMLResponse)
