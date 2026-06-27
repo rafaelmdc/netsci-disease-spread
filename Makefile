@@ -11,7 +11,8 @@
 #   make run NFARGS="--config configs/experiment_multimodal.yaml"
 #
 # Other targets:
-#   make app        # launch the simulator web app (http://127.0.0.1:8000)
+#   make app-build  # build the web-app image (only after dependency changes)
+#   make app        # launch the simulator web app (http://127.0.0.1:8000), no rebuild
 #   make app-down   # stop the web app (frees the port for another checkout)
 #   make bake       # same pipeline WITHOUT Docker, in your active env (conda etc.)
 #   make clean      # wipe results/ (keeps downloaded data/)
@@ -21,7 +22,7 @@ INTERDICTION ?= configs/europe_interdiction.yaml
 RESULTS      ?= results
 NFARGS       ?=
 
-.PHONY: default run build bake retrieve netgen sweep collect structure interdiction site app app-down nextflow clean cleaner
+.PHONY: default run build bake retrieve netgen sweep collect structure interdiction site app app-build app-down nextflow clean cleaner
 
 default: run
 
@@ -66,9 +67,13 @@ interdiction: structure
 site: structure
 	netsci viz site
 
+## app-build: (re)build the web-app image — only needed after dependency changes
+app-build:
+	docker compose build dashboard worker
+
 ## app: launch the simulator web app (dashboard + worker + redis) at http://127.0.0.1:8000
 app:
-	docker compose up --build dashboard worker redis
+	docker compose up dashboard worker redis
 
 ## app-down: stop the web app and remove its containers (frees port 8000 + redis)
 app-down:

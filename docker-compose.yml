@@ -11,6 +11,16 @@ x-artifacts: &artifacts
   - ./configs:/app/configs
   - ./vendor:/app/vendor
 
+# The web app also mounts the source (editable install) so code changes are
+# picked up on a container restart — `make app` needs no rebuild for src edits.
+x-app-volumes: &app-volumes
+  - ./src:/app/src
+  - ./data:/app/data
+  - ./results:/app/results
+  - ./figures:/app/figures
+  - ./configs:/app/configs
+  - ./vendor:/app/vendor
+
 services:
   app:
     build: .
@@ -38,7 +48,7 @@ services:
       REDIS_URL: redis://redis:6379
     ports:
       - "8000:8000"
-    volumes: *artifacts
+    volumes: *app-volumes
     depends_on:
       - redis
 
@@ -52,7 +62,7 @@ services:
     command: netsci worker
     environment:
       REDIS_URL: redis://redis:6379
-    volumes: *artifacts
+    volumes: *app-volumes
     depends_on:
       - redis
 
