@@ -64,6 +64,36 @@ function startMonitor(jobId) {
     }).join("");
   }
 
+  // --- live outbreak map (optional; appears when geo events arrive) ---
+  const mapEl = document.getElementById("live-map");
+  const mapPanel = document.getElementById("live-map-panel");
+  let geoLat = [], geoLon = [];
+
+  function initMap(lat, lon) {
+    geoLat = lat; geoLon = lon;
+    if (mapPanel) mapPanel.hidden = false;
+    const trace = {
+      type: "scattergeo", lat, lon, mode: "markers", hoverinfo: "none",
+      marker: { size: lat.map(() => 2), color: lat.map(() => 0),
+        colorscale: [[0, "#26314f"], [1, "#ff6b5e"]], cmin: 0, cmax: 1,
+        showscale: false, line: { width: 0 } },
+    };
+    const layout = {
+      paper_bgcolor: "transparent", margin: { l: 0, r: 0, t: 0, b: 0 },
+      geo: { bgcolor: "rgba(0,0,0,0)", showland: true, landcolor: "#11182b",
+        showcountries: true, countrycolor: "#26314f", coastlinecolor: "#26314f",
+        framecolor: "#26314f", showframe: false },
+    };
+    Plotly.newPlot(mapEl, [trace], layout, { displaylogo: false, responsive: true });
+  }
+  function updateMap(inf) {
+    if (!geoLat.length) return;
+    const max = Math.max(1, ...inf);
+    const size = inf.map(v => v > 0.5 ? 4 + 20 * Math.sqrt(v / max) : 1.5);
+    const color = inf.map(v => v / max);
+    Plotly.restyle(mapEl, { "marker.size": [size], "marker.color": [color] });
+  }
+
   const es = new EventSource(`/sim/${jobId}/stream`);
   es.onmessage = (e) => {
     const ev = JSON.parse(e.data);
@@ -72,6 +102,10 @@ function startMonitor(jobId) {
       ofEl.textContent = horizon;
       if (ev.compartments) initChart(ev.compartments);
       setStatus("running", "running");
+    } else if (ev.type === "geo_init") {
+      initMap(ev.lat, ev.lon);
+    } else if (ev.type === "geo_day") {
+      updateMap(ev.inf);
     } else if (ev.type === "day") {
       if (!order.length && ev.totals) initChart(Object.keys(ev.totals));
       pushDay(ev.day, ev.totals);

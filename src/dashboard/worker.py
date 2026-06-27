@@ -18,7 +18,8 @@ from arq.connections import RedisSettings
 from src.config import RunConfig
 from src.dashboard import events, jobs
 from src.evaluate.models import get_model
-from src.evaluate.runner import continue_run, run_and_save
+from src.evaluate.runner import continue_run, resolve_graph_path, run_and_save
+from src.netgen.graph_io import read_graphml
 from src.paths import combo_name
 
 
@@ -32,6 +33,13 @@ def _progress_cb(job_id: str):
     return cb
 
 
+def _node_cb(job_id: str):
+    def cb(day: int, infectious) -> None:
+        events.publish(job_id, {"type": "geo_day", "day": day,
+                                "inf": [int(round(float(x))) for x in infectious]})
+    return cb
+
+
 async def run_simulation(ctx: dict, job_id: str, config: dict) -> None:
     cfg = RunConfig.model_validate(config)
     region = cfg.network.region
@@ -39,11 +47,22 @@ async def run_simulation(ctx: dict, job_id: str, config: dict) -> None:
     label = cfg.label
     try:
         jobs.mark_running(job_id)
+        graph = read_graphml(resolve_graph_path(cfg))
         events.publish(job_id, {
             "type": "start", "horizon": cfg.sim.horizon, "from_day": 0,
             "compartments": _compartments(cfg),
         })
-        record = await asyncio.to_thread(run_and_save, cfg, None, True, _progress_cb(job_id))
+        # one-time node positions for the live map, then throttled per-node frames
+        nodes = list(graph.nodes())
+        events.publish(job_id, {
+            "type": "geo_init",
+            "lat": [round(float(graph.nodes[n].get("lat", 0.0)), 3) for n in nodes],
+            "lon": [round(float(graph.nodes[n].get("lon", 0.0)), 3) for n in nodes],
+        })
+        node_every = max(1, cfg.sim.horizon // 60)  # cap the map at ~60 frames
+        record = await asyncio.to_thread(
+            run_and_save, cfg, graph, True, _progress_cb(job_id), _node_cb(job_id), node_every
+        )
         jobs.mark_done(job_id, region, combo, label)
         events.publish(job_id, {
             "type": "done", "region": region, "combo": combo, "label": label,

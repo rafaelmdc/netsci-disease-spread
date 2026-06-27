@@ -44,6 +44,8 @@ def run_and_save(
     graph: nx.DiGraph | None = None,
     record_nodes: bool = False,
     progress: ProgressFn | None = None,
+    node_progress=None,
+    node_every: int = 1,
 ) -> dict:
     """Simulate one run and persist it. When ``record_nodes`` is set, also
     write the per-node, per-day infection history (``node_timeseries.parquet``)
@@ -56,7 +58,8 @@ def run_and_save(
     if graph is None:
         graph = read_graphml(resolve_graph_path(cfg))
 
-    result = simulate(graph, cfg, record_nodes=record_nodes, progress=progress)
+    result = simulate(graph, cfg, record_nodes=record_nodes, progress=progress,
+                      node_progress=node_progress, node_every=node_every)
     combo = _combo(cfg)
 
     record = {

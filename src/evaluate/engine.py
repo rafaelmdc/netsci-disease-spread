@@ -33,6 +33,8 @@ from src.netgen.flows import haversine_point
 
 #: called after each simulated day with (absolute_day_index, compartment_totals)
 ProgressFn = Callable[[int, dict[str, float]], None]
+#: called every N days with (absolute_day_index, per-node infectious array)
+NodeProgressFn = Callable[[int, "np.ndarray"], None]
 
 _RATE_FIELDS = ("beta", "gamma", "sigma", "kappa", "gamma_q")
 _DEFAULT_LAND_COMMUTE = 0.3  # commuting participation fraction if land has no explicit rate
@@ -218,12 +220,18 @@ def simulate(
     progress: ProgressFn | None = None,
     init_state: State | None = None,
     day_offset: int = 0,
+    node_progress: NodeProgressFn | None = None,
+    node_every: int = 1,
 ) -> SimResult:
     """Run the metapopulation dynamics for ``cfg.sim.horizon`` days.
 
     ``progress(day, totals)`` — if given — is called after each simulated day
     with the absolute day index (``day_offset + i``) and that day's compartment
     totals, so a caller can stream the outbreak as it builds.
+
+    ``node_progress(day, infectious)`` — if given — is called every
+    ``node_every`` days with the per-node infectious vector, for a live map
+    (throttled because the per-node payload is much larger than the totals).
 
     ``init_state`` — if given — *resumes* from that per-node ``State`` instead of
     starting fresh: initial seeding and vaccination are skipped (they already
@@ -315,6 +323,8 @@ def simulate(
             node_inf.append(state[model.infectious_key].copy())
         if progress is not None:
             progress(day_offset + day, {c: ts[c][-1] for c in tracked})
+        if node_progress is not None and (day % node_every == 0 or day == cfg.sim.horizon - 1):
+            node_progress(day_offset + day, state[model.infectious_key])
 
     summary = summarize(ts, model, float(population.sum()))
 
