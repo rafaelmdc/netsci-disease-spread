@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}New run{% endblock %}
+{% block content %}
+
+<div class="eyebrow">Design a scenario</div>
+<h1>New run</h1>
+<p class="lede" style="margin-bottom:1.6rem">Every field maps to one knob of the
+  metapopulation model. Pick a built network, a disease, and who gets vaccinated.</p>
+
+{% if error %}<div class="alert-err" style="margin-bottom:1.4rem">{{ error }}</div>{% endif %}
+
+{% if not networks %}
+  <div class="alert-err">No networks are built yet. Run
+    <span class="mono">netsci netgen build-all</span> first.</div>
+{% else %}
+<form method="post" action="/new">
+  <div class="grid2" style="gap:1.4rem;align-items:start">
+
+    <div class="panel">
+      <div class="panel-h">Network</div>
+      <div class="panel-b">
+        <div class="field">
+          <label for="region">Region</label>
+          <select id="region" name="region">
+            {% for region in networks.keys() %}
+              <option value="{{ region }}">{{ region | capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Transport layers</label>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="layers" value="air" checked> air</label>
+            <label class="chip"><input type="checkbox" name="layers" value="land"> land</label>
+            <label class="chip"><input type="checkbox" name="layers" value="water"> water</label>
+          </div>
+          <div class="muted mono" style="font-size:.72rem;margin-top:.5rem">
+            The chosen combination must be built for the region.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">Disease model</div>
+      <div class="panel-b">
+        <div class="field">
+          <label for="model">Compartmental model</label>
+          <select id="model" name="model" onchange="syncParams()">
+            {% for m in models %}<option value="{{ m }}">{{ m | upper }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="beta">β · transmission</label>
+            <input id="beta" name="beta" value="0.4"></div>
+          <div class="field"><label for="gamma">γ · recovery</label>
+            <input id="gamma" name="gamma" value="0.1"></div>
+          <div class="field" data-need="sigma" hidden><label for="sigma">σ · incubation</label>
+            <input id="sigma" name="sigma" value="0.2"></div>
+          <div class="field" data-need="kappa" hidden><label for="kappa">κ · quarantine</label>
+            <input id="kappa" name="kappa" value="0.15"></div>
+          <div class="field" data-need="gamma_q" hidden><label for="gamma_q">γq · recovery (Q)</label>
+            <input id="gamma_q" name="gamma_q" value="0.08"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">Vaccination</div>
+      <div class="panel-b">
+        <div class="field">
+          <label for="strategy">Targeting strategy</label>
+          <select id="strategy" name="strategy">
+            {% for s in strategies %}
+              <option value="{{ s }}" {{ 'selected' if s == 'betweenness' else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="grid3">
+          <div class="field"><label for="budget">Budget · cities</label>
+            <input id="budget" name="budget" value="15"></div>
+          <div class="field"><label for="coverage">Coverage</label>
+            <input id="coverage" name="coverage" value="0.75"></div>
+          <div class="field"><label for="efficacy">Efficacy</label>
+            <input id="efficacy" name="efficacy" value="0.85"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">Dynamics</div>
+      <div class="panel-b">
+        <div class="grid2">
+          <div class="field"><label for="horizon">Horizon · days</label>
+            <input id="horizon" name="horizon" value="75"></div>
+          <div class="field"><label for="tau">τ · travel rate</label>
+            <input id="tau" name="tau" value="0.0002"></div>
+          <div class="field"><label for="seed_size">Seed · infected</label>
+            <input id="seed_size" name="seed_size" value="2500"></div>
+          <div class="field"><label for="seed">RNG seed</label>
+            <input id="seed" name="seed" value="0"></div>
+          <div class="field"><label for="steps_per_day">Sub-steps / day</label>
+            <input id="steps_per_day" name="steps_per_day" value="1"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div style="margin-top:1.6rem;display:flex;gap:.8rem;align-items:center">
+    <button class="btn-run" type="submit">Launch run ▸</button>
+    <span class="muted mono" style="font-size:.8rem">You'll watch it stream live.</span>
+  </div>
+</form>
+{% endif %}
+
+<script>
+  const NEEDS = { sir: [], sis: [], seir: ["sigma"], sqir: ["sigma","kappa","gamma_q"] };
+  function syncParams() {
+    const model = document.getElementById("model").value;
+    const need = NEEDS[model] || [];
+    document.querySelectorAll("[data-need]").forEach(el => {
+      el.hidden = !need.includes(el.getAttribute("data-need"));
+    });
+  }
+  syncParams();
+</script>
+{% endblock %}

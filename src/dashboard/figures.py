@@ -1,0 +1,78 @@
+"""Render the existing Plotly figure builders as embeddable HTML fragments.
+
+We reuse `src.viz`'s figure functions verbatim (the science/plots are correct);
+the dashboard only swaps the shell. Plotly.js is loaded once by the page, so
+fragments are emitted with ``include_plotlyjs=False``.
+"""
+
+from __future__ import annotations
+
+import json
+
+import pandas as pd
+import plotly.graph_objects as go
+
+from src.netgen.graph_io import read_graphml
+from src.paths import run_json, run_timeseries
+from src.viz.catalog import RunEntry
+from src.viz.curves_html import curves_figure
+from src.viz.spread_html import spread_figure
+from src.viz.structure_html import structure_figure
+
+_PLOTLY_CFG = {"displaylogo": False, "responsive": True}
+
+
+def _div(fig: go.Figure) -> str:
+    return fig.to_html(full_html=False, include_plotlyjs=False, config=_PLOTLY_CFG)
+
+
+def _entry(region: str, combo: str, label: str) -> RunEntry:
+    record = json.loads(run_json(region, combo, label).read_text())
+    return RunEntry(
+        label=label, region=region, combo=combo,
+        model=record["config"]["model"]["name"],
+        strategy=record["config"]["strategy"]["name"],
+        coverage=float(record["config"]["strategy"]["coverage"]),
+        seed=int(record["config"]["sim"]["seed"]),
+        peak=float(record["summary"].get("peak_infected", 0.0)),
+        summary_path=run_json(region, combo, label),
+    )
+
+
+def results_context(region: str, combo: str, label: str) -> dict:
+    """Everything the results template needs: record + rendered figure divs."""
+    record = json.loads(run_json(region, combo, label).read_text())
+    entry = _entry(region, combo, label)
+
+    ts = pd.read_parquet(run_timeseries(region, combo, label))
+    curves = _div(curves_figure(ts, title="Epidemic curves"))
+
+    spread = None
+    if entry.has_nodes:
+        node_ts = pd.read_parquet(entry.node_timeseries_path)
+        spread = _div(spread_figure(node_ts, title="Outbreak spread"))
+
+    structure = None
+    try:
+        graph = read_graphml(record["config"]["network"].get("graph_path")
+                             or _graph_path(record))
+        structure = _div(structure_figure(graph))
+    except (FileNotFoundError, KeyError):
+        structure = None
+
+    return {
+        "record": record,
+        "summary": record["summary"],
+        "config": record["config"],
+        "curves_div": curves,
+        "spread_div": spread,
+        "structure_div": structure,
+        "has_state": (entry.run_dir / "state.npz").exists(),
+        "lineage": record.get("lineage", {}),
+    }
+
+
+def _graph_path(record: dict):
+    from src.paths import combo_name, processed_graph
+    net = record["config"]["network"]
+    return processed_graph(net["region"], combo_name(list(net["layers"])))

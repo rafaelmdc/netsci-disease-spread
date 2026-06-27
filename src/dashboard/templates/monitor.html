@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Running{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+  <div>
+    <div class="eyebrow">Live simulation</div>
+    <h1 style="margin-bottom:.2rem">{{ job.title }}</h1>
+    <span id="live-status" class="badge {{ job.status }}">{{ job.status }}</span>
+  </div>
+  <div style="text-align:right">
+    <div class="console-day"><span id="day-now">0</span><span class="of"> / <span id="day-of">—</span> days</span></div>
+  </div>
+</div>
+
+<div class="track" style="margin:1.2rem 0 1.6rem"><span id="bar-fill"></span></div>
+
+<div class="panel">
+  <div class="panel-h">Epidemic curve — building live</div>
+  <div class="panel-b">
+    <div id="live-chart" style="height:440px"></div>
+    <div id="live-stats" class="stat-row" style="margin-top:1rem"></div>
+  </div>
+</div>
+
+<p class="muted mono" style="font-size:.8rem;margin-top:1rem">
+  Streaming from the worker over SSE. This page becomes the full results view when the run finishes.</p>
+
+{% endblock %}
+{% block scripts %}
+<script>startMonitor("{{ job.id }}");</script>
+{% endblock %}

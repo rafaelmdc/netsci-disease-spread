@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Console{% endblock %}
+{% block content %}
+
+<section style="margin-bottom:2.4rem">
+  <div class="eyebrow">Metapopulation epidemic simulator</div>
+  <h1 style="font-size:2.6rem;max-width:18ch">Run an outbreak across a transport network — and watch it spread.</h1>
+  <p class="lede" style="margin-top:.8rem">
+    Design a disease and a vaccination strategy, launch it on the air / land / sea
+    network, and follow the epidemic curve as it builds, day by day. When a run
+    ends short, add more days and keep going from where it stopped.
+  </p>
+  <div style="margin-top:1.4rem;display:flex;gap:.8rem;align-items:center">
+    <a class="btn-run" href="/new">Design a new run →</a>
+    <a class="btn-ghost" href="/jobs">All runs</a>
+  </div>
+  <div class="compartment-key">
+    <span class="ckey"><span class="sw" style="background:var(--c-s)"></span>Susceptible</span>
+    <span class="ckey"><span class="sw" style="background:var(--c-e)"></span>Exposed</span>
+    <span class="ckey"><span class="sw" style="background:var(--c-i)"></span>Infectious</span>
+    <span class="ckey"><span class="sw" style="background:var(--c-r)"></span>Recovered</span>
+    <span class="ckey"><span class="sw" style="background:var(--c-v)"></span>Vaccinated</span>
+  </div>
+</section>
+
+<div class="grid2" style="gap:1.4rem;align-items:start">
+  <div class="panel">
+    <div class="panel-h">Recent runs</div>
+    <div class="panel-b" style="padding:0">
+      {% if jobs %}
+      <table class="runs">
+        <thead><tr><th>Run</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for j in jobs %}
+          <tr>
+            <td><a href="/sim/{{ j.id }}">{{ j.title }}</a>
+                <div class="muted mono" style="font-size:.72rem">{{ j.kind }}</div></td>
+            <td><span class="badge {{ j.status }}">{{ j.status }}</span></td>
+            <td style="text-align:right"><a class="mono" href="/sim/{{ j.id }}">open →</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="panel-b muted">No runs yet. <a href="/new">Design your first one →</a></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-h">Networks ready</div>
+    <div class="panel-b">
+      {% if networks %}
+        {% for region, combos in networks.items() %}
+          <div style="margin-bottom:.8rem">
+            <div class="mono" style="color:var(--text);text-transform:capitalize">{{ region }}</div>
+            <div class="chips" style="margin-top:.4rem">
+              {% for combo in combos %}
+                <span class="chip" style="cursor:default">{{ combo | join("+") }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted">No built networks found under <span class="mono">data/processed/</span>.</p>
+        <p class="muted mono" style="font-size:.82rem">netsci netgen build-all</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
