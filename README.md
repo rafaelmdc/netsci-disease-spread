@@ -85,7 +85,7 @@ From a fresh clone:
 
 ```bash
 make app-build        # build the image once
-make app              # launch the simulator → http://127.0.0.1:8000
+make app              # launch the simulator → open http://127.0.0.1:8000 when it finishes
 ```
 
 After the one-time build, `make app` starts in seconds; the source is
