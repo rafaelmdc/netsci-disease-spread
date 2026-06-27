@@ -30,6 +30,9 @@
           metric <select id="metric-sel" class="mini-select"></select></label>
         <label class="mono" style="font-size:.78rem;display:flex;gap:.35rem;align-items:center">
           <input type="checkbox" id="norm-chk"> % of population</label>
+        <label class="mono" style="font-size:.78rem;display:flex;gap:.35rem;align-items:center">
+          <input type="checkbox" id="delta-chk"> Δ vs
+          <select id="baseline-sel" class="mini-select" disabled></select></label>
       </span>
     </div>
     <div class="panel-b"><div id="compare-chart" style="height:560px"></div></div>
@@ -169,10 +172,13 @@
                     Q: "Quarantined", R: "Recovered", V: "Vaccinated" };
     const metricSel = document.getElementById("metric-sel");
     const normChk = document.getElementById("norm-chk");
+    const deltaChk = document.getElementById("delta-chk");
+    const baselineSel = document.getElementById("baseline-sel");
 
     METRICS.forEach(c => metricSel.add(new Option(`${c} — ${NAMES[c] || c}`, c)));
     metricSel.add(new Option("cumulative infected", "cumulative"));
     metricSel.value = METRICS.includes("I") ? "I" : (METRICS[0] || "cumulative");
+    CHART.forEach((run, i) => baselineSel.add(new Option(run.name, i)));
 
     function seriesFor(run, metric, norm) {
       let y;
@@ -188,25 +194,45 @@
       return y;
     }
     function draw() {
-      const metric = metricSel.value, norm = normChk.checked;
-      const traces = CHART.map(run => {
-        const y = seriesFor(run, metric, norm);
-        return y ? { y, mode: "lines", name: run.name, line: { width: 2.4 } } : null;
-      }).filter(Boolean);
-      const label = metric === "cumulative" ? "cumulative infected"
-                                            : (NAMES[metric] || metric);
+      const metric = metricSel.value, norm = normChk.checked, delta = deltaChk.checked;
+      baselineSel.disabled = !delta;
+      const label = metric === "cumulative" ? "cumulative infected" : (NAMES[metric] || metric);
+      let traces, ytitle;
+
+      if (delta) {
+        // each run as (baseline − run): positive = fewer cases than baseline (averted)
+        const bi = +baselineSel.value;
+        const baseY = seriesFor(CHART[bi], metric, norm);
+        traces = CHART.map((run, i) => {
+          if (i === bi) return null;
+          const y = seriesFor(run, metric, norm);
+          if (!y || !baseY) return null;
+          const n = Math.min(y.length, baseY.length);
+          const d = Array.from({ length: n }, (_, k) => baseY[k] - y[k]);
+          return { y: d, mode: "lines", name: run.name, line: { width: 2.4 } };
+        }).filter(Boolean);
+        ytitle = `${label} averted vs baseline` + (norm ? " (% of pop.)" : " (people)");
+      } else {
+        traces = CHART.map(run => {
+          const y = seriesFor(run, metric, norm);
+          return y ? { y, mode: "lines", name: run.name, line: { width: 2.4 } } : null;
+        }).filter(Boolean);
+        ytitle = norm ? `${label} (% of pop.)` : `${label} (people)`;
+      }
+
       Plotly.react(chartEl, traces, {
         paper_bgcolor: "transparent", plot_bgcolor: "transparent",
         font: { color: "#8a97b2", family: "IBM Plex Mono, monospace", size: 11 },
         margin: { l: 64, r: 16, t: 12, b: 70 },
         xaxis: { title: "day", gridcolor: "#1e2742", zeroline: false },
-        yaxis: { title: norm ? `${label} (% of pop.)` : `${label} (people)`,
-                 gridcolor: "#1e2742", zeroline: false },
+        yaxis: { title: ytitle, gridcolor: "#1e2742", zeroline: delta, zerolinecolor: "#3a4566" },
         legend: { orientation: "h", y: -0.22 },
       }, { displaylogo: false, responsive: true });
     }
     metricSel.addEventListener("change", draw);
     normChk.addEventListener("change", draw);
+    deltaChk.addEventListener("change", draw);
+    baselineSel.addEventListener("change", draw);
     draw();
   }
 </script>
