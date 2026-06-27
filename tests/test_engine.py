@@ -56,6 +56,60 @@ def test_determinism_same_seed():
     assert a.timeseries == b.timeseries
 
 
+def _multi_city_run(horizon):
+    return RunConfig(
+        network=NetworkConfig(region="toy"),
+        model=ModelConfig(name=ModelName.SIR, params=ModelParams(beta=0.4, gamma=0.1)),
+        sim=SimConfig(horizon=horizon, tau=0.01, seed_size=50, seed=0),
+    )
+
+
+def _three_city_graph():
+    g = nx.DiGraph()
+    for n, pop in {"A": 100_000, "B": 100_000, "C": 100_000}.items():
+        g.add_node(n, population=pop, name=n)
+    for a, b in [("A", "B"), ("B", "A"), ("B", "C"), ("C", "B")]:
+        g.add_edge(a, b, weight=1.0)
+    return g
+
+
+def test_progress_callback_fires_once_per_day():
+    g = _three_city_graph()
+    seen = []
+    res = simulate(g, _multi_city_run(30), progress=lambda d, t: seen.append((d, t)))
+    days = [d for d, _ in seen]
+    assert days == list(range(30))  # one call per day, in order
+    # the totals handed to the callback match the recorded series each day
+    for d, totals in seen:
+        for c in res.compartments:
+            assert totals[c] == res.timeseries[c][d]
+
+
+def test_continue_matches_one_long_run():
+    g = _three_city_graph()
+    full = simulate(g, _multi_city_run(80))
+
+    part1 = simulate(g, _multi_city_run(50))
+    part2 = simulate(
+        g, _multi_city_run(30), init_state=part1.final_state, day_offset=50
+    )
+
+    for c in full.compartments:
+        joined = part1.timeseries[c] + part2.timeseries[c]
+        assert np.allclose(joined, full.timeseries[c], atol=1e-9)
+
+
+def test_continue_progress_day_offset():
+    g = _three_city_graph()
+    part1 = simulate(g, _multi_city_run(50))
+    days = []
+    simulate(
+        g, _multi_city_run(30), init_state=part1.final_state, day_offset=50,
+        progress=lambda d, t: days.append(d),
+    )
+    assert days == list(range(50, 80))  # resumed days are numbered after the original
+
+
 def test_diffusion_rate_excludes_land():
     from src.config import SimConfig
     from src.evaluate.engine import diffusion_rate

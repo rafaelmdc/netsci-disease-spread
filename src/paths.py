@@ -59,6 +59,12 @@ def run_node_timeseries(region: str, combo: str, label: str) -> Path:
     return run_dir(region, combo, label) / "node_timeseries.parquet"
 
 
+def run_state(region: str, combo: str, label: str) -> Path:
+    """Per-node compartment arrays at the final day — the resume checkpoint
+    that lets a finished run be continued for more days (see runner.continue_run)."""
+    return run_dir(region, combo, label) / "state.npz"
+
+
 def run_figure(region: str, combo: str, label: str, name: str) -> Path:
     """A figure co-located inside one run's folder, e.g. 'curves.html'."""
     return run_dir(region, combo, label) / name
