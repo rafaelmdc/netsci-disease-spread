@@ -23,8 +23,16 @@
     </div>
   {% else %}
   <div class="panel" style="margin-bottom:1.4rem">
-    <div class="panel-h">Infectious over time — {{ n }} runs overlaid</div>
-    <div class="panel-b">{{ compare_div | safe }}</div>
+    <div class="panel-h" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+      <span>{{ n }} runs overlaid</span>
+      <span style="display:flex;gap:1rem;align-items:center;text-transform:none;letter-spacing:0">
+        <label class="mono" style="font-size:.78rem;display:flex;gap:.4rem;align-items:center">
+          metric <select id="metric-sel" class="mini-select"></select></label>
+        <label class="mono" style="font-size:.78rem;display:flex;gap:.35rem;align-items:center">
+          <input type="checkbox" id="norm-chk"> % of population</label>
+      </span>
+    </div>
+    <div class="panel-b"><div id="compare-chart" style="height:560px"></div></div>
   </div>
 
   <div class="panel">
@@ -38,20 +46,23 @@
         </tr></thead>
         <tbody>
         {% for r in stats %}
+          {% set m = r.mark | default({}) %}
           <tr>
             <td class="mono">{{ r.region }}/{{ r.combo }}
               <div class="muted mono" style="font-size:.7rem">{{ r.label }}</div></td>
             <td class="mono">{{ r.model|upper }}</td>
             <td class="mono">{{ r.strategy }}</td>
-            <td class="num mono">{{ "{:,.0f}".format(r.peak) }}</td>
-            <td class="num mono">{{ r.peak_day }}</td>
-            <td class="num mono">{% if r.attack is not none %}{{ "{:.1%}".format(r.attack) }}{% else %}—{% endif %}</td>
-            <td class="num mono">{{ "{:,.0f}".format(r.vaccinated) }}</td>
+            <td class="num mono {{ m.peak }}">{{ "{:,.0f}".format(r.peak) }}</td>
+            <td class="num mono {{ m.peak_day }}">{{ r.peak_day }}</td>
+            <td class="num mono {{ m.attack }}">{% if r.attack is not none %}{{ "{:.1%}".format(r.attack) }}{% else %}—{% endif %}</td>
+            <td class="num mono {{ m.vaccinated }}">{{ "{:,.0f}".format(r.vaccinated) }}</td>
             <td class="num"><a class="mono" href="/run/{{ r.region }}/{{ r.combo }}/{{ r.label }}">open →</a></td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
+      {% if n > 1 %}<div class="muted" style="font-size:.74rem;padding:.6rem .8rem">
+        <span class="hi">highest</span> · <span class="lo">lowest</span> per column</div>{% endif %}
     </div>
   </div>
   {% endif %}
@@ -148,5 +159,55 @@
     help.hidden = !help.hidden;
     b.classList.toggle("active", !help.hidden);
   }));
+
+  // ---- run-overlay chart: switch metric / normalisation client-side --------
+  const chartEl = document.getElementById("compare-chart");
+  if (chartEl) {
+    const CHART = {{ chart_data | tojson }};
+    const METRICS = {{ metrics | tojson }};
+    const NAMES = { S: "Susceptible", E: "Exposed", I: "Infectious",
+                    Q: "Quarantined", R: "Recovered", V: "Vaccinated" };
+    const metricSel = document.getElementById("metric-sel");
+    const normChk = document.getElementById("norm-chk");
+
+    METRICS.forEach(c => metricSel.add(new Option(`${c} — ${NAMES[c] || c}`, c)));
+    metricSel.add(new Option("cumulative infected", "cumulative"));
+    metricSel.value = METRICS.includes("I") ? "I" : (METRICS[0] || "cumulative");
+
+    function seriesFor(run, metric, norm) {
+      let y;
+      if (metric === "cumulative") {
+        const S = run.comps.S;
+        if (!S) return null;
+        y = S.map(v => S[0] - v);            // people who have left susceptible
+      } else {
+        y = run.comps[metric];
+        if (!y) return null;
+      }
+      if (norm && run.pop) y = y.map(v => v / run.pop * 100);
+      return y;
+    }
+    function draw() {
+      const metric = metricSel.value, norm = normChk.checked;
+      const traces = CHART.map(run => {
+        const y = seriesFor(run, metric, norm);
+        return y ? { y, mode: "lines", name: run.name, line: { width: 2.4 } } : null;
+      }).filter(Boolean);
+      const label = metric === "cumulative" ? "cumulative infected"
+                                            : (NAMES[metric] || metric);
+      Plotly.react(chartEl, traces, {
+        paper_bgcolor: "transparent", plot_bgcolor: "transparent",
+        font: { color: "#8a97b2", family: "IBM Plex Mono, monospace", size: 11 },
+        margin: { l: 64, r: 16, t: 12, b: 70 },
+        xaxis: { title: "day", gridcolor: "#1e2742", zeroline: false },
+        yaxis: { title: norm ? `${label} (% of pop.)` : `${label} (people)`,
+                 gridcolor: "#1e2742", zeroline: false },
+        legend: { orientation: "h", y: -0.22 },
+      }, { displaylogo: false, responsive: true });
+    }
+    metricSel.addEventListener("change", draw);
+    normChk.addEventListener("change", draw);
+    draw();
+  }
 </script>
 {% endblock %}

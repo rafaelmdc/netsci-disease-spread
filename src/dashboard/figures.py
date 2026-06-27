@@ -79,29 +79,32 @@ def _graph_path(record: dict):
     return processed_graph(net["region"], combo_name(list(net["layers"])))
 
 
-def comparison_figure(runs: list[dict]) -> go.Figure:
-    """Overlay the infectious curve of each selected run, one line per run."""
-    fig = go.Figure()
-    for r in runs:
-        ts = r["ts"]
-        ycol = "I" if "I" in ts.columns else ts.columns[0]
-        fig.add_trace(go.Scatter(y=ts[ycol], mode="lines", name=r["descriptor"]))
-    fig.update_layout(
-        template="plotly_white",
-        title="<b>Infectious over time</b><br>"
-              "<sub>active infections per day, one line per run</sub>",
-        xaxis_title="day", yaxis_title="infectious people",
-        legend=dict(orientation="h", yanchor="bottom", y=-0.3),
-        margin=dict(t=80, b=90), height=560,
-    )
-    return fig
+_COMPS = ["S", "E", "I", "Q", "R", "V"]
+
+
+def _mark(stats: list[dict]) -> None:
+    """Tag the min/max cell per numeric column so the table can highlight them."""
+    if len(stats) < 2:
+        return
+    for f in ("peak", "peak_day", "attack", "vaccinated"):
+        vals = [(i, s[f]) for i, s in enumerate(stats) if s.get(f) is not None]
+        if len(vals) < 2:
+            continue
+        hi = max(vals, key=lambda t: t[1])[0]
+        lo = min(vals, key=lambda t: t[1])[0]
+        if hi == lo:
+            continue
+        stats[hi].setdefault("mark", {})[f] = "hi"
+        stats[lo].setdefault("mark", {})[f] = "lo"
 
 
 def comparison_context(run_ids: list[str]) -> dict:
     """Build everything the Compare page needs to overlay N chosen runs.
 
     Each id is ``"<region>/<combo>/<label>"`` (none of those contain a slash);
-    reads each run's timeseries + summary straight from disk."""
+    reads each run's timeseries + summary straight from disk. The curves are
+    handed to the browser as raw series so the metric / normalisation can be
+    switched client-side without a round-trip."""
     runs: list[dict] = []
     for rid in run_ids:
         parts = rid.split("/")
@@ -114,11 +117,13 @@ def comparison_context(run_ids: list[str]) -> dict:
         record = json.loads(jpath.read_text())
         cfg, summ = record["config"], record["summary"]
         ts = pd.read_parquet(run_timeseries(region, combo, label))
+        comps = {c: [round(float(x), 2) for x in ts[c]] for c in _COMPS if c in ts.columns}
         runs.append({
-            "id": rid, "region": region, "combo": combo, "label": label,
+            "region": region, "combo": combo, "label": label,
             "descriptor": f"{region}/{combo} · {cfg['model']['name'].upper()} · "
                           f"{cfg['strategy']['name']} · seed {cfg['sim']['seed']}",
-            "ts": ts, "summary": summ, "config": cfg,
+            "comps": comps, "pop": round(float(summ.get("total_population") or 0), 2),
+            "summary": summ, "config": cfg,
         })
 
     stats = []
@@ -126,7 +131,6 @@ def comparison_context(run_ids: list[str]) -> dict:
         s = r["summary"]
         pop = s.get("total_population") or 0
         stats.append({
-            "descriptor": r["descriptor"],
             "region": r["region"], "combo": r["combo"], "label": r["label"],
             "model": r["config"]["model"]["name"], "strategy": r["config"]["strategy"]["name"],
             "peak": s.get("peak_infected", 0.0),
@@ -134,12 +138,11 @@ def comparison_context(run_ids: list[str]) -> dict:
             "attack": (s.get("final_recovered", 0.0) / pop) if pop else None,
             "vaccinated": s.get("vaccinated", 0.0),
         })
+    _mark(stats)
 
-    return {
-        "n": len(runs),
-        "compare_div": _div(comparison_figure(runs)) if runs else None,
-        "stats": stats,
-    }
+    metrics = [c for c in _COMPS if any(c in r["comps"] for r in runs)]
+    chart_data = [{"name": r["descriptor"], "comps": r["comps"], "pop": r["pop"]} for r in runs]
+    return {"n": len(runs), "chart_data": chart_data, "metrics": metrics, "stats": stats}
 
 
 def aggregate_context() -> dict:
