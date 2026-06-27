@@ -20,7 +20,7 @@ from fastapi.templating import Jinja2Templates
 
 from src.config import ModelName, StrategyName
 from src.dashboard import events, jobs
-from src.dashboard.figures import results_context
+from src.dashboard.figures import compare_context, results_context
 from src.dashboard.forms import available_networks, graph_is_built, parse_run_form
 from src.netgen.graph_io import read_graphml
 from src.paths import (
@@ -163,6 +163,11 @@ async def continue_sim(request: Request, job_id: str, extra_days: int = Form(...
         "continue_simulation", new_id, region, combo, label, extra_days, elapsed
     )
     return RedirectResponse(f"/sim/{new_id}", status_code=303)
+
+
+@app.get("/compare", response_class=HTMLResponse)
+async def compare(request: Request):
+    return templates.TemplateResponse(request, "compare.html", compare_context())
 
 
 @app.get("/jobs", response_class=HTMLResponse)

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Compare{% endblock %}
+{% block main_class %}wide{% endblock %}
+{% block content %}
+
+<h1>Compare</h1>
+<p class="lede" style="margin-bottom:1.6rem">Study-level views across runs and
+  regions, built from the aggregate tables.</p>
+
+{% if not has_any %}
+  <div class="alert-err">
+    No aggregate tables found. Run a sweep and aggregate first:
+    <div class="mono" style="margin-top:.5rem;font-size:.85rem">
+      netsci evaluate sweep · netsci evaluate collect · netsci evaluate structure
+    </div>
+  </div>
+{% endif %}
+
+{% if strategy_div %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Vaccination strategy — peak infections by model</div>
+  <div class="panel-b">{{ strategy_div | safe }}</div>
+</div>
+{% endif %}
+
+{% if spectrum_div %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Degree–betweenness spectrum by region</div>
+  <div class="panel-b">{{ spectrum_div | safe }}</div>
+</div>
+{% endif %}
+
+{% if interdiction %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Air interdiction — scenarios A–D</div>
+  <div class="panel-b">
+    {% for it in interdiction %}
+      <div class="mono muted" style="margin:.2rem 0 .4rem">{{ it.network }}</div>
+      <iframe src="{{ it.url }}" loading="lazy"
+              style="width:100%;height:560px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff"></iframe>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

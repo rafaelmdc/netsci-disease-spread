@@ -81,6 +81,8 @@ a:hover { color: var(--text); }
 .nav-links a:hover, .nav-links a.active { color: var(--text); border-color: var(--c-i); }
 
 .wrap { max-width: 1180px; margin: 0 auto; padding: 2.2rem 1.5rem 4rem; }
+/* the comparison view is intentionally wide — the figures need the room */
+.wrap.wide { max-width: 95%; }
 
 /* ---- type ----------------------------------------------------------------- */
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -.01em; }

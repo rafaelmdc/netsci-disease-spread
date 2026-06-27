@@ -19,10 +19,11 @@
     <nav class="nav-links">
       <a href="/" class="{{ 'active' if request.url.path == '/' else '' }}">Console</a>
       <a href="/new" class="{{ 'active' if request.url.path == '/new' else '' }}">New run</a>
+      <a href="/compare" class="{{ 'active' if request.url.path == '/compare' else '' }}">Compare</a>
       <a href="/jobs" class="{{ 'active' if request.url.path == '/jobs' else '' }}">Runs</a>
     </nav>
   </header>
-  <main class="wrap">
+  <main class="wrap {% block main_class %}{% endblock %}">
     {% block content %}{% endblock %}
   </main>
   {% block scripts %}{% endblock %}
