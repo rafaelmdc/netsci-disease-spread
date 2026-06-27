@@ -79,21 +79,20 @@ Oceania and the whole world are listed in `experiment.yaml`). See
 
 ## Quick start
 
-**The simulator app needs only [Docker](https://docs.docker.com/get-docker/)** —
-no Python, no Nextflow, no `make` (Compose ships with Docker). From a fresh
-clone:
+**The simulator app needs only [Docker](https://docs.docker.com/get-docker/)**
+(plus `make`, which ships with every Linux distro) — no Python, no Nextflow.
+From a fresh clone:
 
 ```bash
-docker compose up dashboard worker redis     # → http://127.0.0.1:8000
-# or, if you have make:  make app
+make app-build        # build the image once
+make app              # launch the simulator → http://127.0.0.1:8000
 ```
 
-First time, build the image once with `docker compose build dashboard worker`
-(or `make app-build`); after that `docker compose up …` starts in seconds and
-the source is bind-mounted, so code edits are picked up without a rebuild. On a
-fresh clone the app starts empty — open the **Data** tab to retrieve the sources
-(air + cities download once; ferries are vendored) and build a network, then run
-a scenario. Everything else (the batch Nextflow pipeline below) is optional.
+After the one-time build, `make app` starts in seconds; the source is
+bind-mounted, so code edits are picked up without a rebuild. On a fresh clone the
+app starts empty — open the **Data** tab to retrieve the sources (air + cities
+download once; ferries are vendored) and build a network, then run a scenario.
+Everything else (the batch Nextflow pipeline below) is optional.
 
 The **simulator** is the interactive front end: design a scenario
 (region, layers, disease model, vaccination strategy), launch it, and watch the
