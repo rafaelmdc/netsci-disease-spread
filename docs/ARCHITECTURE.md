@@ -41,7 +41,8 @@ evaluations* — making layer combinations a first-class, comparable axis.
 | **1. `retrieve`** | Pull raw data per modality (air/land/water), record provenance. One sub-fetcher per source; **idempotent** (skips an already-cached source, `--force` to refetch). | `data/raw/<layer>/` + `PROVENANCE.txt` | `urllib` (stdlib); Overpass API for ferries |
 | **2. `netgen`** | Filter to a **region**, map each layer onto a shared node set, weight edges, assign populations, then emit **every layer combination** as a tagged multilayer graph | `data/processed/<region>/<combo>.graphml` (the *X networks*) | `networkx` |
 | **3. `evaluate`** | For each network: run epidemic models, vaccination strategies, structural metrics, and the air-interdiction experiment; aggregate to study tables | `results/<region>/<combo>/<label>/{summary.json,timeseries.parquet}` + `summary`/`strategy_gap`/`structure` parquet | `numpy`, `networkx` |
-| `viz` (shared) | Interactive standalone HTML **and a one-tab Dash explorer** (graded deliverable, see below) | co-located `*.html` under `results/` + `netsci viz app` | `pyvis`, `plotly`, `dash` |
+| `viz` (shared) | Interactive standalone HTML + Plotly figure builders + the navigable static site | co-located `*.html` under `results/` + `netsci viz site` | `pyvis`, `plotly` |
+| `dashboard` | The **simulator web app**: design → run live → explore (graded deliverable, see below) | `netsci dashboard` (+ `netsci worker`) | `fastapi`, `arq`, `redis`, `jinja2` |
 
 ### Why this shape
 
@@ -69,8 +70,9 @@ evaluations* — making layer combinations a first-class, comparable axis.
 ## Stack & node identity
 
 **Stack:** Python 3.12, `uv` (lockfile), `pydantic` configs, `typer` CLIs,
-`networkx`/`numpy`/`pandas`, `pyvis`/`plotly` for HTML viz, `dash` for the
-interactive explorer, `pytest`/`ruff`. The whole three-module pipeline is
+`networkx`/`numpy`/`pandas`, `pyvis`/`plotly` for HTML viz, `fastapi`+`arq`
+(Redis) for the simulator web app, `pytest`/`ruff`. The whole three-module
+pipeline is
 orchestrated by **Nextflow inside the project Docker image** (`make run` —
 see "Orchestrating the sweep" below); the grid itself is fanned out *within*
 the `evaluate sweep` stage by an in-process thread pool (`concurrent.futures`).
@@ -157,7 +159,8 @@ Why this path:
 ## Interactive visualization (graded deliverable)
 
 Interactive, browser-based visuals are an explicit grading criterion. `viz`
-emits self-contained **HTML** and a **one-tab Dash explorer**. Implemented
+emits self-contained **HTML** + Plotly figure builders; the **simulator web app**
+(`src/dashboard`) reuses those builders as its results views. Implemented
 outputs (full detail in [`VISUALIZATION.md`](VISUALIZATION.md)):
 
 | Output | Module | Shows |
@@ -168,14 +171,19 @@ outputs (full detail in [`VISUALIZATION.md`](VISUALIZATION.md)):
 | Degree–betweenness structure | `structure_html.py` | per-node degree vs betweenness, anomalous gateways flagged |
 | Strategy / region comparison | `compare_html.py` | strategy panel, region spectrum |
 | Air-interdiction | `interdiction_html.py` | scenarios A–D (close flights, watch land/water carry it) |
-| **One-tab explorer** | `app.py` (Dash) | all of the above, browseable; builds its tables on launch |
+| **Simulator app** | `src/dashboard` (FastAPI) | design a run, watch it stream **live day-by-day** (SSE), explore + continue ("add days") |
 
-Conventions: outputs are **standalone `.html`** written **inside the run/network
-folder they describe** (no separate `figures/` tree), referencing one shared
-`plotly.min.js` at the results root so files stay small and offline. Each level
-has an `index.html` (`netsci viz site`); the Dash app (`netsci viz app`) is the
-interactive shell over the same precomputed data. Node coordinates make every
-network view a real map; `.gexf`/GraphML export stays for Gephi figures.
+The simulator is a thin control plane: FastAPI enqueues an **arq** job (Redis),
+the worker runs the same `src.evaluate` engine with a per-day `progress` callback
+that publishes to Redis, and the dashboard relays it to the browser over SSE. It
+**reuses the `viz` figure builders verbatim** (the science/plots are unchanged) —
+only the shell is rebuilt. See [`VISUALIZATION.md`](VISUALIZATION.md).
+
+Conventions: standalone HTML outputs are written **inside the run/network folder
+they describe** (no separate `figures/` tree), referencing one shared
+`plotly.min.js` at the results root. Each level has an `index.html`
+(`netsci viz site`). Node coordinates make every network view a real map;
+`.gexf`/GraphML export stays for Gephi figures.
 
 ## Multimodal substrate (planned extension)
 

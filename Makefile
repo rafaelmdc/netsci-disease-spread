@@ -11,7 +11,7 @@
 #   make run NFARGS="--config configs/experiment_multimodal.yaml"
 #
 # Other targets:
-#   make app        # launch the interactive explorer (http://127.0.0.1:8050)
+#   make app        # launch the simulator web app (http://127.0.0.1:8000)
 #   make bake       # same pipeline WITHOUT Docker, in your active env (conda etc.)
 #   make clean      # wipe results/ (keeps downloaded data/)
 
@@ -65,9 +65,9 @@ interdiction: structure
 site: structure
 	netsci viz site
 
-## app: launch the Dash explorer in the container at http://127.0.0.1:8050
+## app: launch the simulator web app (dashboard + worker + redis) at http://127.0.0.1:8000
 app:
-	docker compose run --rm --service-ports app viz app --host 0.0.0.0
+	docker compose up --build dashboard worker redis
 
 ## nextflow: same pipeline via Nextflow, local executor, no Docker
 nextflow:

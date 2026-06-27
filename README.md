@@ -7,7 +7,7 @@ multimodal (air / land / water) substrates and every world region.
 > **Status:** MSc Network Science coursework project. The full pipeline is
 > **implemented and tested** — data retrieval, multimodal network generation,
 > the metapopulation epidemic engine, vaccination strategies, the
-> air-interdiction experiment, and an interactive one-tab results explorer.
+> air-interdiction experiment, and an interactive simulator web app.
 > See [`docs/ROADMAP.md`](docs/ROADMAP.md) for what's done vs. open.
 
 ## What this is
@@ -25,8 +25,8 @@ metapopulation reaction–diffusion process, and compare vaccination by
 subgraph refinement). We also run an **air-interdiction** experiment — close
 flight routes and watch whether land and ferry travel still carry the outbreak
 — the result only the multilayer model can produce. Results are delivered as
-interactive, browser-based HTML and a one-tab **Dash explorer** that builds its
-own tables on launch (`netsci viz app`).
+interactive, browser-based HTML and a **simulator web app** (`netsci dashboard`)
+where you design a run, watch it stream live day-by-day, and explore the result.
 
 The accompanying paper is in [`docs/tex/`](docs/tex/) (KDD Explorations
 double-column format). Background and the annotated reading list are in
@@ -63,7 +63,8 @@ documentation index at [`docs/README.md`](docs/README.md).
 │   │   ├── metrics/       #   ρ(degree, betweenness) + FDR anomalous-gateway detection
 │   │   ├── interdiction.py#   close-the-airports experiment (scenarios A–D)
 │   │   └── aggregate.py   #   collect runs → summary / strategy-gap / structure tables
-│   └── viz/               # curves, animated geo map, structure, panels, site + Dash app
+│   ├── viz/               # curves, animated geo map, structure, panels, static site (Plotly builders)
+│   └── dashboard/         # the simulator web app: FastAPI + arq worker (reuses viz's figures)
 ├── results/               # simulation outputs + co-located figures (git-ignored)
 ├── docs/                  # paper, literature review, design docs
 └── tests/                 # pytest (70 tests)
@@ -84,8 +85,14 @@ Oceania and the whole world are listed in `experiment.yaml`). See
 
 ```bash
 make run        # build the image, then run the whole pipeline via Nextflow
-make app        # explore the result in your browser → http://127.0.0.1:8050
+make app        # launch the simulator web app → http://127.0.0.1:8000
 ```
+
+The **simulator** (`make app`) is the interactive front end: design a scenario
+(region, layers, disease model, vaccination strategy), launch it, and watch the
+epidemic curve build **live, day by day**; when a run ends early, add more days
+to continue from where it stopped. It reuses the same engine and figures as the
+batch pipeline, so results land in the usual `results/` tree (with Gephi export).
 
 `make run` chains all three modules — **retrieve → netgen → evaluate** — through
 Nextflow's live progress UI: retrieve data → build every `(region × layer-set)`
@@ -107,7 +114,7 @@ make run NFARGS="--interdiction configs/europe_interdiction.yaml"
 <summary>Without Docker (run <code>netsci</code> directly in your env)</summary>
 
 ```bash
-uv sync --extra app                       # or: pip install -e ".[app]"
+uv sync --extra dashboard                 # or: pip install -e ".[dashboard]"
 make bake                                 # same pipeline, local executor, no container
 # or step by step:
 netsci retrieve all                       # → data/raw/{air,geonames,water}/   (ferries from vendored snapshot)
@@ -115,7 +122,12 @@ netsci netgen build-all                   # → data/processed/<region>/<combo>.
 netsci evaluate sweep --maps              # runs the grid from experiment.yaml
 netsci evaluate collect                   # → results/summary.parquet + strategy_gap.parquet
 netsci evaluate interdiction --config configs/europe_interdiction.yaml
-netsci viz app                            # → http://127.0.0.1:8050  (or `viz site` for static HTML)
+netsci viz site                           # → results/index.html (static HTML)
+
+# the simulator app needs Redis + a worker (separate processes):
+docker run -d -p 6379:6379 redis:7-alpine
+netsci worker &                           # the arq job runner
+netsci dashboard                          # → http://127.0.0.1:8000
 ```
 
 To rebuild the ferry snapshot from a live Overpass sweep:
@@ -142,7 +154,7 @@ tectonic main.tex        # or: latexmk -pdf main.tex
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | How models are used and **how parameters are justified** |
 | [`docs/DATA.md`](docs/DATA.md) | Data sources, provenance, multimodal layers |
 | [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) | The 8 networks, per-network run plan, interdiction A–D |
-| [`docs/VISUALIZATION.md`](docs/VISUALIZATION.md) | Navigable outputs, animated map, Dash explorer |
+| [`docs/VISUALIZATION.md`](docs/VISUALIZATION.md) | Navigable outputs, animated map, the simulator web app |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Implementation status and planned work |
 | [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md) | Reproducibility, conventions, how to extend |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Workflow for collaborators |

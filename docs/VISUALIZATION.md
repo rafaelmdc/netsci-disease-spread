@@ -22,7 +22,8 @@ click to it.
 - **Self-explanatory.** Each figure carries a title + caption describing the
   model, network, and what to look at, so it stands alone in the report.
 - **Two delivery modes, same data:** standalone HTML (offline, gradeable
-  artifact) is primary; the Dash explorer (§5) is an interactive shell on top.
+  artifact) and the **simulator web app** (§5), an interactive front end that
+  reuses the same Plotly figure builders.
 
 ---
 
@@ -111,18 +112,21 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
   while staying fully offline. Animation frames are inherent data, so
   `spread_geo.html` stays a few MB; record per-node history (and thus generate
   maps) only for a chosen showcase set, not all runs.
-- **Dash explorer (interactive shell) — built.** `src/viz/app.py` (Dash =
-  Flask + Plotly, pure Python) reads the run catalogue under results/ via
-  `src/viz/catalog.py`: dropdowns for network / model / strategy, a run picker,
-  and tabs for the animated **outbreak map**, **epidemic curves**, **strategy
-  comparison** and **region spectrum**. It *reads precomputed outputs*, so it's
-  instant; when a run lacks per-node history the map tab offers a one-click
-  re-simulation that records it. Chosen over bare Flask to avoid hand-writing
-  HTML/JS for the controls.
+- **Simulator web app (interactive front end) — built.** `src/dashboard/`
+  (FastAPI + Jinja/Bootstrap, an arq worker on Redis) lets you *design* a run,
+  *launch* it, and watch the epidemic curve build **live, day by day** over SSE
+  — then explore the finished run (curves, animated map, structure) and
+  **"add days"** to continue it from its saved state. It reuses the `viz`
+  Plotly builders verbatim (`src/dashboard/figures.py`), so the views match the
+  static HTML. The worker calls the same `run_and_save` / `continue_run`, so
+  artifacts land in the usual `results/` tree (Gephi `.gexf` exported on demand).
 
   ```bash
-  uv sync --extra app          # installs dash + dash-bootstrap-components
-  netsci viz app               # serves http://127.0.0.1:8050 — browse every run
+  uv sync --extra dashboard
+  docker run -d -p 6379:6379 redis:7-alpine   # Redis backs the queue + live pub/sub
+  netsci worker &                             # runs queued simulations
+  netsci dashboard                            # http://127.0.0.1:8000 — design, run, explore
+  # or all-in-one: docker compose up dashboard worker redis   (make app)
   ```
 
 ---
@@ -135,7 +139,7 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 | **Structural metrics module** | ρ(deg,btw) **+ anomalous-gateway detection** with a defined threshold (Sun-Hu-Zhu FDR benchmark), per-node centralities → `structure.html` |
 | **Strategy-contrast metrics** | benefit-over-control + degree-vs-betweenness final-size gap (the thesis number) → `strategy_panel.html` |
 | **Interdiction runner** | edge-layer removal scenarios A–D → `interdiction.html` |
-| **`collect` → `summary.parquet`** | one tidy table feeding every index page and the Dash app |
+| **`collect` → `summary.parquet`** | one tidy table feeding every index page and the simulator app |
 | **Index generators** | emit the three levels of `index.html` after a sweep |
 
 ---
@@ -145,8 +149,9 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 1. ✅ **Keystone:** per-node history persisted (opt-in `record_nodes`), figures
    co-located in run/network folders, `FIGURES` tree retired.
 2. ✅ **Animated geo-spread HTML** (`spread_html.py`, `netsci viz animate`).
-3. ✅ **Dash explorer** (`app.py`, `netsci viz app`) — browse every run,
-   animated map / curves / compare / spectrum tabs, on-demand map generation.
+3. ✅ **Simulator web app** (`src/dashboard`, `netsci dashboard` + `netsci
+   worker`) — design a scenario, run it live (day-by-day SSE), explore the
+   result, and continue a finished run for more days. Replaced the Dash explorer.
 4. ✅ **Index generators** → navigable three-level static site
    (`src/viz/site.py`, `netsci viz site`): root + per-network + per-run
    `index.html`, figures co-located.
