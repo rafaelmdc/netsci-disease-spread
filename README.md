@@ -79,20 +79,37 @@ Oceania and the whole world are listed in `experiment.yaml`). See
 
 ## Quick start
 
-**One command, self-contained.** The only host prerequisites are
-[Docker](https://docs.docker.com/get-docker/) and
-[Nextflow](https://www.nextflow.io/) — no local Python:
+**The simulator app needs only [Docker](https://docs.docker.com/get-docker/)** —
+no Python, no Nextflow, no `make` (Compose ships with Docker). From a fresh
+clone:
 
 ```bash
-make run        # build the image, then run the whole pipeline via Nextflow
-make app        # launch the simulator web app → http://127.0.0.1:8000
+docker compose up dashboard worker redis     # → http://127.0.0.1:8000
+# or, if you have make:  make app
 ```
 
-The **simulator** (`make app`) is the interactive front end: design a scenario
+First time, build the image once with `docker compose build dashboard worker`
+(or `make app-build`); after that `docker compose up …` starts in seconds and
+the source is bind-mounted, so code edits are picked up without a rebuild. On a
+fresh clone the app starts empty — open the **Data** tab to retrieve the sources
+(air + cities download once; ferries are vendored) and build a network, then run
+a scenario. Everything else (the batch Nextflow pipeline below) is optional.
+
+The **simulator** is the interactive front end: design a scenario
 (region, layers, disease model, vaccination strategy), launch it, and watch the
 epidemic curve build **live, day by day**; when a run ends early, add more days
 to continue from where it stopped. It reuses the same engine and figures as the
 batch pipeline, so results land in the usual `results/` tree (with Gephi export).
+
+### Optional: the full batch pipeline (needs Nextflow)
+
+If you also want the one-shot reproducible study (every region × layer-set,
+full sweep, interdiction, static site), that path additionally needs
+[Nextflow](https://www.nextflow.io/) on the host:
+
+```bash
+make run        # build the image, then run the whole pipeline via Nextflow
+```
 
 `make run` chains all three modules — **retrieve → netgen → evaluate** — through
 Nextflow's live progress UI: retrieve data → build every `(region × layer-set)`

@@ -43,7 +43,8 @@ services:
     working_dir: /app
     user: "${UID:-1000}:${GID:-1000}"
     entrypoint: []
-    command: netsci dashboard --host 0.0.0.0 --port 8000
+    # --reload: src is bind-mounted, so code edits are picked up live (no rebuild)
+    command: netsci dashboard --host 0.0.0.0 --port 8000 --reload
     environment:
       REDIS_URL: redis://redis:6379
     ports:
