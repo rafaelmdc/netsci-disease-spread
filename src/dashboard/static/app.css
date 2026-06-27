@@ -163,6 +163,20 @@ h1 { font-size: 2rem; }
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--text); border-bottom-color: var(--c-i); }
 
+/* ---- build actions with inline help --------------------------------------- */
+.action-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  margin-bottom: .6rem; }
+.action-row form { margin: 0; }
+.help-toggle {
+  width: 1.5rem; height: 1.5rem; border-radius: 999px; cursor: pointer;
+  font-family: var(--font-mono); font-size: .78rem; line-height: 1;
+  color: var(--muted); background: var(--ink-2); border: 1px solid var(--line);
+  transition: color .12s ease, border-color .12s ease;
+}
+.help-toggle:hover, .help-toggle.active { color: var(--c-s); border-color: var(--c-s); }
+.help-text { flex-basis: 100%; margin: -.1rem 0 .3rem; color: var(--muted);
+  font-size: .82rem; max-width: 70ch; }
+
 /* ---- forms ---------------------------------------------------------------- */
 .field { margin-bottom: 1rem; }
 .field label {

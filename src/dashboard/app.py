@@ -286,6 +286,14 @@ async def data_status_fragment(request: Request):
     return templates.TemplateResponse(request, "_data_status.html", _data_ctx())
 
 
+@app.get("/data/jobs", response_class=HTMLResponse)
+async def data_jobs_fragment(request: Request):
+    # small self-polling strip used on the Compare → Aggregate tab
+    return templates.TemplateResponse(request, "_data_jobs.html", {
+        "jobs": [j for j in jobs.list_jobs(limit=8) if j["kind"] == "data"],
+    })
+
+
 @app.post("/data/run")
 async def data_run(request: Request):
     form = await request.form()
@@ -296,13 +304,20 @@ async def data_run(request: Request):
         "retrieve": "retrieve all sources",
         "netgen_all": "build all networks",
         "netgen_one": f"build {region}/{'+'.join(layers) or 'air'}",
+        "sweep": "sweep (run experiment.yaml grid)",
+        "collect": "collect (summary.parquet)",
+        "structure": "structure (structure.parquet)",
         "aggregate": "aggregate (collect + structure)",
     }
     if action not in titles:
         return HTMLResponse("Unknown action", status_code=400)
     job_id = jobs.create_job("data", titles[action])
     await app.state.arq.enqueue_job("run_data_task", job_id, action, region or None, layers or None)
-    return RedirectResponse("/data", status_code=303)
+    # callers can ask to be sent back to where they triggered the action
+    nxt = form.get("next", "/data")
+    if not nxt.startswith("/"):  # internal paths only
+        nxt = "/data"
+    return RedirectResponse(nxt, status_code=303)
 
 
 def _data_ctx() -> dict:

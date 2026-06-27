@@ -122,6 +122,24 @@ def _data_action(action: str, region: str | None, layers: list[str] | None) -> N
         cfg = NetworkConfig(region=region, layers=[Layer(x) for x in chosen])
         graph = build_network(cfg)
         write_graphml(graph, processed_graph(region, combo_name(chosen)))
+    elif action == "sweep":
+        from src.evaluate.metrics import betweenness
+        from src.evaluate.runner import run_and_save
+        from src.experiment import load_experiment_config
+        from src.netgen.graph_io import read_graphml
+        from src.paths import processed_graph
+        exp = load_experiment_config("experiment.yaml")
+        for (region, combo), cfgs in exp.grouped_by_network().items():
+            graph = read_graphml(processed_graph(region, combo))
+            betweenness(graph)  # warm the cache once before the runs share the graph
+            for cfg in cfgs:
+                run_and_save(cfg, graph, record_nodes=False)
+    elif action == "collect":
+        from src.evaluate.aggregate import collect
+        collect()
+    elif action == "structure":
+        from src.evaluate.aggregate import structure_table
+        structure_table()
     elif action == "aggregate":
         from src.evaluate.aggregate import collect, structure_table
         collect()

@@ -62,12 +62,38 @@
   <p class="lede" style="margin:1rem 0 1.6rem">Study-level views across all runs
     and regions, built from the aggregate tables.</p>
 
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Build aggregate data</div>
+    <div class="panel-b">
+      {% set steps = [
+        ("sweep", "Run sweep",
+         "Runs the full experiment grid from experiment.yaml — every region × model × strategy that file lists, saving each run under results/. Heavy: this can take a long time. Only needed when you want the canonical grid; ad-hoc runs come from New run / Study."),
+        ("collect", "Collect",
+         "Reads every run's summary.json under results/ and rolls them into summary.parquet — the table behind the ‘strategy by model’ chart below. Cheap. Re-run it after adding runs."),
+        ("structure", "Structure",
+         "Computes each built network's degree–betweenness structure into structure.parquet — the table behind the ‘spectrum by region’ chart. Reads data/processed/, no simulation. Cheap.")
+      ] %}
+      {% for action, label, help in steps %}
+        <div class="action-row">
+          <form method="post" action="/data/run">
+            <input type="hidden" name="action" value="{{ action }}">
+            <input type="hidden" name="next" value="/compare#aggregate">
+            <button class="btn-ghost" type="submit">{{ label }}</button>
+          </form>
+          <button class="help-toggle" type="button" aria-label="what does {{ label }} do?">?</button>
+          <p class="help-text" hidden>{{ help }}</p>
+        </div>
+      {% endfor %}
+      <div style="margin-top:1rem" hx-get="/data/jobs" hx-trigger="load">
+        <div class="muted" style="font-size:.82rem">loading job status…</div>
+      </div>
+    </div>
+  </div>
+
   {% if not agg.has_any %}
     <div class="alert-err">
-      No aggregate tables found. Run a sweep and aggregate first:
-      <div class="mono" style="margin-top:.5rem;font-size:.85rem">
-        netsci evaluate sweep · netsci evaluate collect · netsci evaluate structure
-      </div>
+      No aggregate tables yet — run <span class="mono">Collect</span> and
+      <span class="mono">Structure</span> above (after you have some runs).
     </div>
   {% endif %}
 
@@ -115,5 +141,12 @@
     history.replaceState(null, "", t.dataset.tab === "aggregate" ? "#aggregate" : location.pathname + location.search);
   }));
   if (location.hash === "#aggregate") activate("aggregate");
+
+  // little "?" help toggles next to each build action
+  document.querySelectorAll(".help-toggle").forEach(b => b.addEventListener("click", () => {
+    const help = b.parentElement.querySelector(".help-text");
+    help.hidden = !help.hidden;
+    b.classList.toggle("active", !help.hidden);
+  }));
 </script>
 {% endblock %}
