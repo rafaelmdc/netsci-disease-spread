@@ -28,10 +28,10 @@
         </div>
         <div class="field">
           <label>Transport layers</label>
-          <div class="chips">
-            <label class="chip"><input type="checkbox" name="layers" value="air" checked> air</label>
-            <label class="chip"><input type="checkbox" name="layers" value="land"> land</label>
-            <label class="chip"><input type="checkbox" name="layers" value="water"> water</label>
+          <div class="chips" id="layer-chips">
+            <label class="chip layer-chip" data-layer="air"><input type="checkbox" name="layers" value="air" checked> air</label>
+            <label class="chip layer-chip" data-layer="land"><input type="checkbox" name="layers" value="land"> land</label>
+            <label class="chip layer-chip" data-layer="water"><input type="checkbox" name="layers" value="water"> water</label>
           </div>
           <div class="muted mono" style="font-size:.72rem;margin-top:.5rem">
             The chosen combination must be built for the region.</div>
@@ -106,7 +106,6 @@
   </div>
   <div style="margin-top:1.6rem;display:flex;gap:.8rem;align-items:center">
     <button class="btn-run" type="submit">Launch run ▸</button>
-    <span class="muted mono" style="font-size:.8rem">You'll watch it stream live.</span>
   </div>
 </form>
 {% endif %}
@@ -121,5 +120,28 @@
     });
   }
   syncParams();
+
+  // Only show transport layers that exist in the selected region's built networks.
+  const NETWORKS = {{ networks | tojson }};
+  function syncLayers() {
+    const region = document.getElementById("region").value;
+    const combos = NETWORKS[region] || [];
+    const avail = new Set();
+    combos.forEach(c => c.forEach(l => avail.add(l)));
+    let anyChecked = false;
+    document.querySelectorAll(".layer-chip").forEach(chip => {
+      const input = chip.querySelector("input");
+      const ok = avail.has(chip.dataset.layer);
+      chip.hidden = !ok;
+      if (!ok) input.checked = false;
+      if (input.checked) anyChecked = true;
+    });
+    if (!anyChecked) {  // default-check the first available layer
+      const first = document.querySelector(".layer-chip:not([hidden]) input");
+      if (first) first.checked = true;
+    }
+  }
+  document.getElementById("region").addEventListener("change", syncLayers);
+  syncLayers();
 </script>
 {% endblock %}

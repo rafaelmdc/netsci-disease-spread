@@ -13,20 +13,13 @@
     <a class="btn-run" href="/new">New run</a>
     <a class="btn-ghost" href="/jobs">All runs</a>
   </div>
-  <div class="compartment-key">
-    <span class="ckey"><span class="sw" style="background:var(--c-s)"></span>Susceptible</span>
-    <span class="ckey"><span class="sw" style="background:var(--c-e)"></span>Exposed</span>
-    <span class="ckey"><span class="sw" style="background:var(--c-i)"></span>Infectious</span>
-    <span class="ckey"><span class="sw" style="background:var(--c-r)"></span>Recovered</span>
-    <span class="ckey"><span class="sw" style="background:var(--c-v)"></span>Vaccinated</span>
-  </div>
 </section>
 
-<div class="grid2" style="gap:1.4rem;align-items:start">
-  <div class="panel">
-    <div class="panel-h">Recent runs</div>
-    <div class="panel-b" style="padding:0">
-      {% if jobs %}
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Recent runs</div>
+  <div class="panel-b" style="padding:0">
+    {% if jobs %}
+    <div class="scroll-10">
       <table class="runs">
         <thead><tr><th>Run</th><th>Status</th><th></th></tr></thead>
         <tbody>
@@ -40,31 +33,31 @@
         {% endfor %}
         </tbody>
       </table>
-      {% else %}
-      <div class="panel-b muted">No runs yet. <a href="/new">Design your first one →</a></div>
-      {% endif %}
     </div>
+    {% else %}
+    <div class="panel-b muted">No runs yet. <a href="/new">Design your first one →</a></div>
+    {% endif %}
   </div>
+</div>
 
-  <div class="panel">
-    <div class="panel-h">Networks ready</div>
-    <div class="panel-b">
-      {% if networks %}
-        {% for region, combos in networks.items() %}
-          <div style="margin-bottom:.8rem">
-            <div class="mono" style="color:var(--text);text-transform:capitalize">{{ region }}</div>
-            <div class="chips" style="margin-top:.4rem">
-              {% for combo in combos %}
-                <span class="chip" style="cursor:default">{{ combo | join("+") }}</span>
-              {% endfor %}
-            </div>
+<div class="panel">
+  <div class="panel-h">Networks ready</div>
+  <div class="panel-b">
+    {% if networks %}
+      {% for region, combos in networks.items() %}
+        <div style="margin-bottom:.8rem">
+          <div class="mono" style="color:var(--text);text-transform:capitalize">{{ region }}</div>
+          <div class="chips" style="margin-top:.4rem">
+            {% for combo in combos %}
+              <span class="chip" style="cursor:default">{{ combo | join("+") }}</span>
+            {% endfor %}
           </div>
-        {% endfor %}
-      {% else %}
-        <p class="muted">No built networks found under <span class="mono">data/processed/</span>.</p>
-        <p class="muted mono" style="font-size:.82rem">netsci netgen build-all</p>
-      {% endif %}
-    </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">No built networks found under <span class="mono">data/processed/</span>.</p>
+      <p class="muted mono" style="font-size:.82rem">netsci netgen build-all</p>
+    {% endif %}
   </div>
 </div>
 

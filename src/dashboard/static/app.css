@@ -171,6 +171,10 @@ h1 { font-size: 2rem; }
   transition: width .25s ease; }
 
 /* ---- run list ------------------------------------------------------------- */
+/* recent-runs list scrolls once it passes ~10 rows */
+.scroll-10 { max-height: 460px; overflow-y: auto; }
+.scroll-10 thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+
 .runs { width: 100%; border-collapse: collapse; font-size: .9rem; }
 .runs th { text-align: left; font-family: var(--font-mono); font-size: .7rem;
   letter-spacing: .1em; text-transform: uppercase; color: var(--faint);
