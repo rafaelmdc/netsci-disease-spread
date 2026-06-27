@@ -34,7 +34,7 @@ lives in [`../src`](../src); this folder is the design + writeup.
 | [EXPERIMENTS.md](EXPERIMENTS.md) | The 8 networks, per-network run plan, air-interdiction scenarios A–D |
 | [VISUALIZATION.md](VISUALIZATION.md) | Co-located navigable outputs, animated map, Dash app, shared plotly bundle |
 | [ROADMAP.md](ROADMAP.md) | Phases / vertical slices, open decisions |
-| [MAINTENANCE.md](MAINTENANCE.md) | Determinism, configs, run_id, Docker workflow, testing |
+| [MAINTENANCE.md](MAINTENANCE.md) | Determinism, configs, run_id, the one-command Nextflow/Docker run, testing |
 | [tex/](tex/) | The paper (KDD Explorations double-column). Build: `tectonic tex/main.tex` |
 | [sources/](sources/) | Original project blueprint PDF |
 

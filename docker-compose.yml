@@ -11,11 +11,15 @@ services:
     working_dir: /app
     # write artifacts as the host user, not root (override: `export UID GID`)
     user: "${UID:-1000}:${GID:-1000}"
+    # the Dash explorer (`viz app`) serves here; `--service-ports` publishes it
+    ports:
+      - "8050:8050"
     volumes:
       - ./data:/app/data
       - ./results:/app/results
       - ./figures:/app/figures
       - ./configs:/app/configs
+      - ./vendor:/app/vendor
 
   notebook:
     image: netsci-disease-spread:latest

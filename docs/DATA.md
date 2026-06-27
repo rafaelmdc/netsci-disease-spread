@@ -1,7 +1,9 @@
 # Data Sources & Provenance
 
-All datasets are **git-ignored** (`data/` is excluded). Document every
-source here so the pipeline is reproducible from scratch.
+All raw datasets are **git-ignored** (`data/` is excluded) and rebuilt by the
+pipeline — the one exception is the vendored ferry snapshot
+(`vendor/ferries_world.json`, see end of this doc). Document every source here
+so the pipeline is reproducible from scratch.
 
 ## Primary: air network (in use)
 
@@ -38,7 +40,7 @@ Split each land layer into **topology** (the edges) and **flow weights**
 | Air (baseline) | OpenFlights (global) | route frequency | `colizza:airline`, `guimera:anomalous` | static snapshot |
 | Rail | OSM `railway=*` (global) | gravity/radiation model | HSR↔COVID studies (lit-review §3b, *verify authors*) | needs station→city mapping |
 | Road | OSM `highway=*`; **GRIP** `meijer:grip` (222 countries, global) | gravity/radiation model | `tizzoni:proxies` | full road graph huge → region-level |
-| Sea / ferry & shipping | OSM `route=ferry`; cargo port-call data | port traffic | `kaluza:cargo`, `seebens:bioinvasion` | cargo/vector-borne, not direct human spread |
+| Sea / ferry & shipping | OSM `route=ferry` (via Overpass; **vendored snapshot**, see below); cargo port-call data | port traffic | `kaluza:cargo`, `seebens:bioinvasion` | cargo/vector-borne, not direct human spread |
 
 ### Flow weights: one model everywhere, Eurostat to validate
 
@@ -116,13 +118,36 @@ goal vs the core Europe/air result.
 
 ## Reproducing the data step
 
+`make run` (the one-command pipeline) runs `netsci retrieve all` as its first
+stage, so you rarely call these directly. Each fetcher is **idempotent** — it
+skips a source that is already present, so reruns are free and offline:
+
 ```bash
-netsci retrieve openflights               # MODULE 1 → data/raw/air/
-netsci retrieve geonames                  # cities1000 → data/raw/geonames/
-netsci retrieve ferries                   # OSM ferry routes → data/raw/water/
+netsci retrieve openflights               # MODULE 1 → data/raw/air/      (~3 MB, network)
+netsci retrieve geonames                  # cities1000 → data/raw/geonames/ (~30 MB, network)
+netsci retrieve ferries                   # OSM ferry routes → data/raw/water/ (vendored, offline)
 netsci netgen build-all                   # MODULE 2: every network in experiment.yaml
 # or one network:  netsci netgen build --region europe --layers air
+# force a fresh download of any source:   netsci retrieve <source> --force
 ```
 
 Record the download date and any source version in
-`data/raw/<layer>/PROVENANCE.txt` (the data itself is not committed).
+`data/raw/<layer>/PROVENANCE.txt`. The raw data itself is **not** committed
+(`data/` is git-ignored), with one deliberate exception below.
+
+### Vendored ferry snapshot (`vendor/ferries_world.json`)
+
+A live ferry build sweeps a global grid of OpenStreetMap `route=ferry` ways via
+the public Overpass API — slow (several minutes), rate-limited, and
+**non-reproducible** (cells time out and are skipped: 54/63 on the snapshot
+run). To keep a clean-clone run deterministic and offline, the resulting dump
+(~370 KB, 3294 crossings ≥ 5 km, ODbL) is committed at `vendor/ferries_world.json`
+and baked into the Docker image. `netsci retrieve ferries` resolves in order:
+
+1. `data/raw/water/ferries_world.json` already present → use it;
+2. else the vendored snapshot → copy it in (the default; **no network**);
+3. else (or `--force`) → a live Overpass sweep, hardened with retries and
+   mirror endpoints.
+
+Refresh the snapshot with `netsci retrieve ferries --force` and re-copy the
+result into `vendor/` (see `vendor/README.md`).

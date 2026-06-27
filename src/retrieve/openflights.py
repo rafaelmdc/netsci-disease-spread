@@ -13,9 +13,15 @@ _BASE = "https://raw.githubusercontent.com/jpatokal/openflights/master/data"
 _FILES = {"airports.dat": f"{_BASE}/airports.dat", "routes.dat": f"{_BASE}/routes.dat"}
 
 
-def fetch(dest: Path | None = None) -> Path:
-    """Download raw OpenFlights files to data/raw/air/ and write PROVENANCE.txt."""
+def fetch(dest: Path | None = None, force: bool = False) -> Path:
+    """Download raw OpenFlights files to data/raw/air/ and write PROVENANCE.txt.
+
+    Idempotent: if every file is already present and ``force`` is False, skip the
+    download (no network) and return the existing directory.
+    """
     out = ensure_dir(dest or raw_dir("air"))
+    if not force and all((out / name).exists() for name in _FILES):
+        return out
     lines = [f"OpenFlights air data — retrieved {date.today().isoformat()}", ""]
     for name, url in _FILES.items():
         target = out / name

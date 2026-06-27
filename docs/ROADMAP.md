@@ -2,7 +2,7 @@
 
 Living document. Tracks what exists, what's next, and open decisions.
 
-## Status (2026-06-24)
+## Status (2026-06-27)
 
 | Area | Status |
 |------|--------|
@@ -18,6 +18,7 @@ Living document. Tracks what exists, what's next, and open decisions.
 | Slice 5 (multi-region) | ✅ cross-region spectrum (FDR anomalous-gateway detection) |
 | Slice 6 (viz + explorer) | ✅ animated map, structure, panels, interdiction, navigable site, **one-tab Dash app** |
 | Air-interdiction experiment | ✅ scenarios A–D (`netsci evaluate interdiction`) |
+| One-command run | ✅ `make run` — Nextflow-in-Docker chains all 3 modules; vendored ferry snapshot + idempotent retrieve make a clean clone deterministic |
 | Tests | ✅ 70 passing, ruff clean |
 
 > **Open gaps:** real OSM/GRIP rail/road topology + Eurostat validation (land
@@ -40,6 +41,13 @@ Living document. Tracks what exists, what's next, and open decisions.
 - [x] `typer` CLI; ruff + pytest config (12 tests green).
 - [x] Multi-stage `Dockerfile`, `docker-compose.yml`, `nextflow.config`, CI.
 - [x] Toy end-to-end walking skeleton proving the I/O contracts (host + Docker).
+- [x] **One-command pipeline:** `make run` = `docker compose build` +
+      `nextflow run` (Docker default profile) chaining all three modules with
+      the live `-ansi-log` UI; `--maps`/`--config`/`--interdiction` params;
+      `nextflow.config` bind-mounts artifacts onto the host as the host user.
+- [x] **Deterministic clean clone:** vendored ferry snapshot
+      (`vendor/ferries_world.json`) + idempotent `retrieve` (`--force` to refetch),
+      so the run doesn't depend on a live Overpass query.
 
 ### Phase 1 — Core Europe / air result (MVP, done)
 - [x] `retrieve`: OpenFlights fetcher + provenance.
@@ -91,7 +99,7 @@ Living document. Tracks what exists, what's next, and open decisions.
 
 | # | Decision | Options | Lean |
 |---|----------|---------|------|
-| 1 | Workflow engine | Nextflow vs Python sweep | ✅ local `typer` sweep implemented; Nextflow optional |
+| 1 | Workflow engine | Nextflow vs Python sweep | ✅ **resolved** — both: in-process `typer`/thread-pool sweep runs the grid *inside* the `evaluate` stage; Nextflow-in-Docker (`make run`) is the supported one-command orchestrator across the three modules |
 | 2 | ~~Tanaka 2014 reference~~ | ✅ **resolved** — replaced by verified Sun, Hu & Zhu (2023), `sun:anomalous` | done |
 | 3 | Per-model R₀ / rates | which literature values | fill Table 1 with cited ranges |
 | 4 | Population proxy | degree-based vs real city pop (GeoNames) | start degree-based, note as limitation |

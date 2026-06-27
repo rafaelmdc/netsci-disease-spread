@@ -24,9 +24,15 @@ _TIER = "cities1000"
 _URL = f"http://download.geonames.org/export/dump/{_TIER}.zip"
 
 
-def fetch(dest: Path | None = None) -> Path:
-    """Download + unzip cities1000.txt into data/raw/geonames/."""
+def fetch(dest: Path | None = None, force: bool = False) -> Path:
+    """Download + unzip cities1000.txt into data/raw/geonames/.
+
+    Idempotent: if ``cities1000.txt`` is already present and ``force`` is False,
+    skip the download (no network) and return the existing directory.
+    """
     out = ensure_dir(dest or raw_dir("geonames"))
+    if not force and (out / f"{_TIER}.txt").exists():
+        return out
     with urllib.request.urlopen(_URL, timeout=180) as resp:  # noqa: S310 (trusted host)
         data = resp.read()
     with zipfile.ZipFile(io.BytesIO(data)) as zf:

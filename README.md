@@ -78,30 +78,52 @@ Oceania and the whole world are listed in `experiment.yaml`). See
 
 ## Quick start
 
+**One command, self-contained.** The only host prerequisites are
+[Docker](https://docs.docker.com/get-docker/) and
+[Nextflow](https://www.nextflow.io/) — no local Python:
+
 ```bash
-# install (project venv). The `app` extra adds the Dash explorer.
-uv sync --extra app                       # or: pip install -e ".[app]"
-
-# MODULE 1 + 2: retrieve data and build every network in experiment.yaml
-netsci retrieve openflights               # → data/raw/air/   (also: geonames, ferries)
-netsci netgen build-all                   # → data/processed/<region>/<combo>.graphml
-
-# MODULE 3: run the whole sweep, then aggregate
-netsci evaluate sweep                     # runs the grid from experiment.yaml
-netsci evaluate collect                   # → results/summary.parquet + strategy_gap.parquet
-
-# the air-interdiction experiment (flagship multilayer network)
-netsci evaluate interdiction --config <run.yaml>
-
-# explore EVERYTHING in one browser tab (builds its tables on launch)
-netsci viz app                            # → http://127.0.0.1:8050
-# or a navigable static site of co-located HTML:
-netsci viz site                           # → results/index.html
+make run        # build the image, then run the whole pipeline via Nextflow
+make app        # explore the result in your browser → http://127.0.0.1:8050
 ```
 
-Run the tests with `uv run pytest`. A `Dockerfile`/`nextflow.config` exist as
-optional scaffolding, but the local `netsci` CLI above is the supported path.
-See [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md).
+`make run` chains all three modules — **retrieve → netgen → evaluate** — through
+Nextflow's live progress UI: retrieve data → build every `(region × layer-set)`
+network → run the full sweep with per-node outbreak maps → collect → structure →
+{ interdiction, navigable site }. Outputs land on the host under `data/` and
+`results/` (the site is `results/index.html`). The water/ferry layer ships as a
+**vendored snapshot** (`vendor/ferries_world.json`), so the run never depends on
+a live OpenStreetMap query.
+
+Customise via Nextflow params:
+
+```bash
+make run NFARGS="--maps false"                              # skip the heavy (~2 GB) outbreak maps
+make run NFARGS="--config configs/experiment_multimodal.yaml"
+make run NFARGS="--interdiction configs/europe_interdiction.yaml"
+```
+
+<details>
+<summary>Without Docker (run <code>netsci</code> directly in your env)</summary>
+
+```bash
+uv sync --extra app                       # or: pip install -e ".[app]"
+make bake                                 # same pipeline, local executor, no container
+# or step by step:
+netsci retrieve all                       # → data/raw/{air,geonames,water}/   (ferries from vendored snapshot)
+netsci netgen build-all                   # → data/processed/<region>/<combo>.graphml
+netsci evaluate sweep --maps              # runs the grid from experiment.yaml
+netsci evaluate collect                   # → results/summary.parquet + strategy_gap.parquet
+netsci evaluate interdiction --config configs/europe_interdiction.yaml
+netsci viz app                            # → http://127.0.0.1:8050  (or `viz site` for static HTML)
+```
+
+To rebuild the ferry snapshot from a live Overpass sweep:
+`netsci retrieve ferries --force`.
+
+</details>
+
+Run the tests with `uv run pytest`. See [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md).
 
 ## Building the paper
 

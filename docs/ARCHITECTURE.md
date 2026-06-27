@@ -38,7 +38,7 @@ evaluations* — making layer combinations a first-class, comparable axis.
 
 | Stage / module | Responsibility | Output contract | Key deps |
 |----------------|----------------|-----------------|----------|
-| **1. `retrieve`** | Pull raw data per modality (air/land/water), record provenance. One sub-fetcher per source. | `data/raw/<layer>/` + `PROVENANCE.txt` | `pandas`, `requests`, `osmnx` |
+| **1. `retrieve`** | Pull raw data per modality (air/land/water), record provenance. One sub-fetcher per source; **idempotent** (skips an already-cached source, `--force` to refetch). | `data/raw/<layer>/` + `PROVENANCE.txt` | `urllib` (stdlib); Overpass API for ferries |
 | **2. `netgen`** | Filter to a **region**, map each layer onto a shared node set, weight edges, assign populations, then emit **every layer combination** as a tagged multilayer graph | `data/processed/<region>/<combo>.graphml` (the *X networks*) | `networkx` |
 | **3. `evaluate`** | For each network: run epidemic models, vaccination strategies, structural metrics, and the air-interdiction experiment; aggregate to study tables | `results/<region>/<combo>/<label>/{summary.json,timeseries.parquet}` + `summary`/`strategy_gap`/`structure` parquet | `numpy`, `networkx` |
 | `viz` (shared) | Interactive standalone HTML **and a one-tab Dash explorer** (graded deliverable, see below) | co-located `*.html` under `results/` + `netsci viz app` | `pyvis`, `plotly`, `dash` |
@@ -70,9 +70,12 @@ evaluations* — making layer combinations a first-class, comparable axis.
 
 **Stack:** Python 3.12, `uv` (lockfile), `pydantic` configs, `typer` CLIs,
 `networkx`/`numpy`/`pandas`, `pyvis`/`plotly` for HTML viz, `dash` for the
-interactive explorer, `pytest`/`ruff`. A local `typer` sweep
-(`concurrent.futures`) is the supported orchestrator; `Dockerfile` and
-`nextflow.config` are optional scaffolding for cluster runs.
+interactive explorer, `pytest`/`ruff`. The whole three-module pipeline is
+orchestrated by **Nextflow inside the project Docker image** (`make run` —
+see "Orchestrating the sweep" below); the grid itself is fanned out *within*
+the `evaluate sweep` stage by an in-process thread pool (`concurrent.futures`).
+A no-Docker `nextflow -profile local` path and the bare `netsci` CLI remain
+supported for development.
 
 **Node identity (canonicalization).** Combining layers requires a shared
 node set, so nodes are keyed by **city/place** (real GeoNames cities), not by
@@ -113,23 +116,43 @@ is a pure function of `(config, seed)`.
 
 The experiment is `{8 networks} × {4 models} × {5 strategies} ×
 {coverage levels} × {seeds}` — many independent, embarrassingly parallel jobs
-(see [`EXPERIMENTS.md`](EXPERIMENTS.md)). The **implemented** orchestrator is
-`netsci evaluate sweep`: it groups runs by network so each graph (and its
-cached betweenness) loads once, then fans the runs out over a thread pool.
-`Nextflow`/`Docker` remain optional for cluster-scale runs; the rationale for
-that path:
+(see [`EXPERIMENTS.md`](EXPERIMENTS.md)). Two layers of orchestration:
 
-- **Parallelism + caching:** Nextflow runs independent simulations
-  concurrently and `-resume` skips completed ones.
-- **Provenance:** each process records inputs/outputs; the DAG is the
-  experiment definition.
-- **Portability:** the same `workflow/main.nf` runs locally now and on a
-  cluster/container later without code changes. See
-  `ditommaso:nextflow` in the literature review.
+1. **Within a stage** — `netsci evaluate sweep` groups runs by network so each
+   graph (and its cached betweenness) loads once, then fans the runs out over a
+   thread pool (`concurrent.futures`). This is where the grid actually runs.
+2. **Across the three modules** — **Nextflow** (`workflow/main.nf`) chains
+   `retrieve → netgen → sweep → collect/structure → {interdiction, site}` as a
+   DAG, each process running inside the project Docker image. This is the
+   supported **one command**:
 
-A plain `Makefile` or a Python `multiprocessing` sweep is an acceptable
-lighter-weight fallback if Nextflow proves heavy for the course timeline —
-see [`ROADMAP.md`](ROADMAP.md) for the decision.
+   ```bash
+   make run                              # docker compose build + nextflow run -ansi-log true
+   # equivalently:
+   nextflow run workflow/main.nf         # docker is the default profile
+   nextflow run workflow/main.nf -profile local   # no Docker, active env
+   ```
+
+   Params (override with `--name value`, or `make run NFARGS="…"`):
+   `--config` (the grid, default `experiment.yaml`), `--interdiction` (scenario
+   config), `--maps` (record per-node history for the animated maps; default
+   `true`, ≈2 GB / ≈50 min — set `false` for a fast pass).
+
+Why this path:
+
+- **Self-contained + portable:** the only host prerequisites are Docker and
+  Nextflow (no local Python). `nextflow.config` bind-mounts the host
+  `data/`/`results/`/`figures/`/`vendor/` into `/app` (where `src/paths.py`
+  resolves them), so every stage shares state and outputs land on the host,
+  owned by the host user. The same `workflow/main.nf` runs on a cluster via the
+  `cluster` profile without code changes. See `ditommaso:nextflow`.
+- **Parallelism + caching:** the in-stage thread pool parallelises the grid;
+  Nextflow `-resume` skips already-completed stages.
+- **Provenance:** each process records inputs/outputs and Nextflow writes a
+  timestamped `report-*.html` + `dag-*.html` per run.
+- **No flaky downloads:** the water layer's ferry data ships as a vendored
+  snapshot (`vendor/ferries_world.json`), so a clean-clone run never depends on
+  a live Overpass query (see [`DATA.md`](DATA.md)).
 
 ## Interactive visualization (graded deliverable)
 

@@ -1,23 +1,37 @@
 # netsci-disease-spread — end-to-end pipeline.
 #
-# Runs `netsci` directly in your active environment (the conda `datascience`
-# env, where the CLI and downloaded data already live). No container needed.
-# For a containerised / DAG-tracked run instead, see `make nextflow`.
+# THE one command (self-contained: needs only Docker + Nextflow on the host):
+#   make            # = make run
+#   make run        # build the image, then run the whole pipeline via Nextflow
 #
-# Usage:
-#   make            # = make bake  (the full run, with per-node outbreak maps)
-#   make bake       # retrieve? -> netgen -> sweep --maps -> collect -> structure -> interdiction -> site
-#   make sweep      # just the 864-run grid WITH maps (re-runs everything downstream too)
-#   make app        # launch the interactive explorer
+# `make run` builds the project image and runs retrieve -> netgen -> sweep --maps
+# -> collect -> structure -> { interdiction, site } with Nextflow's live UI.
+# Customise via Nextflow params, e.g.:
+#   make run NFARGS="--maps false"                 # skip the heavy outbreak maps
+#   make run NFARGS="--config configs/experiment_multimodal.yaml"
+#
+# Other targets:
+#   make app        # launch the interactive explorer (http://127.0.0.1:8050)
+#   make bake       # same pipeline WITHOUT Docker, in your active env (conda etc.)
 #   make clean      # wipe results/ (keeps downloaded data/)
 
 CONFIG       ?= experiment.yaml
 INTERDICTION ?= configs/europe_interdiction.yaml
 RESULTS      ?= results
+NFARGS       ?=
 
-.PHONY: default bake retrieve netgen sweep collect structure interdiction site app nextflow clean cleaner
+.PHONY: default run build bake retrieve netgen sweep collect structure interdiction site app nextflow clean cleaner
 
-default: bake
+default: run
+
+## run: THE one command — build the image, then run the whole pipeline (Nextflow + Docker)
+run: build
+	nextflow run workflow/main.nf -ansi-log true $(NFARGS)
+	@echo "✓ pipeline complete — explore it with: make app   (or open $(RESULTS)/index.html)"
+
+## build: build the self-contained project image (no local Python needed)
+build:
+	docker compose build
 
 ## bake: full reproducible pipeline -> tables, maps, interdiction, navigable site
 bake: site interdiction
@@ -51,13 +65,13 @@ interdiction: structure
 site: structure
 	netsci viz site
 
-## app: launch the Dash explorer (rebuilds tables on launch if missing)
+## app: launch the Dash explorer in the container at http://127.0.0.1:8050
 app:
-	netsci viz app
+	docker compose run --rm --service-ports app viz app --host 0.0.0.0
 
 ## nextflow: same pipeline via Nextflow, local executor, no Docker
 nextflow:
-	nextflow run workflow/main.nf -profile local
+	nextflow run workflow/main.nf -profile local $(NFARGS)
 
 ## clean: remove results/ (keeps downloaded data/)
 clean:
