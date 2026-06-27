@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Run study{% endblock %}
+{% block content %}
+
+<h1>Run full study</h1>
+<p class="lede" style="margin-bottom:1.4rem">Runs the whole pipeline via Nextflow
+  (<span class="mono">-profile local</span>): retrieve → build networks → sweep →
+  collect → structure → interdiction → site. This is heavy and can run for a long
+  time; one study runs at a time.</p>
+
+<form method="post" action="/study/run">
+  <div class="panel" style="max-width:620px">
+    <div class="panel-b">
+      <div class="field">
+        <label for="config">Experiment config</label>
+        <select id="config" name="config">
+          <option value="experiment.yaml">experiment.yaml (all regions)</option>
+          <option value="configs/experiment_multimodal.yaml">configs/experiment_multimodal.yaml</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="interdiction">Interdiction config</label>
+        <select id="interdiction" name="interdiction">
+          {% for c in configs %}
+            <option value="configs/{{ c }}" {{ 'selected' if c == 'europe_interdiction.yaml' else '' }}>configs/{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label class="chip"><input type="checkbox" name="maps" checked> record outbreak maps (--maps, ~2 GB)</label>
+      </div>
+      <button class="btn-run" type="submit">Launch study ▸</button>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

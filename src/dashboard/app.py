@@ -170,6 +170,32 @@ async def compare(request: Request):
     return templates.TemplateResponse(request, "compare.html", compare_context())
 
 
+@app.get("/study", response_class=HTMLResponse)
+async def study_form(request: Request):
+    cfg_dir = Path("configs")
+    configs = sorted(p.name for p in cfg_dir.glob("*.yaml")) if cfg_dir.is_dir() else []
+    return templates.TemplateResponse(request, "study.html", {"configs": configs})
+
+
+@app.post("/study/run")
+async def study_run(request: Request):
+    form = await request.form()
+    config = form.get("config", "experiment.yaml")
+    interdiction = form.get("interdiction", "configs/europe_interdiction.yaml")
+    maps = form.get("maps") == "on"
+    job_id = jobs.create_job("pipeline", f"full study · {config}{' · maps' if maps else ''}")
+    await app.state.arq.enqueue_job("run_pipeline", job_id, config, interdiction, maps)
+    return RedirectResponse(f"/study/{job_id}", status_code=303)
+
+
+@app.get("/study/{job_id}", response_class=HTMLResponse)
+async def study_monitor(request: Request, job_id: str):
+    job = jobs.get_job(job_id)
+    if not job:
+        return HTMLResponse("Unknown job", status_code=404)
+    return templates.TemplateResponse(request, "pipeline.html", {"job": job})
+
+
 @app.get("/data", response_class=HTMLResponse)
 async def data_page(request: Request):
     return templates.TemplateResponse(request, "data.html", _data_ctx())

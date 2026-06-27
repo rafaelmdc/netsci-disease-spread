@@ -198,6 +198,13 @@ h1 { font-size: 2rem; }
 .muted { color: var(--muted); }
 .mono { font-family: var(--font-mono); }
 
+.logbox {
+  font-family: var(--font-mono); font-size: .8rem; line-height: 1.5;
+  color: var(--text); background: var(--ink-2); border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm); padding: .9rem 1rem; margin: 0;
+  max-height: 480px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+}
+
 @media (max-width: 720px) {
   .grid2, .grid3 { grid-template-columns: 1fr; }
   .nav-links { gap: 1rem; }

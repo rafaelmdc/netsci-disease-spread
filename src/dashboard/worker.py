@@ -142,8 +142,40 @@ async def run_data_task(
         jobs.mark_failed(job_id, f"{exc}\n{traceback.format_exc()}")
 
 
+async def run_pipeline(
+    ctx: dict, job_id: str, config: str, interdiction: str, maps: bool
+) -> None:
+    """Run the full Nextflow pipeline (`-profile local`, no Docker) and stream
+    its log to the browser. Stages call the same `netsci` CLI in-process."""
+    from src.paths import ROOT
+    try:
+        jobs.mark_running(job_id)
+        events.publish(job_id, {"type": "start_pipeline", "config": config, "maps": maps})
+        cmd = [
+            "nextflow", "run", "workflow/main.nf", "-profile", "local", "-ansi-log", "false",
+            "--config", config, "--interdiction", interdiction,
+            "--maps", "true" if maps else "false",
+        ]
+        proc = await asyncio.create_subprocess_exec(
+            *cmd, cwd=str(ROOT),
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
+        )
+        async for raw in proc.stdout:
+            events.publish(job_id, {"type": "log", "line": raw.decode(errors="replace").rstrip()})
+        rc = await proc.wait()
+        if rc == 0:
+            jobs.update_job(job_id, status="done", finished_at=time.time())
+            events.publish(job_id, {"type": "done"})
+        else:
+            jobs.mark_failed(job_id, f"nextflow exited with code {rc}")
+            events.publish(job_id, {"type": "failed", "error": f"nextflow exited with code {rc}"})
+    except Exception as exc:  # noqa: BLE001
+        jobs.mark_failed(job_id, f"{exc}\n{traceback.format_exc()}")
+        events.publish(job_id, {"type": "failed", "error": str(exc)})
+
+
 class WorkerSettings:
-    functions = [run_simulation, continue_simulation, run_data_task]
+    functions = [run_simulation, continue_simulation, run_data_task, run_pipeline]
     redis_settings = RedisSettings.from_dsn(events.redis_url())
-    max_jobs = 1  # one heavy simulation at a time
-    job_timeout = 60 * 60  # an hour ceiling for a single run
+    max_jobs = 1  # one heavy job at a time
+    job_timeout = 6 * 60 * 60  # the full sweep can run for ~an hour; give headroom

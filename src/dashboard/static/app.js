@@ -128,3 +128,24 @@ function startMonitor(jobId) {
 }
 
 window.startMonitor = startMonitor;
+
+// Full-study (Nextflow) monitor: stream the pipeline log line by line.
+function startPipeline(jobId) {
+  const logEl = document.getElementById("pipe-log");
+  const statusEl = document.getElementById("pipe-status");
+  const doneBox = document.getElementById("pipe-done");
+  function append(line) { logEl.textContent += line + "\n"; logEl.scrollTop = logEl.scrollHeight; }
+  function setStatus(t, c) { statusEl.textContent = t; statusEl.className = "badge " + c; }
+
+  const es = new EventSource(`/sim/${jobId}/stream`);
+  es.onmessage = (e) => {
+    const ev = JSON.parse(e.data);
+    if (ev.type === "start_pipeline") setStatus("running", "running");
+    else if (ev.type === "log") append(ev.line);
+    else if (ev.type === "done") { setStatus("done", "done"); if (doneBox) doneBox.hidden = false; es.close(); }
+    else if (ev.type === "failed") { setStatus("failed", "failed"); append("FAILED: " + (ev.error || "")); es.close(); }
+    else if (ev.type === "interrupted") { setStatus("interrupted", "interrupted"); es.close(); }
+  };
+  es.onerror = () => setStatus("reconnecting…", "queued");
+}
+window.startPipeline = startPipeline;
