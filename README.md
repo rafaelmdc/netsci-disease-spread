@@ -37,7 +37,7 @@ documentation index at [`docs/README.md`](docs/README.md).
 
 1. How does vaccination affect the infected network across different
    infection models and disease parameters?
-2. **(Primary novelty)** Where does Europe sit on the degree–betweenness
+2. Where does Europe sit on the degree–betweenness
    spectrum — US-like (the two centralities correlate, so degree- and
    betweenness-targeted immunisation coincide) or worldwide-like (anomalous
    low-degree/high-betweenness gateways, so the strategies diverge)? The
@@ -85,7 +85,7 @@ From a fresh clone:
 
 ```bash
 make app-build        # build the image once
-make app              # launch the simulator → http://127.0.0.1:8000
+make app              # launch the simulator → open http://127.0.0.1:8000 when it finishes
 ```
 
 After the one-time build, `make app` starts in seconds; the source is
@@ -104,7 +104,8 @@ batch pipeline, so results land in the usual `results/` tree (with Gephi export)
 
 If you also want the one-shot reproducible study (every region × layer-set,
 full sweep, interdiction, static site), that path additionally needs
-[Nextflow](https://www.nextflow.io/) on the host:
+[Nextflow](https://www.nextflow.io/) on the host: (but an equivalent one can be ran
+via the dashboard app)
 
 ```bash
 make run        # build the image, then run the whole pipeline via Nextflow
