@@ -26,13 +26,17 @@
     <div class="panel-h" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
       <span>{{ n }} runs overlaid</span>
       <span style="display:flex;gap:1rem;align-items:center;text-transform:none;letter-spacing:0">
-        <label class="mono" style="font-size:.78rem;display:flex;gap:.4rem;align-items:center">
+        <label class="mono" style="font-size:.78rem;display:flex;gap:.4rem;align-items:center"
+               title="Which curve to plot for every run: a compartment (S/E/I/Q/R/V) over time, or ‘cumulative infected’ — everyone who has left the susceptible pool.">
           metric <select id="metric-sel" class="mini-select"></select></label>
-        <label class="mono" style="font-size:.78rem;display:flex;gap:.35rem;align-items:center">
+        <label class="mono" style="font-size:.78rem;display:flex;gap:.35rem;align-items:center"
+               title="Plot each curve as a percentage of that run's population instead of an absolute headcount — lets you compare runs with different population sizes on the same scale.">
           <input type="checkbox" id="norm-chk"> % of population</label>
-        <label class="mono" style="font-size:.78rem;display:flex;gap:.35rem;align-items:center">
+        <label class="mono" style="font-size:.78rem;display:flex;gap:.35rem;align-items:center"
+               title="Show each run as the difference from a chosen baseline run (baseline minus run). Positive values mean fewer cases than the baseline — i.e. cases averted. Pick the baseline in the dropdown.">
           <input type="checkbox" id="delta-chk"> Δ vs
-          <select id="baseline-sel" class="mini-select" disabled></select></label>
+          <select id="baseline-sel" class="mini-select" disabled
+                  title="The run everything else is measured against when Δ is on."></select></label>
       </span>
     </div>
     <div class="panel-b"><div id="compare-chart" style="height:560px"></div></div>
@@ -45,7 +49,8 @@
         <thead><tr>
           <th>Run</th><th>Model</th><th>Strategy</th>
           <th class="num">Peak infectious</th><th class="num">Peak day</th>
-          <th class="num">Attack rate</th><th class="num">Vaccinated</th><th></th>
+          <th class="num">Total infections</th><th class="num">Attack rate</th>
+          <th class="num">Vaccinated</th><th></th>
         </tr></thead>
         <tbody>
         {% for r in stats %}
@@ -57,7 +62,9 @@
             <td class="mono">{{ r.strategy }}</td>
             <td class="num mono {{ m.peak }}">{{ "{:,.0f}".format(r.peak) }}</td>
             <td class="num mono {{ m.peak_day }}">{{ r.peak_day }}</td>
-            <td class="num mono {{ m.attack }}">{% if r.attack is not none %}{{ "{:.1%}".format(r.attack) }}{% else %}—{% endif %}</td>
+            {% set no_r = "SIS has no recovered compartment — the infected return straight to susceptible, so there is no cumulative infection total to report." %}
+            <td class="num mono {{ m.total_inf }}">{% if r.total_inf is not none %}{{ "{:,.0f}".format(r.total_inf) }}{% else %}<span title="{{ no_r }}">—</span>{% endif %}</td>
+            <td class="num mono {{ m.attack }}">{% if r.attack is not none %}{{ "{:.1%}".format(r.attack) }}{% else %}<span title="{{ no_r }}">—</span>{% endif %}</td>
             <td class="num mono {{ m.vaccinated }}">{{ "{:,.0f}".format(r.vaccinated) }}</td>
             <td class="num"><a class="mono" href="/run/{{ r.region }}/{{ r.combo }}/{{ r.label }}">open →</a></td>
           </tr>

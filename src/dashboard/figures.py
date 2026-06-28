@@ -86,7 +86,7 @@ def _mark(stats: list[dict]) -> None:
     """Tag the min/max cell per numeric column so the table can highlight them."""
     if len(stats) < 2:
         return
-    for f in ("peak", "peak_day", "attack", "vaccinated"):
+    for f in ("peak", "peak_day", "total_inf", "attack", "vaccinated"):
         vals = [(i, s[f]) for i, s in enumerate(stats) if s.get(f) is not None]
         if len(vals) < 2:
             continue
@@ -130,12 +130,17 @@ def comparison_context(run_ids: list[str]) -> dict:
     for r in runs:
         s = r["summary"]
         pop = s.get("total_population") or 0
+        # cumulative ever-infected = recovered + still-infectious. Models without
+        # an R compartment (SIS) never accumulate this, so leave it undefined.
+        fr = s.get("final_recovered")
+        total_inf = (fr + s.get("final_infected", 0.0)) if fr is not None else None
         stats.append({
             "region": r["region"], "combo": r["combo"], "label": r["label"],
             "model": r["config"]["model"]["name"], "strategy": r["config"]["strategy"]["name"],
             "peak": s.get("peak_infected", 0.0),
             "peak_day": int(s.get("time_to_peak", 0)),
-            "attack": (s.get("final_recovered", 0.0) / pop) if pop else None,
+            "total_inf": total_inf,
+            "attack": (total_inf / pop) if (total_inf is not None and pop) else None,
             "vaccinated": s.get("vaccinated", 0.0),
         })
     _mark(stats)

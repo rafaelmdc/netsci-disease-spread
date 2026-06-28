@@ -26,7 +26,13 @@
   <div class="stat"><div class="k">Day of peak</div><div class="v">{{ s.time_to_peak | int }}</div></div>
   <div class="stat"><div class="k">Still infectious</div><div class="v">{{ "{:,.0f}".format(s.final_infected) }}</div></div>
   {% if s.final_recovered is defined %}
-  <div class="stat"><div class="k">Attack rate</div><div class="v">{{ "{:.1%}".format(s.final_recovered / s.total_population) }}</div></div>
+    {% set total_inf = s.final_recovered + s.final_infected %}
+    <div class="stat"><div class="k">Total infections</div><div class="v">{{ "{:,.0f}".format(total_inf) }}</div></div>
+    <div class="stat"><div class="k">Attack rate</div><div class="v">{{ "{:.1%}".format(total_inf / s.total_population) }}</div></div>
+  {% else %}
+    {% set no_r = "SIS has no recovered compartment — the infected return straight to susceptible, so there is no cumulative infection total to report." %}
+    <div class="stat" title="{{ no_r }}"><div class="k">Total infections</div><div class="v">—</div></div>
+    <div class="stat" title="{{ no_r }}"><div class="k">Attack rate</div><div class="v">—</div></div>
   {% endif %}
   <div class="stat"><div class="k">Vaccinated</div><div class="v">{{ "{:,.0f}".format(s.vaccinated) }}</div></div>
 </div>
