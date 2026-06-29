@@ -1,0 +1,71 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="F2stack" name="F2 — Multilayer substrate">
+    <mxGraphModel dx="1100" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Shared-node multilayer substrate (same cities on every layer)" style="text;html=1;fontSize=15;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="520" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Planes (parallelograms) -->
+        <mxCell id="pAir" value="" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=60;size=0.12;" vertex="1" parent="1">
+          <mxGeometry x="240" y="60" width="540" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pLand" value="" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;opacity=60;size=0.12;" vertex="1" parent="1">
+          <mxGeometry x="180" y="250" width="540" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pWater" value="" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;opacity=60;size=0.12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="440" width="540" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Plane labels -->
+        <mxCell id="lAir" value="AIR&#10;weighted routes — DIFFUSIVE&#10;(fraction relocates &amp; mixes)" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="790" y="95" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lLand" value="LAND&#10;commuting — RECURRENT&#10;(mix then return home)" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="730" y="285" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lWater" value="WATER&#10;ferries/shipping — DIFFUSIVE&#10;(in-transit transmission axis)" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="475" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- AIR nodes -->
+        <mxCell id="a1" value="A" style="ellipse;whiteSpace=wrap;html=1;fillColor=#6c8ebf;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="330" y="100" width="34" height="34" as="geometry" /></mxCell>
+        <mxCell id="a2" value="B" style="ellipse;whiteSpace=wrap;html=1;fillColor=#6c8ebf;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="470" y="95" width="34" height="34" as="geometry" /></mxCell>
+        <mxCell id="a3" value="C" style="ellipse;whiteSpace=wrap;html=1;fillColor=#6c8ebf;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="600" y="110" width="34" height="34" as="geometry" /></mxCell>
+        <!-- LAND nodes -->
+        <mxCell id="d1" value="A" style="ellipse;whiteSpace=wrap;html=1;fillColor=#82b366;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="270" y="290" width="34" height="34" as="geometry" /></mxCell>
+        <mxCell id="d2" value="B" style="ellipse;whiteSpace=wrap;html=1;fillColor=#82b366;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="410" y="285" width="34" height="34" as="geometry" /></mxCell>
+        <mxCell id="d3" value="C" style="ellipse;whiteSpace=wrap;html=1;fillColor=#82b366;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="540" y="300" width="34" height="34" as="geometry" /></mxCell>
+        <!-- WATER nodes -->
+        <mxCell id="w1" value="A" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d79b00;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="210" y="480" width="34" height="34" as="geometry" /></mxCell>
+        <mxCell id="w2" value="B" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d79b00;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="350" y="475" width="34" height="34" as="geometry" /></mxCell>
+        <mxCell id="w3" value="C" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d79b00;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="480" y="490" width="34" height="34" as="geometry" /></mxCell>
+
+        <!-- intra-layer edges -->
+        <mxCell id="ea1" style="endArrow=none;html=1;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" parent="1" source="a1" target="a2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ea2" style="endArrow=none;html=1;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" parent="1" source="a2" target="a3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ed1" style="endArrow=none;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" parent="1" source="d1" target="d2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ed2" style="endArrow=none;html=1;strokeColor=#82b366;strokeWidth=2;" edge="1" parent="1" source="d2" target="d3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ew1" style="endArrow=none;html=1;strokeColor=#d79b00;strokeWidth=2;" edge="1" parent="1" source="w1" target="w3"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- inter-layer coupling (dashed) -->
+        <mxCell id="cAB1" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="a1" target="d1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cAB2" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="d1" target="w1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cBB1" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="a2" target="d2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cBB2" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="d2" target="w2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cCC1" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="a3" target="d3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="cCC2" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="d3" target="w3"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="couplabel" value="dashed = same city across layers&#10;(shared node — coupling)" style="text;html=1;fontSize=10;fontStyle=2;align=left;" vertex="1" parent="1">
+          <mxGeometry x="30" y="300" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ladder" value="Europe ladder: air → +land → +water&#10;(rungs we compare for realism)" style="text;html=1;fontSize=11;fontStyle=2;align=center;" vertex="1" parent="1">
+          <mxGeometry x="250" y="600" width="400" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

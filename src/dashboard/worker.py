@@ -94,14 +94,23 @@ async def continue_simulation(
         events.publish(job_id, {"type": "failed", "error": str(exc)})
 
 
+def _log(msg: str) -> None:
+    """Print a timestamped line straight to the worker's stdout (docker logs)."""
+    print(f"[data] {time.strftime('%H:%M:%S')} {msg}", flush=True)
+
+
 def _data_action(action: str, region: str | None, layers: list[str] | None) -> None:
     """Run one data-prep step synchronously (called in a thread)."""
+    _log(f"action={action!r} region={region!r} layers={layers!r} — start")
     if action == "retrieve":
         from src.retrieve.geonames import fetch as fetch_geonames
         from src.retrieve.openflights import fetch as fetch_openflights
         from src.retrieve.osm_ferries import fetch as fetch_ferries
+        _log("fetching OpenFlights (airports + routes)…")
         fetch_openflights()
+        _log("fetching GeoNames (cities)…")
         fetch_geonames()
+        _log("fetching OSM ferries…")
         fetch_ferries()
     elif action == "netgen_all":
         from src.experiment import load_experiment_config
@@ -109,10 +118,16 @@ def _data_action(action: str, region: str | None, layers: list[str] | None) -> N
         from src.netgen.graph_io import write_graphml
         from src.paths import ROOT, combo_name, processed_graph
         exp = load_experiment_config(ROOT / "experiment.yaml")
-        for net in exp.networks():
-            graph = build_network(net)
+        nets = list(exp.networks())
+        _log(f"building {len(nets)} network(s)…")
+        for i, net in enumerate(nets, 1):
             combo = combo_name([layer.value for layer in net.layers])
-            write_graphml(graph, processed_graph(net.region, combo))
+            _log(f"[{i}/{len(nets)}] building {net.region}/{combo}…")
+            graph = build_network(net)
+            out = processed_graph(net.region, combo)
+            write_graphml(graph, out)
+            _log(f"[{i}/{len(nets)}] {net.region}/{combo}: "
+                 f"{graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges → {out}")
     elif action == "netgen_one":
         from src.config import Layer, NetworkConfig
         from src.netgen.build import build_network
@@ -120,8 +135,12 @@ def _data_action(action: str, region: str | None, layers: list[str] | None) -> N
         from src.paths import combo_name, processed_graph
         chosen = layers or ["air"]
         cfg = NetworkConfig(region=region, layers=[Layer(x) for x in chosen])
+        _log(f"building {region}/{combo_name(chosen)}…")
         graph = build_network(cfg)
-        write_graphml(graph, processed_graph(region, combo_name(chosen)))
+        out = processed_graph(region, combo_name(chosen))
+        write_graphml(graph, out)
+        _log(f"{region}/{combo_name(chosen)}: "
+             f"{graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges → {out}")
     elif action == "sweep":
         from src.evaluate.metrics import betweenness
         from src.evaluate.runner import run_and_save
@@ -129,23 +148,35 @@ def _data_action(action: str, region: str | None, layers: list[str] | None) -> N
         from src.netgen.graph_io import read_graphml
         from src.paths import ROOT, processed_graph
         exp = load_experiment_config(ROOT / "experiment.yaml")
-        for (region, combo), cfgs in exp.grouped_by_network().items():
+        groups = exp.grouped_by_network()
+        total = sum(len(c) for c in groups.values())
+        _log(f"running {total} simulation(s) across {len(groups)} network(s)…")
+        done = 0
+        for (region, combo), cfgs in groups.items():
+            _log(f"network {region}/{combo}: reading graph + warming betweenness…")
             graph = read_graphml(processed_graph(region, combo))
             betweenness(graph)  # warm the cache once before the runs share the graph
             for cfg in cfgs:
                 run_and_save(cfg, graph, record_nodes=False)
+                done += 1
+                _log(f"[{done}/{total}] ran {region}/{combo} :: {cfg.label}")
     elif action == "collect":
         from src.evaluate.aggregate import collect
+        _log("collecting per-run results into the master table…")
         collect()
     elif action == "structure":
         from src.evaluate.aggregate import structure_table
+        _log("building the structure (network-metrics) table…")
         structure_table()
     elif action == "aggregate":
         from src.evaluate.aggregate import collect, structure_table
+        _log("collecting per-run results…")
         collect()
+        _log("building the structure table…")
         structure_table()
     else:
         raise ValueError(f"unknown data action: {action}")
+    _log(f"action={action!r} — done")
 
 
 async def run_data_task(
