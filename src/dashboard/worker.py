@@ -104,11 +104,11 @@ def _data_action(action: str, region: str | None, layers: list[str] | None) -> N
         fetch_geonames()
         fetch_ferries()
     elif action == "netgen_all":
-        from src.config import load_experiment_config
+        from src.experiment import load_experiment_config
         from src.netgen.build import build_network
         from src.netgen.graph_io import write_graphml
-        from src.paths import combo_name, processed_graph
-        exp = load_experiment_config("experiment.yaml")
+        from src.paths import ROOT, combo_name, processed_graph
+        exp = load_experiment_config(ROOT / "experiment.yaml")
         for net in exp.networks():
             graph = build_network(net)
             combo = combo_name([layer.value for layer in net.layers])
@@ -127,8 +127,8 @@ def _data_action(action: str, region: str | None, layers: list[str] | None) -> N
         from src.evaluate.runner import run_and_save
         from src.experiment import load_experiment_config
         from src.netgen.graph_io import read_graphml
-        from src.paths import processed_graph
-        exp = load_experiment_config("experiment.yaml")
+        from src.paths import ROOT, processed_graph
+        exp = load_experiment_config(ROOT / "experiment.yaml")
         for (region, combo), cfgs in exp.grouped_by_network().items():
             graph = read_graphml(processed_graph(region, combo))
             betweenness(graph)  # warm the cache once before the runs share the graph

@@ -17,6 +17,7 @@ RUN uv sync --frozen --no-install-project --no-dev --extra dashboard
 
 # Now install the project (README.md is referenced by pyproject metadata).
 COPY README.md ./
+COPY experiment.yaml ./
 COPY src ./src
 COPY configs ./configs
 COPY vendor ./vendor

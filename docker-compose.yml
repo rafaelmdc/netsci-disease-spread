@@ -10,6 +10,7 @@ x-artifacts: &artifacts
   - ./figures:/app/figures
   - ./configs:/app/configs
   - ./vendor:/app/vendor
+  - ./experiment.yaml:/app/experiment.yaml
 
 # The web app also mounts the source (editable install) so code changes are
 # picked up on a container restart — `make app` needs no rebuild for src edits.
@@ -20,6 +21,7 @@ x-app-volumes: &app-volumes
   - ./figures:/app/figures
   - ./configs:/app/configs
   - ./vendor:/app/vendor
+  - ./experiment.yaml:/app/experiment.yaml
 
 services:
   app:
