@@ -1,8 +1,11 @@
 # Disease types & parameters
 
 The diseases we test, the compartmental model each uses, and the source for every
-parameter. Rates are per day; **rate = 1/duration**. β is not set directly — it is
-derived from R₀ and γ via `β = R₀·γ·⟨k⟩/⟨k²⟩`.
+parameter. Rates are per day; **rate = 1/duration**. β is not set directly; it is set so the
+within-city reproduction number equals the type's literature R₀: `β = R₀·γ` (SIR/SIS/SEIR),
+or `β = R₀·(γ+κ)` for the isolation type, since isolation shortens the infectious period. No
+`⟨k²⟩/⟨k⟩` correction is applied: that is for individual-contact networks, whereas here nodes
+are well-mixed cities.
 
 ## The types
 

@@ -21,6 +21,8 @@ class ModelName(StrEnum):
     SIS = "sis"
     SEIR = "seir"
     SQIR = "sqir"
+    SEIRS = "seirs"
+    SEIQRD = "seiqrd"
 
 
 class StrategyName(StrEnum):
@@ -44,9 +46,11 @@ class ModelParams(BaseModel):
 
     beta: float = Field(gt=0, description="transmission rate")
     gamma: float = Field(gt=0, description="recovery rate")
-    sigma: float | None = Field(default=None, gt=0, description="incubation rate (SEIR)")
-    kappa: float | None = Field(default=None, gt=0, description="quarantine rate (SQIR)")
-    gamma_q: float | None = Field(default=None, gt=0, description="recovery from quarantine (SQIR)")
+    sigma: float | None = Field(default=None, gt=0, description="incubation rate (SEIR/SEIRS/SEIQRD)")
+    kappa: float | None = Field(default=None, gt=0, description="quarantine rate (SQIR/SEIQRD)")
+    gamma_q: float | None = Field(default=None, gt=0, description="recovery from quarantine (SQIR/SEIQRD)")
+    omega: float | None = Field(default=None, gt=0, description="waning-immunity rate, R->S (SEIRS)")
+    mu: float | None = Field(default=None, ge=0, le=1, description="case-fatality fraction of removals (SEIQRD)")
 
 
 class ModelConfig(BaseModel):
@@ -60,6 +64,12 @@ class ModelConfig(BaseModel):
             raise ValueError("SEIR requires `sigma` (incubation rate)")
         if self.name is ModelName.SQIR and (p.kappa is None or p.gamma_q is None):
             raise ValueError("SQIR requires `kappa` and `gamma_q`")
+        if self.name is ModelName.SEIRS and (p.sigma is None or p.omega is None):
+            raise ValueError("SEIRS requires `sigma` (incubation) and `omega` (waning)")
+        if self.name is ModelName.SEIQRD and (
+            p.sigma is None or p.kappa is None or p.gamma_q is None
+        ):
+            raise ValueError("SEIQRD requires `sigma`, `kappa`, and `gamma_q` (`mu` optional)")
         return self
 
 

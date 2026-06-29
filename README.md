@@ -130,8 +130,14 @@ make run NFARGS="--interdiction configs/europe_interdiction.yaml"
 <details>
 <summary>Without Docker (run <code>netsci</code> directly in your env)</summary>
 
+The `netsci` command is provided by this package and requires
+[uv](https://docs.astral.sh/uv/): `uv sync` installs it into the project's
+`.venv`. Either activate that environment first, or prefix each command with
+`uv run` (e.g. `uv run netsci retrieve all`). The bare `netsci ...` form below
+assumes the `uv` environment is active.
+
 ```bash
-uv sync --extra dashboard                 # or: pip install -e ".[dashboard]"
+uv sync --extra dashboard                 # requires uv; or: pip install -e ".[dashboard]"
 make bake                                 # same pipeline, local executor, no container
 # or step by step:
 netsci retrieve all                       # → data/raw/{air,geonames,water}/   (ferries from vendored snapshot)

@@ -161,36 +161,58 @@ with the behaviour of the full multilayer network.
 *The two intervention modes on the same small network: node targeting (selected cities made
 immune) and edge targeting (selected routes closed).*
 
-### 3.5 Keeping the comparison honest
+### 3.5 Parameters and protocol
 
-The clinical rates $\gamma$, $\sigma$, $\kappa$ are fixed from each type's exemplar, and $R_0$
-is taken from the epidemiological literature. The transmission rate is then derived rather
-than assumed: on a heterogeneous network the well-mixed identity $R_0=\beta/\gamma$ does not
-hold, so we use $R_0 \propto (\beta/\gamma)\,\langle k^2\rangle/\langle k\rangle$
-(Pastor-Satorras & Vespignani, 2001) to back out $\beta$, and compute $R_0$ for the
-multi-compartment models (SEIR, SEIQR) with the next-generation matrix (van den Driessche &
-Watmough, 2002). We do not calibrate to outbreak data, because the transport network carries
-no ground-truth epidemic to fit; absolute incidence is consequently illustrative. In place of
-calibration we take three steps: we select an operating point in the $R_0$ regime where
-strategies actually differ (a trivially total or trivially extinct outbreak ranks all
-strategies equally); we run a sensitivity sweep confirming that the *ranking* of strategies
-is stable under perturbation of $\beta$, the travel rate, coverage, and efficacy; and we
-verify the engine against analytic limits, namely single-node dynamics and the final-size
-correspondence between SIR and bond percolation (Newman, 2002). Across any comparison the only
-inputs that change are the disease type, the protection strategy, the layer set, and the
-random seed. Outcomes are reported as final epidemic size, peak active infection, and peak
-day, averaged over seeds.
+Each disease type fixes its own clinical rates from the literature (Table 1): the recovery
+rate $\gamma$, and where present the incubation rate $\sigma$, isolation rate $\kappa$, and
+waning rate $\omega$, each the reciprocal of a measured duration. We then set the transmission
+rate $\beta$ so that the within-city basic reproduction number matches that type's literature
+$R_0$. Because each city is well mixed internally, that local number is $\beta/\gamma$ for
+SIR, SIS, and SEIR, and $\beta/(\gamma+\kappa)$ for the isolation type, where isolation
+shortens the infectious period; $\beta$ is set accordingly per type. We deliberately do not
+apply a degree-based $\langle k^2\rangle/\langle k\rangle$ correction: that adjustment is for
+networks whose nodes are individuals, whereas here nodes are well-mixed cities. We confirm
+this empirically, the metapopulation peak tracks the well-mixed SIR ceiling for $\beta/\gamma$
+rather than an inflated value.
 
-### 3.6 Making it reproducible
+We do not calibrate to outbreak data, because the transport network carries no ground-truth
+epidemic to fit, so absolute incidence is illustrative rather than predictive. Across any
+comparison the only inputs that change are the disease type, the protection strategy, the
+layer set, and the random seed. We report final epidemic size, peak active infection, and peak
+day, averaged over seeds, and we verify the engine against analytic limits, namely single-node
+dynamics and the final-size correspondence between SIR and bond percolation (Newman, 2002).
 
-The pipeline is structured so that any result is reproducible. The three modules (retrieve,
-network generation, evaluation) chain together so that each run is a pure function of its
-configuration and random seed, and the full sweep over regions, layer sets, disease types,
-strategies, coverages, and seeds is orchestrated with Nextflow (Di Tommaso et al., 2017). The
-same engine is exposed through an interactive simulator that runs a chosen scenario day by
-day; both the batch and interactive paths emit identical result artifacts, so the simulator
-serves reproducibility and inspection rather than constituting a separate experiment.
+### 3.6 Implementation and reproducibility
 
-**[Figure 5: Simulator (optional)]**
-*Screenshot of the simulator mid-run: the live epidemic curve and the map of infected
-cities.*
+The study is a single codebase with two front ends over one shared core, so every result is
+reproducible and the interactive demo and the batch study cannot drift apart (Figure 5).
+
+The core is the three-module pipeline (retrieve, network generation, evaluation) and the
+epidemic engine, written in Python with NumPy and NetworkX. A run is a pure function of its
+configuration and random seed: the same (config, seed) always produces the same result, and a
+single `experiment.yaml` is the source of truth for the whole grid.
+
+Two front ends drive that core. The **batch** path is a Typer command-line interface over the
+three modules, with Nextflow (Di Tommaso et al., 2017) orchestrating the full sweep over
+regions, layer sets, disease types, strategies, coverages, and seeds, running independent jobs
+in parallel and caching completed ones. The **interactive** path is a FastAPI web application
+(the simulator): the browser designs a scenario, the request is placed on an arq job queue
+backed by Redis and executed by a worker process, and as the worker steps the simulation it
+publishes per-day events to a Redis pub/sub channel that the server relays to the browser over
+Server-Sent Events, so the epidemic curve and the infected-city map build up live, day by day.
+
+Both front ends call the same engine and write the same artifacts: built networks as GraphML,
+run outputs as JSON and Parquet, and figures from a shared Plotly layer reused by the static
+batch site and the live app, with Gephi export for external inspection. The system is
+containerised with Docker and composed of the web app, the worker, and Redis, so a fresh clone
+reproduces the environment with one command. Because the interactive and batch paths share the
+engine, the configuration, and the figure code, the simulator is a window onto the same
+experiment rather than a separate one.
+
+**[Figure 5: System architecture]**
+*One shared core (pipeline + engine, a pure function of config and seed) driven by two front
+ends: a CLI/Nextflow batch path and a FastAPI simulator. The simulator's browser places a job
+on a Redis-backed arq queue; the worker streams per-day events back through Redis pub/sub and
+Server-Sent Events for the live view. Both paths read the same GraphML networks and write the
+same JSON/Parquet results and Plotly figures.*
+(source: `diagrams/F5-architecture.drawio`)

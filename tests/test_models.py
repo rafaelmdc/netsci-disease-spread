@@ -27,6 +27,10 @@ PARAMS = {
     ModelName.SIS: ModelParams(beta=0.4, gamma=0.1),
     ModelName.SEIR: ModelParams(beta=0.4, gamma=0.1, sigma=0.2),
     ModelName.SQIR: ModelParams(beta=0.4, gamma=0.1, kappa=0.15, gamma_q=0.1),
+    ModelName.SEIRS: ModelParams(beta=0.4, gamma=0.1, sigma=0.2, omega=0.02),
+    ModelName.SEIQRD: ModelParams(
+        beta=0.4, gamma=0.1, sigma=0.2, kappa=0.15, gamma_q=0.1, mu=0.5
+    ),
 }
 
 
@@ -69,6 +73,22 @@ def test_sis_reaches_endemic_plateau():
     # R0_local = beta/gamma = 4 > 1, so the disease persists rather than dying out
     res = simulate(_single_node(), _run(ModelName.SIS, horizon=300))
     assert res.timeseries["I"][-1] > 0
+
+
+def test_seirs_waning_replenishes_susceptibles():
+    # SEIRS returns recovered individuals to S, so it must leave more
+    # susceptibles at the end than the otherwise-identical SEIR (omega = 0).
+    seir = simulate(_single_node(), _run(ModelName.SEIR, horizon=300))
+    seirs = simulate(_single_node(), _run(ModelName.SEIRS, horizon=300))
+    assert seirs.timeseries["S"][-1] > seir.timeseries["S"][-1]
+
+
+def test_seiqrd_deaths_match_case_fatality():
+    # With mu = 0.5, half of all eventual removals must end up dead.
+    res = simulate(_single_node(), _run(ModelName.SEIQRD, horizon=400))
+    d, r = res.timeseries["D"][-1], res.timeseries["R"][-1]
+    assert d > 0 and max(res.timeseries["Q"]) > 0  # deaths and isolation both occur
+    assert abs(d / (d + r) - 0.5) < 0.02
 
 
 def test_vaccination_reduces_peak():

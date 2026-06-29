@@ -36,7 +36,7 @@ ProgressFn = Callable[[int, dict[str, float]], None]
 #: called every N days with (absolute_day_index, per-node infectious array)
 NodeProgressFn = Callable[[int, "np.ndarray"], None]
 
-_RATE_FIELDS = ("beta", "gamma", "sigma", "kappa", "gamma_q")
+_RATE_FIELDS = ("beta", "gamma", "sigma", "kappa", "gamma_q", "omega")  # mu is a fraction, not a rate
 _DEFAULT_LAND_COMMUTE = 0.3  # commuting participation fraction if land has no explicit rate
 
 # Default in-transit transmission per layer: trip duration = distance/speed, so
