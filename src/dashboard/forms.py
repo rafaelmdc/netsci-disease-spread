@@ -14,7 +14,7 @@ from src.config import (
     StrategyConfig,
     StrategyName,
 )
-from src.paths import PROCESSED, combo_name, processed_graph, raw_dir
+from src.paths import PROCESSED, RESULTS, combo_name, processed_graph, raw_dir
 
 # the canonical file each retrieval produces, used as the "present?" check
 _SOURCES = {
@@ -33,7 +33,20 @@ def data_status() -> dict:
         prov = d / "PROVENANCE.txt"
         info = prov.read_text().splitlines()[0] if prov.exists() else ""
         sources.append({"key": key, "label": label, "present": present, "info": info})
-    return {"sources": sources, "networks": available_networks()}
+    networks = available_networks()
+    # has anyone produced runs / rolled them up into the aggregate tables yet?
+    has_runs = any(RESULTS.glob("*/*/*/summary.json")) if RESULTS.exists() else False
+    aggregates = [
+        {"label": "summary.parquet", "present": (RESULTS / "summary.parquet").exists()},
+        {"label": "structure.parquet", "present": (RESULTS / "structure.parquet").exists()},
+    ]
+    return {
+        "sources": sources,
+        "networks": networks,
+        "has_networks": bool(networks),
+        "has_runs": has_runs,
+        "aggregates": aggregates,
+    }
 
 
 def available_networks() -> dict[str, list[list[str]]]:

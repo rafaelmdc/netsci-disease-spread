@@ -177,6 +177,19 @@ h1 { font-size: 2rem; }
 .help-text { flex-basis: 100%; margin: -.1rem 0 .3rem; color: var(--muted);
   font-size: .82rem; max-width: 70ch; }
 
+/* ---- numbered pipeline steps (Data page) ---------------------------------- */
+.step { display: flex; gap: .9rem; align-items: flex-start; }
+.step + .step { border-top: 1px solid var(--line); padding-top: 1.1rem; }
+.step-n {
+  flex: 0 0 auto; width: 1.7rem; height: 1.7rem; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: .85rem; color: var(--c-s);
+  background: var(--ink-2); border: 1px solid var(--line);
+}
+.step-body { flex: 1 1 auto; min-width: 0; }
+.step-title { color: var(--text); font-weight: 600; margin-bottom: .5rem; }
+.step .action-row { margin-bottom: 0; }
+
 /* ---- forms ---------------------------------------------------------------- */
 .field { margin-bottom: 1rem; }
 .field label {

@@ -21,20 +21,24 @@ def strategy_comparison_figure(summary: pd.DataFrame) -> go.Figure:
     hi = summary["coverage"].max()
     df = summary[(summary["strategy"] == "control") | (summary["coverage"] == hi)]
     agg = (
-        df.groupby(["model", "strategy"], as_index=False)["peak_infected"]
-        .mean()
+        df.groupby(["model", "strategy"], as_index=False)
+        .agg(peak_infected=("peak_infected", "mean"), peak_std=("peak_infected", "std"))
         .sort_values("model")
     )
+    agg["peak_std"] = agg["peak_std"].fillna(0.0)  # single-seed groups have no spread
     fig = px.bar(
         agg,
         x="model",
         y="peak_infected",
         color="strategy",
         barmode="group",
+        error_y="peak_std",
         title="Peak active infections by model and vaccination strategy",
         labels={"peak_infected": "mean peak infected (over seeds)", "model": "model"},
         template="plotly_white",
     )
+    # error bars (±1 std over seeds) are opt-in — hidden until toggled on
+    fig.update_traces(error_y_visible=False)
     fig.add_annotation(
         text="Lower is better; targeted strategies should sit below control/random.",
         xref="paper", yref="paper", x=0, y=1.08, showarrow=False, font=dict(size=11),

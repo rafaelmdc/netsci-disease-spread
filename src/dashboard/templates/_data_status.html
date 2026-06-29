@@ -19,7 +19,7 @@
 {% endif %}
 
 <div class="panel" style="margin-bottom:1.4rem">
-  <div class="panel-h">Sources</div>
+  <div class="panel-h">Sources <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">· step 1</span></div>
   <div class="panel-b">
     {% for s in sources %}
       <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
@@ -31,8 +31,8 @@
   </div>
 </div>
 
-<div class="panel">
-  <div class="panel-h">Networks built</div>
+<div class="panel" style="margin-bottom:1.4rem">
+  <div class="panel-h">Networks built <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">· step 2</span></div>
   <div class="panel-b">
     {% if networks %}
       {% for region, combos in networks.items() %}
@@ -44,7 +44,23 @@
         </div>
       {% endfor %}
     {% else %}
-      <p class="muted">None yet — retrieve sources, then build a network above.</p>
+      <p class="muted">None yet — retrieve sources (step 1), then build a network (step 2).</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-h">Aggregate tables <span class="muted" style="font-weight:400;text-transform:none;letter-spacing:0">· step 4</span></div>
+  <div class="panel-b">
+    {% for a in aggregates %}
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+        <span class="badge {{ 'done' if a.present else 'failed' }}">{{ 'ready' if a.present else 'missing' }}</span>
+        <span class="mono" style="color:var(--text)">{{ a.label }}</span>
+      </div>
+    {% endfor %}
+    {% if not has_runs %}
+      <p class="muted" style="margin-top:.3rem">No runs under <span class="mono">results/</span> yet —
+        run a simulation (step 3) before aggregating.</p>
     {% endif %}
   </div>
 </div>

@@ -3,34 +3,100 @@
 {% block content %}
 
 <h1>Data &amp; networks</h1>
-<p class="lede" style="margin-bottom:1.6rem">Prepare the inputs the simulator runs
-  on, without the command line. Actions run as background jobs.</p>
+<p class="lede" style="margin-bottom:1.6rem">Everything the simulator needs, built
+  from scratch without the command line. Work top to bottom — each step feeds the
+  next. Actions run as background jobs; the status below updates as they finish.</p>
 
 <div class="panel" style="margin-bottom:1.4rem">
-  <div class="panel-h">Actions</div>
-  <div class="panel-b" style="display:flex;flex-wrap:wrap;gap:.7rem;align-items:flex-end">
-    <form method="post" action="/data/run"><input type="hidden" name="action" value="retrieve">
-      <button class="btn-ghost" type="submit">Retrieve all sources</button></form>
-    <form method="post" action="/data/run"><input type="hidden" name="action" value="netgen_all">
-      <button class="btn-ghost" type="submit">Build all networks</button></form>
-    <form method="post" action="/data/run"><input type="hidden" name="action" value="aggregate">
-      <button class="btn-ghost" type="submit">Aggregate (collect + structure)</button></form>
+  <div class="panel-h">Pipeline</div>
+  <div class="panel-b" style="display:flex;flex-direction:column;gap:1.1rem">
 
-    <form method="post" action="/data/run"
-          style="display:flex;gap:.6rem;align-items:flex-end;margin-left:auto">
-      <input type="hidden" name="action" value="netgen_one">
-      <div class="field" style="margin:0"><label for="region">Build one · region</label>
-        <input id="region" name="region" value="europe" style="width:130px"></div>
-      <div class="field" style="margin:0">
-        <label>Layers</label>
-        <div class="chips">
-          <label class="chip"><input type="checkbox" name="layers" value="air" checked> air</label>
-          <label class="chip"><input type="checkbox" name="layers" value="land"> land</label>
-          <label class="chip"><input type="checkbox" name="layers" value="water"> water</label>
+    {# ---- step 1: retrieve raw sources ---------------------------------- #}
+    <div class="step">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <div class="step-title">Retrieve sources</div>
+        <div class="action-row">
+          <form method="post" action="/data/run"><input type="hidden" name="action" value="retrieve">
+            <button class="btn-ghost" type="submit">Retrieve all sources</button></form>
+          <button class="help-toggle" type="button" aria-label="what does retrieve do?">?</button>
+          <p class="help-text" hidden>Downloads the raw airport / city / ferry datasets the
+            networks are built from, into <span class="mono">data/raw/</span>. Needs internet
+            and can take a few minutes — this is the slowest first step.</p>
         </div>
       </div>
-      <button class="btn-run" type="submit">Build</button>
-    </form>
+    </div>
+
+    {# ---- step 2: build networks ---------------------------------------- #}
+    <div class="step">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <div class="step-title">Build networks
+          <span class="muted" style="font-weight:400;font-size:.78rem">· needs step 1</span></div>
+        <div class="action-row">
+          <form method="post" action="/data/run"><input type="hidden" name="action" value="netgen_all">
+            <button class="btn-ghost" type="submit">Build all networks</button></form>
+          <button class="help-toggle" type="button" aria-label="what does build do?">?</button>
+          <p class="help-text" hidden>Turns the raw sources into the processed graphs under
+            <span class="mono">data/processed/</span> that the simulator runs on. Nothing can
+            simulate until at least one network exists. "Build all" is heavy; use "Build one"
+            to make a single region/layer combination quickly.</p>
+        </div>
+        <form method="post" action="/data/run"
+              style="display:flex;gap:.6rem;align-items:flex-end;margin-top:.4rem">
+          <input type="hidden" name="action" value="netgen_one">
+          <div class="field" style="margin:0"><label for="region">Build one · region</label>
+            <input id="region" name="region" value="europe" style="width:130px"></div>
+          <div class="field" style="margin:0">
+            <label>Layers</label>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="layers" value="air" checked> air</label>
+              <label class="chip"><input type="checkbox" name="layers" value="land"> land</label>
+              <label class="chip"><input type="checkbox" name="layers" value="water"> water</label>
+            </div>
+          </div>
+          <button class="btn-run" type="submit">Build</button>
+        </form>
+      </div>
+    </div>
+
+    {# ---- step 3: run simulations (lives on other pages) ---------------- #}
+    <div class="step">
+      <div class="step-n">3</div>
+      <div class="step-body">
+        <div class="step-title">Run simulations
+          <span class="muted" style="font-weight:400;font-size:.78rem">· needs a network from step 2</span></div>
+        <div class="action-row">
+          <a class="btn-ghost" href="/new">New run</a>
+          <a class="btn-ghost" href="/study">Study</a>
+          <a class="btn-ghost" href="/compare#aggregate">Run sweep</a>
+          <button class="help-toggle" type="button" aria-label="how do I run simulations?">?</button>
+          <p class="help-text" hidden>Each simulation writes a run under
+            <span class="mono">results/</span>. <b>New run</b> launches one; <b>Study</b> runs a
+            small parameter study; <b>Run sweep</b> (on the Compare → Aggregate tab) runs the full
+            <span class="mono">experiment.yaml</span> grid — the canonical but heavy option.</p>
+        </div>
+      </div>
+    </div>
+
+    {# ---- step 4: aggregate ---------------------------------------------- #}
+    <div class="step">
+      <div class="step-n">4</div>
+      <div class="step-body">
+        <div class="step-title">Aggregate tables
+          <span class="muted" style="font-weight:400;font-size:.78rem">· needs runs from step 3</span></div>
+        <div class="action-row">
+          <form method="post" action="/data/run"><input type="hidden" name="action" value="aggregate">
+            <button class="btn-ghost" type="submit">Aggregate (collect + structure)</button></form>
+          <button class="help-toggle" type="button" aria-label="what does aggregate do?">?</button>
+          <p class="help-text" hidden>Rolls every run's summary into
+            <span class="mono">summary.parquet</span> and each network's structure into
+            <span class="mono">structure.parquet</span> — the tables behind the charts on the
+            Compare → Aggregate tab. Cheap; re-run it after adding runs.</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -38,4 +104,15 @@
   {% include "_data_status.html" %}
 </div>
 
+{% endblock %}
+{% block scripts %}
+<script>
+  // little "?" help toggles next to each step
+  document.addEventListener("click", e => {
+    if (!e.target.classList.contains("help-toggle")) return;
+    const help = e.target.parentElement.querySelector(".help-text");
+    help.hidden = !help.hidden;
+    e.target.classList.toggle("active", !help.hidden);
+  });
+</script>
 {% endblock %}
