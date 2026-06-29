@@ -168,12 +168,17 @@ $I^{*}_j=\sum_i C_{ij} I_i$, $N^{*}_j=\sum_i C_{ij} N_i$ are the infectious and
 total people \emph{present} at $j$. With no land layer $C$ is the identity and
 $\pi_i=I_i/N_i$, recovering the plain diffusive model.
 
-This distinction is not cosmetic. On the European air$+$land network, modelling
-commuting as recurrent rather than diffusive lowers the peak active infection
-by roughly $5\times$ (from $\sim$277\,M to $\sim$49\,M), because recurrent
-commuting couples neighbours without permanently transporting the seed
-population across the continent --- exactly the threshold-shifting effect
-reported by~\cite{balcan:recurrent}.
+This distinction is one of modelling correctness rather than of magnitude:
+recurrent commuting couples neighbours without permanently relocating residents,
+which is the appropriate representation of daily commuting~\cite{balcan:recurrent}.
+At our operating point its effect on the headline number is small, because the
+air layer already synchronises the network: on the European air$+$land network
+(SIR, $\beta=0.32$, $\gamma=0.12$) the peak active infection is $\sim$71\,M under
+recurrent coupling versus $\sim$73\,M under diffusive, and $\sim$459\,M versus
+$\sim$462\,M at world scale, both just below the fully synchronised SIR ceiling
+of $\sim$26\% of the population at this reproduction number. The two operators
+diverge in the expected direction (diffusion peaks higher and earlier) only once
+the air layer is removed, and even then by under $\sim$20\%.
 
 \textbf{In-transit transmission (refinement axis).} Optionally, travellers can
 be infected \emph{during} the journey, which matters most for long confined

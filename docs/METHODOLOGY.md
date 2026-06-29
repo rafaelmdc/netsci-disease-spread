@@ -52,12 +52,22 @@ transmission (screening, onboard quarantine, hospital ship) — this is how the
 "quarantine on boats" experiments are run. Toggleable, so it is a clean
 comparison axis (base vs in-transit, with vs without onboard control).
 
-> **Why it matters (professor-facing):** on the European air+land network,
-> modelling commuting as recurrent rather than diffusive lowers the peak
-> active infection ~5× (~277M → ~49M) — recurrent commuting couples
-> neighbours without transporting the seed population across the continent.
-> This is a real, threshold-shifting effect (`balcan:recurrent`), not a tuning
-> artifact, and it is why the land layer is *not* modelled as diffusion.
+> **On the modelling choice.** Recurrent coupling is the *correct* representation of
+> daily commuting: commuters return home, so they couple neighbours' force of infection
+> without being relocated (`balcan:recurrent`, `sorianopanos:multiplex`). We adopt it on
+> that ground, not because it swings the headline number. Verified on the current engine
+> (2026-06-29), the peak active infection is close either way at our operating point. On
+> europe/air+land (SIR, β=0.32, γ=0.12, air τ=0.0002, land 0.3, seed 2500, 210d, seeds 0
+> to 2) it is about 71M recurrent versus 73M diffusive (about 1.03x), and about 459M
+> versus 462M at world scale (about 1.01x). Both sit just under the analytic ceiling for a
+> fully synchronised SIR at this R₀ (about 26% of population), because the air layer
+> already synchronises the continent, leaving the land mobility *mechanism* a marginal
+> correction on top. The two operators do differ in the expected direction when air is
+> removed: on a land-only or controlled chain network, diffusion peaks higher and earlier,
+> but the effect is modest (under about 20%), not the threshold-dominating swing once
+> claimed here. An earlier version of this note asserted a 5x effect (about 277M to about
+> 49M); that figure does not reproduce and is impossible for SIR, whose peak prevalence
+> cannot exceed about 26%, so it has been corrected.
 
 Holding the dynamics fixed while only the layer set / region changes is what
 makes the comparisons clean.
