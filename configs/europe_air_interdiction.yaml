@@ -9,8 +9,8 @@ network:
 model:
   name: sir
   params:
-    beta: 0.32
-    gamma: 0.12
+    beta: 1.95     # measles (immunizing type): R0 = beta/gamma = 15
+    gamma: 0.13
 strategy:
   name: control
   coverage: 0.0

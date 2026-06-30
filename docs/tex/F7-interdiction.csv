@@ -1,0 +1,2101 @@
+scenario,day,infectious,region,combo
+A · full network,0,6991.474623396705,europe,air
+A · full network,1,19238.643947175053,europe,air
+A · full network,2,50590.52503000125,europe,air
+A · full network,3,117198.21042071527,europe,air
+A · full network,4,185577.4611931602,europe,air
+A · full network,5,163447.9314284336,europe,air
+A · full network,6,146845.13708718942,europe,air
+A · full network,7,139864.1817136651,europe,air
+A · full network,8,154731.28774866223,europe,air
+A · full network,9,225876.45764276938,europe,air
+A · full network,10,445729.4707900044,europe,air
+A · full network,11,1039136.0863740655,europe,air
+A · full network,12,2416994.3189606387,europe,air
+A · full network,13,4707983.939178419,europe,air
+A · full network,14,8840060.294428455,europe,air
+A · full network,15,19259596.51293347,europe,air
+A · full network,16,39402559.87218687,europe,air
+A · full network,17,63979443.48785714,europe,air
+A · full network,18,82867393.31829903,europe,air
+A · full network,19,102343729.3893745,europe,air
+A · full network,20,118005402.03788328,europe,air
+A · full network,21,121401738.2382522,europe,air
+A · full network,22,116285016.05838013,europe,air
+A · full network,23,106407032.65256153,europe,air
+A · full network,24,94506297.76983419,europe,air
+A · full network,25,83125435.49260324,europe,air
+A · full network,26,72597564.36036316,europe,air
+A · full network,27,63291695.72285053,europe,air
+A · full network,28,55146781.31766456,europe,air
+A · full network,29,48120634.47128543,europe,air
+A · full network,30,41915436.1959783,europe,air
+A · full network,31,36466437.56622423,europe,air
+A · full network,32,31725804.514852062,europe,air
+A · full network,33,27601451.97016249,europe,air
+A · full network,34,24013264.405473292,europe,air
+A · full network,35,20891540.779484477,europe,air
+A · full network,36,18175640.97385859,europe,air
+A · full network,37,15812807.991982374,europe,air
+A · full network,38,13757143.20198128,europe,air
+A · full network,39,11968714.771152513,europe,air
+A · full network,40,10412781.992558338,europe,air
+A · full network,41,9059120.444025997,europe,air
+A · full network,42,7881434.874003728,europe,air
+A · full network,43,6856848.410997689,europe,air
+A · full network,44,5965458.175111569,europe,air
+A · full network,45,5189948.659713486,europe,air
+A · full network,46,4515255.373271342,europe,air
+A · full network,47,3928272.2076215735,europe,air
+A · full network,48,3417596.8482843535,europe,air
+A · full network,49,2973309.281388269,europe,air
+A · full network,50,2586779.0946627622,europe,air
+A · full network,51,2250497.829280403,europe,air
+A · full network,52,1957933.1259454042,europe,air
+A · full network,53,1703401.8319808347,europe,air
+A · full network,54,1481959.6044876473,europe,air
+A · full network,55,1289304.8650881727,europe,air
+A · full network,56,1121695.2405494554,europe,air
+A · full network,57,975874.8661229934,europe,air
+A · full network,58,849011.1394484194,europe,air
+A · full network,59,738639.6964482794,europe,air
+A · full network,60,642616.5403554139,europe,air
+A · full network,61,559076.3939659551,europe,air
+A · full network,62,486396.46609879367,europe,air
+A · full network,63,423164.9284148156,europe,air
+A · full network,64,368153.4902492449,europe,air
+A · full network,65,320293.5387154663,europe,air
+A · full network,66,278655.3805950999,europe,air
+A · full network,67,242430.18278216303,europe,air
+A · full network,68,210914.26046932454,europe,air
+A · full network,69,183495.40786980995,europe,air
+A · full network,70,159641.00594534754,europe,air
+A · full network,71,138887.67612938763,europe,air
+A · full network,72,120832.27906622624,europe,air
+A · full network,73,105124.08351397741,europe,air
+A · full network,74,91457.95329010431,europe,air
+A · full network,75,79568.41991398524,europe,air
+A · full network,76,69224.52580590642,europe,air
+A · full network,77,60225.337870152725,europe,air
+A · full network,78,52396.04431226769,europe,air
+A · full network,79,45584.55887004564,europe,air
+A · full network,80,39658.56649447366,europe,air
+A · full network,81,34502.95309213319,europe,air
+A · full network,82,30017.569401073935,europe,air
+A · full network,83,26115.285562810765,europe,air
+A · full network,84,22720.298599949434,europe,air
+A · full network,85,19766.65992171103,europe,air
+A · full network,86,17196.994253729514,europe,air
+A · full network,87,14961.385106968148,europe,air
+A · full network,88,13016.405135670238,europe,air
+A · full network,89,11324.272548770661,europe,air
+A · full network,90,9852.117187818958,europe,air
+A · full network,91,8571.342014768186,europe,air
+A · full network,92,7457.0676063475,europe,air
+A · full network,93,6487.648864163077,europe,air
+A · full network,94,5644.254552483104,europe,air
+A · full network,95,4910.501496108291,europe,air
+A · full network,96,4272.136332517071,europe,air
+A · full network,97,3716.7586362300844,europe,air
+A · full network,98,3233.5800370056586,europe,air
+A · full network,99,2813.2146526684664,europe,air
+A · full network,100,2447.496765669244,europe,air
+A · full network,101,2129.322201690664,europe,air
+A · full network,102,1852.510329033522,europe,air
+A · full network,103,1611.6839980819066,europe,air
+A · full network,104,1402.1650886371854,europe,air
+A · full network,105,1219.8836360979592,europe,air
+A · full network,106,1061.2987712360853,europe,air
+A · full network,107,923.3299378013452,europe,air
+A · full network,108,803.2970518370996,europe,air
+A · full network,109,698.8684402845504,europe,air
+A · full network,110,608.0155475681383,europe,air
+A · full network,111,528.9735303245672,europe,air
+A · full network,112,460.2069748168193,europe,air
+A · full network,113,400.38007108414246,europe,air
+A · full network,114,348.3306644523589,europe,air
+A · full network,115,303.0476803476772,europe,air
+A · full network,116,263.6514838845724,europe,air
+A · full network,117,229.3767927071222,europe,air
+A · full network,118,199.55781116086598,europe,air
+A · full network,119,173.61529702223092,europe,air
+A · full network,120,151.04530955305427,europe,air
+A · full network,121,131.4094203079486,europe,air
+A · full network,122,114.32619653664966,europe,air
+A · full network,123,99.46379174400641,europe,air
+A · full network,124,86.53349947712695,europe,air
+A · full network,125,75.28414512015559,europe,air
+A · full network,126,65.49720675569407,europe,air
+A · full network,127,56.982570314207905,europe,air
+A · full network,128,49.57483655398351,europe,air
+A · full network,129,43.13010813366779,europe,air
+A · full network,130,37.52319436535761,europe,air
+A · full network,131,32.64517934977019,europe,air
+A · full network,132,28.401306253825965,europe,air
+A · full network,133,24.709136632132545,europe,air
+A · full network,134,21.496949036664063,europe,air
+A · full network,135,18.702345807172136,europe,air
+A · full network,136,16.271040978834655,europe,air
+A · full network,137,14.155805761902442,europe,air
+A · full network,138,12.315551108985261,europe,air
+A · full network,139,10.71452954858475,europe,air
+A · full network,140,9.321640780263014,europe,air
+A · full network,141,8.109827542434854,europe,air
+A · full network,142,7.055550017343153,europe,air
+A · full network,143,6.138328563384089,europe,air
+A · full network,144,5.340345892227136,europe,air
+A · full network,145,4.646100962906905,europe,air
+A · full network,146,4.042107869680818,europe,air
+A · full network,147,3.51663387446333,europe,air
+A · full network,148,3.0594714950420268,europe,air
+A · full network,149,2.661740221824131,europe,air
+A · full network,150,2.315714011404689,europe,air
+A · full network,151,2.014671205969769,europe,air
+A · full network,152,1.752763963176259,europe,air
+A · full network,153,1.5249046601464475,europe,air
+A · full network,154,1.326667064942559,europe,air
+A · full network,155,1.154200355748955,europe,air
+A · full network,156,1.0041543175600838,europe,air
+A · full network,157,0.8736142632985058,europe,air
+A · full network,158,0.7600444151871452,europe,air
+A · full network,159,0.6612386465427766,europe,air
+A · full network,160,0.5752776271360326,europe,air
+A · full network,161,0.5004915396543259,europe,air
+A · full network,162,0.43542764302434467,europe,air
+A · full network,163,0.378822052502408,europe,air
+A · full network,164,0.32957518835288707,europe,air
+A · full network,165,0.2867304161982681,europe,air
+A · full network,166,0.24945546412356404,europe,air
+A · full network,167,0.21702625555702904,europe,air
+A · full network,168,0.18881284387627104,europe,air
+A · full network,169,0.16426717551547568,europe,air
+A · full network,170,0.14291244386860869,europe,air
+A · full network,171,0.12433382718513031,europe,air
+A · full network,172,0.10817043053920428,europe,air
+A · full network,173,0.09410827534285539,europe,air
+A · full network,174,0.08187420022236874,europe,air
+A · full network,175,0.07123055478071624,europe,air
+A · full network,176,0.06197058317083112,europe,air
+A · full network,177,0.053914407804325756,europe,air
+A · full network,178,0.046905535178048616,europe,air
+A · full network,179,0.04080781594316503,europe,air
+A · full network,180,0.035502800165236624,europe,air
+A · full network,181,0.030887436400472434,europe,air
+A · full network,182,0.026872069892051494,europe,air
+A · full network,183,0.023378701000909802,europe,air
+A · full network,184,0.020339470040512987,europe,air
+A · full network,185,0.017695339083098113,europe,air
+A · full network,186,0.01539494513109492,europe,air
+A · full network,187,0.013393602376254414,europe,air
+A · full network,188,0.011652434165083833,europe,air
+A · full network,189,0.010137617808769032,europe,air
+A · full network,190,0.008819727567801743,europe,air
+A · full network,191,0.007673163048600706,europe,air
+A · full network,192,0.006675651908568085,europe,air
+A · full network,193,0.00580781720948508,europe,air
+A · full network,194,0.005052801014963088,europe,air
+A · full network,195,0.004395936920223589,europe,air
+A · full network,196,0.0038244651530043383,europe,air
+A · full network,197,0.0033272847113457755,europe,air
+A · full network,198,0.002894737723463445,europe,air
+A · full network,199,0.0025184218408354927,europe,air
+A · full network,200,0.002191027020187465,europe,air
+A · full network,201,0.0019061935238179326,europe,air
+A · full network,202,0.001658388379880782,europe,air
+A · full network,203,0.0014427979028299336,europe,air
+A · full network,204,0.0012552341862054847,europe,air
+A · full network,205,0.0010920537513569935,europe,air
+A · full network,206,0.0009500867718321569,europe,air
+A · full network,207,0.0008265754985944553,europe,air
+A · full network,208,0.0007191206899620674,europe,air
+A · full network,209,0.0006256350056543424,europe,air
+"B · air closed, land+water open",0,6991.474623396705,europe,air
+"B · air closed, land+water open",1,19236.959163134907,europe,air
+"B · air closed, land+water open",2,50560.686732578775,europe,air
+"B · air closed, land+water open",3,116874.8073381205,europe,air
+"B · air closed, land+water open",4,182741.68937856,europe,air
+"B · air closed, land+water open",5,158985.2697593472,europe,air
+"B · air closed, land+water open",6,138317.18469063207,europe,air
+"B · air closed, land+water open",7,120335.9506808499,europe,air
+"B · air closed, land+water open",8,104692.27709233941,europe,air
+"B · air closed, land+water open",9,91082.28107033529,europe,air
+"B · air closed, land+water open",10,79241.58453119171,europe,air
+"B · air closed, land+water open",11,68940.17854213678,europe,air
+"B · air closed, land+water open",12,59977.955331659,europe,air
+"B · air closed, land+water open",13,52180.82113854333,europe,air
+"B · air closed, land+water open",14,45397.3143905327,europe,air
+"B · air closed, land+water open",15,39495.66351976345,europe,air
+"B · air closed, land+water open",16,34361.2272621942,europe,air
+"B · air closed, land+water open",17,29894.267718108957,europe,air
+"B · air closed, land+water open",18,26008.012914754792,europe,air
+"B · air closed, land+water open",19,22626.97123583667,europe,air
+"B · air closed, land+water open",20,19685.464975177903,europe,air
+"B · air closed, land+water open",21,17126.354528404776,europe,air
+"B · air closed, land+water open",22,14899.928439712156,europe,air
+"B · air closed, land+water open",23,12962.937742549575,europe,air
+"B · air closed, land+water open",24,11277.75583601813,europe,air
+"B · air closed, land+water open",25,9811.647577335772,europe,air
+"B · air closed, land+water open",26,8536.133392282121,europe,air
+"B · air closed, land+water open",27,7426.4360512854455,europe,air
+"B · air closed, land+water open",28,6460.9993646183375,europe,air
+"B · air closed, land+water open",29,5621.069447217954,europe,air
+"B · air closed, land+water open",30,4890.33041907962,europe,air
+"B · air closed, land+water open",31,4254.587464599269,europe,air
+"B · air closed, land+water open",32,3701.491094201364,europe,air
+"B · air closed, land+water open",33,3220.2972519551868,europe,air
+"B · air closed, land+water open",34,2801.6586092010125,europe,air
+"B · air closed, land+water open",35,2437.442990004881,europe,air
+"B · air closed, land+water open",36,2120.575401304246,europe,air
+"B · air closed, land+water open",37,1844.900599134694,europe,air
+"B · air closed, land+water open",38,1605.0635212471836,europe,air
+"B · air closed, land+water open",39,1396.4052634850498,europe,air
+"B · air closed, land+water open",40,1214.8725792319933,europe,air
+"B · air closed, land+water open",41,1056.9391439318342,europe,air
+"B · air closed, land+water open",42,919.5370552206957,europe,air
+"B · air closed, land+water open",43,799.9972380420053,europe,air
+"B · air closed, land+water open",44,695.9975970965446,europe,air
+"B · air closed, land+water open",45,605.5179094739938,europe,air
+"B · air closed, land+water open",46,526.8005812423746,europe,air
+"B · air closed, land+water open",47,458.31650568086593,europe,air
+"B · air closed, land+water open",48,398.73535994235334,europe,air
+"B · air closed, land+water open",49,346.8997631498474,europe,air
+"B · air closed, land+water open",50,301.8027939403672,europe,air
+"B · air closed, land+water open",51,262.5684307281195,europe,air
+"B · air closed, land+water open",52,228.43453473346398,europe,air
+"B · air closed, land+water open",53,198.73804521811365,europe,air
+"B · air closed, land+water open",54,172.90209933975888,europe,air
+"B · air closed, land+water open",55,150.42482642559023,europe,air
+"B · air closed, land+water open",56,130.86959899026348,europe,air
+"B · air closed, land+water open",57,113.85655112152924,europe,air
+"B · air closed, land+water open",58,99.05519947573043,europe,air
+"B · air closed, land+water open",59,86.17802354388547,europe,air
+"B · air closed, land+water open",60,74.97488048318036,europe,air
+"B · air closed, land+water open",61,65.2281460203669,europe,air
+"B · air closed, land+water open",62,56.74848703771921,europe,air
+"B · air closed, land+water open",63,49.37118372281571,europe,air
+"B · air closed, land+water open",64,42.95292983884966,europe,air
+"B · air closed, land+water open",65,37.36904895979921,europe,air
+"B · air closed, land+water open",66,32.51107259502531,europe,air
+"B · air closed, land+water open",67,28.28463315767202,europe,air
+"B · air closed, land+water open",68,24.607630847174658,europe,air
+"B · air closed, land+water open",69,21.408638837041952,europe,air
+"B · air closed, land+water open",70,18.625515788226497,europe,air
+"B · air closed, land+water open",71,16.204198735757053,europe,air
+"B · air closed, land+water open",72,14.097652900108637,europe,air
+"B · air closed, land+water open",73,12.264958023094513,europe,air
+"B · air closed, land+water open",74,10.670513480092227,europe,air
+"B · air closed, land+water open",75,9.283346727680238,europe,air
+"B · air closed, land+water open",76,8.076511653081807,europe,air
+"B · air closed, land+water open",77,7.026565138181172,europe,air
+"B · air closed, land+water open",78,6.11311167021762,europe,air
+"B · air closed, land+water open",79,5.318407153089329,europe,air
+"B · air closed, land+water open",80,4.627014223187716,europe,air
+"B · air closed, land+water open",81,4.025502374173313,europe,air
+"B · air closed, land+water open",82,3.5021870655307823,europe,air
+"B · air closed, land+water open",83,3.0469027470117807,europe,air
+"B · air closed, land+water open",84,2.650805389900249,europe,air
+"B · air closed, land+water open",85,2.3062006892132167,europe,air
+"B · air closed, land+water open",86,2.0063945996154984,europe,air
+"B · air closed, land+water open",87,1.7455633016654835,europe,air
+"B · air closed, land+water open",88,1.5186400724489706,europe,air
+"B · air closed, land+water open",89,1.3212168630306045,europe,air
+"B · air closed, land+water open",90,1.149458670836626,europe,air
+"B · air closed, land+water open",91,1.0000290436278645,europe,air
+"B · air closed, land+water open",92,0.8700252679562421,europe,air
+"B · air closed, land+water open",93,0.7569219831219307,europe,air
+"B · air closed, land+water open",94,0.6585221253160797,europe,air
+"B · air closed, land+water open",95,0.5729142490249893,europe,air
+"B · air closed, land+water open",96,0.49843539665174075,europe,air
+"B · air closed, land+water open",97,0.4336387950870144,europe,air
+"B · air closed, land+water open",98,0.37726575172570254,europe,air
+"B · air closed, land+water open",99,0.32822120400136123,europe,air
+"B · air closed, land+water open",100,0.28555244748118425,europe,air
+"B · air closed, land+water open",101,0.2484306293086303,europe,air
+"B · air closed, land+water open",102,0.21613464749850836,europe,air
+"B · air closed, land+water open",103,0.18803714332370228,europe,air
+"B · air closed, land+water open",104,0.16359231469162097,europe,air
+"B · air closed, land+water open",105,0.14232531378171023,europe,air
+"B · air closed, land+water open",106,0.1238230229900879,europe,air
+"B · air closed, land+water open",107,0.10772603000137648,europe,air
+"B · air closed, land+water open",108,0.09372164610119754,europe,air
+"B · air closed, land+water open",109,0.08153783210804186,europe,air
+"B · air closed, land+water open",110,0.07093791393399641,europe,air
+"B · air closed, land+water open",111,0.06171598512257688,europe,air
+"B · air closed, land+water open",112,0.053692907056641884,europe,air
+"B · air closed, land+water open",113,0.04671282913927844,europe,air
+"B · air closed, land+water open",114,0.040640161351172245,europe,air
+"B · air closed, land+water open",115,0.035356940375519855,europe,air
+"B · air closed, land+water open",116,0.030760538126702274,europe,air
+"B · air closed, land+water open",117,0.026761668170230977,europe,air
+"B · air closed, land+water open",118,0.02328265130810095,europe,air
+"B · air closed, land+water open",119,0.020255906638047827,europe,air
+"B · air closed, land+water open",120,0.01762263877510161,europe,air
+"B · air closed, land+water open",121,0.015331695734338402,europe,air
+"B · air closed, land+water open",122,0.013338575288874409,europe,air
+"B · air closed, land+water open",123,0.011604560501320735,europe,air
+"B · air closed, land+water open",124,0.010095967636149039,europe,air
+"B · air closed, land+water open",125,0.008783491843449663,europe,air
+"B · air closed, land+water open",126,0.007641637903801207,europe,air
+"B · air closed, land+water open",127,0.00664822497630705,europe,air
+"B · air closed, land+water open",128,0.0057839557293871335,europe,air
+"B · air closed, land+water open",129,0.005032041484566806,europe,air
+"B · air closed, land+water open",130,0.004377876091573122,europe,air
+"B · air closed, land+water open",131,0.0038087521996686157,europe,air
+"B · air closed, land+water open",132,0.0033136144137116954,europe,air
+"B · air closed, land+water open",133,0.002882844539929175,europe,air
+"B · air closed, land+water open",134,0.0025080747497383824,europe,air
+"B · air closed, land+water open",135,0.002182025032272393,europe,air
+"B · air closed, land+water open",136,0.0018983617780769819,europe,air
+"B · air closed, land+water open",137,0.001651574746926974,europe,air
+"B · air closed, land+water open",138,0.0014368700298264675,europe,air
+"B · air closed, land+water open",139,0.0012500769259490268,europe,air
+"B · air closed, land+water open",140,0.0010875669255756533,europe,air
+"B · air closed, land+water open",141,0.0009461832252508184,europe,air
+"B · air closed, land+water open",142,0.000823179405968212,europe,air
+"B · air closed, land+water open",143,0.0007161660831923445,europe,air
+"B · air closed, land+water open",144,0.0006230644923773396,europe,air
+"B · air closed, land+water open",145,0.0005420661083682855,europe,air
+"B · air closed, land+water open",146,0.0004715975142804084,europe,air
+"B · air closed, land+water open",147,0.0004102898374239553,europe,air
+"B · air closed, land+water open",148,0.00035695215855884114,europe,air
+"B · air closed, land+water open",149,0.00031054837794619177,europe,air
+"B · air closed, land+water open",150,0.00027017708881318687,europe,air
+"B · air closed, land+water open",151,0.00023505406726747257,europe,air
+"B · air closed, land+water open",152,0.00020449703852270113,europe,air
+"B · air closed, land+water open",153,0.00017791242351474998,europe,air
+"B · air closed, land+water open",154,0.00015478380845783247,europe,air
+"B · air closed, land+water open",155,0.00013466191335831425,europe,air
+"B · air closed, land+water open",156,0.0001171558646217334,europe,air
+"B · air closed, land+water open",157,0.00010192560222090805,europe,air
+"B · air closed, land+water open",158,8.867527393219e-05,europe,air
+"B · air closed, land+water open",159,7.714748832100531e-05,europe,air
+"B · air closed, land+water open",160,6.711831483927462e-05,europe,air
+"B · air closed, land+water open",161,5.839293391016892e-05,europe,air
+"B · air closed, land+water open",162,5.080185250184696e-05,europe,air
+"B · air closed, land+water open",163,4.419761167660685e-05,europe,air
+"B · air closed, land+water open",164,3.845192215864796e-05,europe,air
+"B · air closed, land+water open",165,3.345317227802372e-05,europe,air
+"B · air closed, land+water open",166,2.9104259881880638e-05,europe,air
+"B · air closed, land+water open",167,2.5320706097236156e-05,europe,air
+"B · air closed, land+water open",168,2.2029014304595457e-05,europe,air
+"B · air closed, land+water open",169,1.9165242444998048e-05,europe,air
+"B · air closed, land+water open",170,1.66737609271483e-05,europe,air
+"B · air closed, land+water open",171,1.4506172006619022e-05,europe,air
+"B · air closed, land+water open",172,1.262036964575855e-05,europe,air
+"B · air closed, land+water open",173,1.0979721591809938e-05,europe,air
+"B · air closed, land+water open",174,9.552357784874647e-06,europe,air
+"B · air closed, land+water open",175,8.310551272840943e-06,europe,air
+"B · air closed, land+water open",176,7.2301796073716205e-06,europe,air
+"B · air closed, land+water open",177,6.29025625841331e-06,europe,air
+"B · air closed, land+water open",178,5.47252294481958e-06,europe,air
+"B · air closed, land+water open",179,4.761094961993034e-06,europe,air
+"B · air closed, land+water open",180,4.142152616933939e-06,europe,air
+"B · air closed, land+water open",181,3.603672776732527e-06,europe,air
+"B · air closed, land+water open",182,3.1351953157572984e-06,europe,air
+"B · air closed, land+water open",183,2.7276199247088495e-06,europe,air
+"B · air closed, land+water open",184,2.373029334496699e-06,europe,air
+"B · air closed, land+water open",185,2.064535521012128e-06,europe,air
+"B · air closed, land+water open",186,1.7961459032805515e-06,europe,air
+"B · air closed, land+water open",187,1.5626469358540798e-06,europe,air
+"B · air closed, land+water open",188,1.3595028341930494e-06,europe,air
+"B · air closed, land+water open",189,1.182767465747953e-06,europe,air
+"B · air closed, land+water open",190,1.0290076952007192e-06,europe,air
+"B · air closed, land+water open",191,8.952366948246257e-07,europe,air
+"B · air closed, land+water open",192,7.788559244974244e-07,europe,air
+"B · air closed, land+water open",193,6.776046543127592e-07,europe,air
+"B · air closed, land+water open",194,5.895160492521005e-07,europe,air
+"B · air closed, land+water open",195,5.128789628493275e-07,europe,air
+"B · air closed, land+water open",196,4.462046976789149e-07,europe,air
+"B · air closed, land+water open",197,3.88198086980656e-07,europe,air
+"B · air closed, land+water open",198,3.377323356731707e-07,europe,air
+"B · air closed, land+water open",199,2.938271320356585e-07,europe,air
+"B · air closed, land+water open",200,2.556296048710229e-07,europe,air
+"B · air closed, land+water open",201,2.223977562377899e-07,europe,air
+"B · air closed, land+water open",202,1.934860479268772e-07,europe,air
+"B · air closed, land+water open",203,1.6833286169638316e-07,europe,air
+"B · air closed, land+water open",204,1.4644958967585334e-07,europe,air
+"B · air closed, land+water open",205,1.274111430179924e-07,europe,air
+"B · air closed, land+water open",206,1.108476944256534e-07,europe,air
+"B · air closed, land+water open",207,9.643749415031845e-08,europe,air
+"B · air closed, land+water open",208,8.390061991077705e-08,europe,air
+"B · air closed, land+water open",209,7.299353932237604e-08,europe,air
+C · air closed (air-only model),0,6991.474623396705,europe,air
+C · air closed (air-only model),1,19236.959163134907,europe,air
+C · air closed (air-only model),2,50560.686732578775,europe,air
+C · air closed (air-only model),3,116874.8073381205,europe,air
+C · air closed (air-only model),4,182741.68937856,europe,air
+C · air closed (air-only model),5,158985.2697593472,europe,air
+C · air closed (air-only model),6,138317.18469063207,europe,air
+C · air closed (air-only model),7,120335.9506808499,europe,air
+C · air closed (air-only model),8,104692.27709233941,europe,air
+C · air closed (air-only model),9,91082.28107033529,europe,air
+C · air closed (air-only model),10,79241.58453119171,europe,air
+C · air closed (air-only model),11,68940.17854213678,europe,air
+C · air closed (air-only model),12,59977.955331659,europe,air
+C · air closed (air-only model),13,52180.82113854333,europe,air
+C · air closed (air-only model),14,45397.3143905327,europe,air
+C · air closed (air-only model),15,39495.66351976345,europe,air
+C · air closed (air-only model),16,34361.2272621942,europe,air
+C · air closed (air-only model),17,29894.267718108957,europe,air
+C · air closed (air-only model),18,26008.012914754792,europe,air
+C · air closed (air-only model),19,22626.97123583667,europe,air
+C · air closed (air-only model),20,19685.464975177903,europe,air
+C · air closed (air-only model),21,17126.354528404776,europe,air
+C · air closed (air-only model),22,14899.928439712156,europe,air
+C · air closed (air-only model),23,12962.937742549575,europe,air
+C · air closed (air-only model),24,11277.75583601813,europe,air
+C · air closed (air-only model),25,9811.647577335772,europe,air
+C · air closed (air-only model),26,8536.133392282121,europe,air
+C · air closed (air-only model),27,7426.4360512854455,europe,air
+C · air closed (air-only model),28,6460.9993646183375,europe,air
+C · air closed (air-only model),29,5621.069447217954,europe,air
+C · air closed (air-only model),30,4890.33041907962,europe,air
+C · air closed (air-only model),31,4254.587464599269,europe,air
+C · air closed (air-only model),32,3701.491094201364,europe,air
+C · air closed (air-only model),33,3220.2972519551868,europe,air
+C · air closed (air-only model),34,2801.6586092010125,europe,air
+C · air closed (air-only model),35,2437.442990004881,europe,air
+C · air closed (air-only model),36,2120.575401304246,europe,air
+C · air closed (air-only model),37,1844.900599134694,europe,air
+C · air closed (air-only model),38,1605.0635212471836,europe,air
+C · air closed (air-only model),39,1396.4052634850498,europe,air
+C · air closed (air-only model),40,1214.8725792319933,europe,air
+C · air closed (air-only model),41,1056.9391439318342,europe,air
+C · air closed (air-only model),42,919.5370552206957,europe,air
+C · air closed (air-only model),43,799.9972380420053,europe,air
+C · air closed (air-only model),44,695.9975970965446,europe,air
+C · air closed (air-only model),45,605.5179094739938,europe,air
+C · air closed (air-only model),46,526.8005812423746,europe,air
+C · air closed (air-only model),47,458.31650568086593,europe,air
+C · air closed (air-only model),48,398.73535994235334,europe,air
+C · air closed (air-only model),49,346.8997631498474,europe,air
+C · air closed (air-only model),50,301.8027939403672,europe,air
+C · air closed (air-only model),51,262.5684307281195,europe,air
+C · air closed (air-only model),52,228.43453473346398,europe,air
+C · air closed (air-only model),53,198.73804521811365,europe,air
+C · air closed (air-only model),54,172.90209933975888,europe,air
+C · air closed (air-only model),55,150.42482642559023,europe,air
+C · air closed (air-only model),56,130.86959899026348,europe,air
+C · air closed (air-only model),57,113.85655112152924,europe,air
+C · air closed (air-only model),58,99.05519947573043,europe,air
+C · air closed (air-only model),59,86.17802354388547,europe,air
+C · air closed (air-only model),60,74.97488048318036,europe,air
+C · air closed (air-only model),61,65.2281460203669,europe,air
+C · air closed (air-only model),62,56.74848703771921,europe,air
+C · air closed (air-only model),63,49.37118372281571,europe,air
+C · air closed (air-only model),64,42.95292983884966,europe,air
+C · air closed (air-only model),65,37.36904895979921,europe,air
+C · air closed (air-only model),66,32.51107259502531,europe,air
+C · air closed (air-only model),67,28.28463315767202,europe,air
+C · air closed (air-only model),68,24.607630847174658,europe,air
+C · air closed (air-only model),69,21.408638837041952,europe,air
+C · air closed (air-only model),70,18.625515788226497,europe,air
+C · air closed (air-only model),71,16.204198735757053,europe,air
+C · air closed (air-only model),72,14.097652900108637,europe,air
+C · air closed (air-only model),73,12.264958023094513,europe,air
+C · air closed (air-only model),74,10.670513480092227,europe,air
+C · air closed (air-only model),75,9.283346727680238,europe,air
+C · air closed (air-only model),76,8.076511653081807,europe,air
+C · air closed (air-only model),77,7.026565138181172,europe,air
+C · air closed (air-only model),78,6.11311167021762,europe,air
+C · air closed (air-only model),79,5.318407153089329,europe,air
+C · air closed (air-only model),80,4.627014223187716,europe,air
+C · air closed (air-only model),81,4.025502374173313,europe,air
+C · air closed (air-only model),82,3.5021870655307823,europe,air
+C · air closed (air-only model),83,3.0469027470117807,europe,air
+C · air closed (air-only model),84,2.650805389900249,europe,air
+C · air closed (air-only model),85,2.3062006892132167,europe,air
+C · air closed (air-only model),86,2.0063945996154984,europe,air
+C · air closed (air-only model),87,1.7455633016654835,europe,air
+C · air closed (air-only model),88,1.5186400724489706,europe,air
+C · air closed (air-only model),89,1.3212168630306045,europe,air
+C · air closed (air-only model),90,1.149458670836626,europe,air
+C · air closed (air-only model),91,1.0000290436278645,europe,air
+C · air closed (air-only model),92,0.8700252679562421,europe,air
+C · air closed (air-only model),93,0.7569219831219307,europe,air
+C · air closed (air-only model),94,0.6585221253160797,europe,air
+C · air closed (air-only model),95,0.5729142490249893,europe,air
+C · air closed (air-only model),96,0.49843539665174075,europe,air
+C · air closed (air-only model),97,0.4336387950870144,europe,air
+C · air closed (air-only model),98,0.37726575172570254,europe,air
+C · air closed (air-only model),99,0.32822120400136123,europe,air
+C · air closed (air-only model),100,0.28555244748118425,europe,air
+C · air closed (air-only model),101,0.2484306293086303,europe,air
+C · air closed (air-only model),102,0.21613464749850836,europe,air
+C · air closed (air-only model),103,0.18803714332370228,europe,air
+C · air closed (air-only model),104,0.16359231469162097,europe,air
+C · air closed (air-only model),105,0.14232531378171023,europe,air
+C · air closed (air-only model),106,0.1238230229900879,europe,air
+C · air closed (air-only model),107,0.10772603000137648,europe,air
+C · air closed (air-only model),108,0.09372164610119754,europe,air
+C · air closed (air-only model),109,0.08153783210804186,europe,air
+C · air closed (air-only model),110,0.07093791393399641,europe,air
+C · air closed (air-only model),111,0.06171598512257688,europe,air
+C · air closed (air-only model),112,0.053692907056641884,europe,air
+C · air closed (air-only model),113,0.04671282913927844,europe,air
+C · air closed (air-only model),114,0.040640161351172245,europe,air
+C · air closed (air-only model),115,0.035356940375519855,europe,air
+C · air closed (air-only model),116,0.030760538126702274,europe,air
+C · air closed (air-only model),117,0.026761668170230977,europe,air
+C · air closed (air-only model),118,0.02328265130810095,europe,air
+C · air closed (air-only model),119,0.020255906638047827,europe,air
+C · air closed (air-only model),120,0.01762263877510161,europe,air
+C · air closed (air-only model),121,0.015331695734338402,europe,air
+C · air closed (air-only model),122,0.013338575288874409,europe,air
+C · air closed (air-only model),123,0.011604560501320735,europe,air
+C · air closed (air-only model),124,0.010095967636149039,europe,air
+C · air closed (air-only model),125,0.008783491843449663,europe,air
+C · air closed (air-only model),126,0.007641637903801207,europe,air
+C · air closed (air-only model),127,0.00664822497630705,europe,air
+C · air closed (air-only model),128,0.0057839557293871335,europe,air
+C · air closed (air-only model),129,0.005032041484566806,europe,air
+C · air closed (air-only model),130,0.004377876091573122,europe,air
+C · air closed (air-only model),131,0.0038087521996686157,europe,air
+C · air closed (air-only model),132,0.0033136144137116954,europe,air
+C · air closed (air-only model),133,0.002882844539929175,europe,air
+C · air closed (air-only model),134,0.0025080747497383824,europe,air
+C · air closed (air-only model),135,0.002182025032272393,europe,air
+C · air closed (air-only model),136,0.0018983617780769819,europe,air
+C · air closed (air-only model),137,0.001651574746926974,europe,air
+C · air closed (air-only model),138,0.0014368700298264675,europe,air
+C · air closed (air-only model),139,0.0012500769259490268,europe,air
+C · air closed (air-only model),140,0.0010875669255756533,europe,air
+C · air closed (air-only model),141,0.0009461832252508184,europe,air
+C · air closed (air-only model),142,0.000823179405968212,europe,air
+C · air closed (air-only model),143,0.0007161660831923445,europe,air
+C · air closed (air-only model),144,0.0006230644923773396,europe,air
+C · air closed (air-only model),145,0.0005420661083682855,europe,air
+C · air closed (air-only model),146,0.0004715975142804084,europe,air
+C · air closed (air-only model),147,0.0004102898374239553,europe,air
+C · air closed (air-only model),148,0.00035695215855884114,europe,air
+C · air closed (air-only model),149,0.00031054837794619177,europe,air
+C · air closed (air-only model),150,0.00027017708881318687,europe,air
+C · air closed (air-only model),151,0.00023505406726747257,europe,air
+C · air closed (air-only model),152,0.00020449703852270113,europe,air
+C · air closed (air-only model),153,0.00017791242351474998,europe,air
+C · air closed (air-only model),154,0.00015478380845783247,europe,air
+C · air closed (air-only model),155,0.00013466191335831425,europe,air
+C · air closed (air-only model),156,0.0001171558646217334,europe,air
+C · air closed (air-only model),157,0.00010192560222090805,europe,air
+C · air closed (air-only model),158,8.867527393219e-05,europe,air
+C · air closed (air-only model),159,7.714748832100531e-05,europe,air
+C · air closed (air-only model),160,6.711831483927462e-05,europe,air
+C · air closed (air-only model),161,5.839293391016892e-05,europe,air
+C · air closed (air-only model),162,5.080185250184696e-05,europe,air
+C · air closed (air-only model),163,4.419761167660685e-05,europe,air
+C · air closed (air-only model),164,3.845192215864796e-05,europe,air
+C · air closed (air-only model),165,3.345317227802372e-05,europe,air
+C · air closed (air-only model),166,2.9104259881880638e-05,europe,air
+C · air closed (air-only model),167,2.5320706097236156e-05,europe,air
+C · air closed (air-only model),168,2.2029014304595457e-05,europe,air
+C · air closed (air-only model),169,1.9165242444998048e-05,europe,air
+C · air closed (air-only model),170,1.66737609271483e-05,europe,air
+C · air closed (air-only model),171,1.4506172006619022e-05,europe,air
+C · air closed (air-only model),172,1.262036964575855e-05,europe,air
+C · air closed (air-only model),173,1.0979721591809938e-05,europe,air
+C · air closed (air-only model),174,9.552357784874647e-06,europe,air
+C · air closed (air-only model),175,8.310551272840943e-06,europe,air
+C · air closed (air-only model),176,7.2301796073716205e-06,europe,air
+C · air closed (air-only model),177,6.29025625841331e-06,europe,air
+C · air closed (air-only model),178,5.47252294481958e-06,europe,air
+C · air closed (air-only model),179,4.761094961993034e-06,europe,air
+C · air closed (air-only model),180,4.142152616933939e-06,europe,air
+C · air closed (air-only model),181,3.603672776732527e-06,europe,air
+C · air closed (air-only model),182,3.1351953157572984e-06,europe,air
+C · air closed (air-only model),183,2.7276199247088495e-06,europe,air
+C · air closed (air-only model),184,2.373029334496699e-06,europe,air
+C · air closed (air-only model),185,2.064535521012128e-06,europe,air
+C · air closed (air-only model),186,1.7961459032805515e-06,europe,air
+C · air closed (air-only model),187,1.5626469358540798e-06,europe,air
+C · air closed (air-only model),188,1.3595028341930494e-06,europe,air
+C · air closed (air-only model),189,1.182767465747953e-06,europe,air
+C · air closed (air-only model),190,1.0290076952007192e-06,europe,air
+C · air closed (air-only model),191,8.952366948246257e-07,europe,air
+C · air closed (air-only model),192,7.788559244974244e-07,europe,air
+C · air closed (air-only model),193,6.776046543127592e-07,europe,air
+C · air closed (air-only model),194,5.895160492521005e-07,europe,air
+C · air closed (air-only model),195,5.128789628493275e-07,europe,air
+C · air closed (air-only model),196,4.462046976789149e-07,europe,air
+C · air closed (air-only model),197,3.88198086980656e-07,europe,air
+C · air closed (air-only model),198,3.377323356731707e-07,europe,air
+C · air closed (air-only model),199,2.938271320356585e-07,europe,air
+C · air closed (air-only model),200,2.556296048710229e-07,europe,air
+C · air closed (air-only model),201,2.223977562377899e-07,europe,air
+C · air closed (air-only model),202,1.934860479268772e-07,europe,air
+C · air closed (air-only model),203,1.6833286169638316e-07,europe,air
+C · air closed (air-only model),204,1.4644958967585334e-07,europe,air
+C · air closed (air-only model),205,1.274111430179924e-07,europe,air
+C · air closed (air-only model),206,1.108476944256534e-07,europe,air
+C · air closed (air-only model),207,9.643749415031845e-08,europe,air
+C · air closed (air-only model),208,8.390061991077705e-08,europe,air
+C · air closed (air-only model),209,7.299353932237604e-08,europe,air
+D1 · top-10 airports by degree closed,0,6991.474623396705,europe,air
+D1 · top-10 airports by degree closed,1,19238.64394716869,europe,air
+D1 · top-10 airports by degree closed,2,50590.51082706842,europe,air
+D1 · top-10 airports by degree closed,3,117197.9293489949,europe,air
+D1 · top-10 airports by degree closed,4,185573.90833293193,europe,air
+D1 · top-10 airports by degree closed,5,163443.3445461232,europe,air
+D1 · top-10 airports by degree closed,6,146839.6275849354,europe,air
+D1 · top-10 airports by degree closed,7,139856.19896795787,europe,air
+D1 · top-10 airports by degree closed,8,154703.53968581225,europe,air
+D1 · top-10 airports by degree closed,9,225672.71346708992,europe,air
+D1 · top-10 airports by degree closed,10,444011.8430485635,europe,air
+D1 · top-10 airports by degree closed,11,1025155.4616009654,europe,air
+D1 · top-10 airports by degree closed,12,2315829.016233851,europe,air
+D1 · top-10 airports by degree closed,13,4111150.1804144485,europe,air
+D1 · top-10 airports by degree closed,14,7078512.135325105,europe,air
+D1 · top-10 airports by degree closed,15,14161829.166500812,europe,air
+D1 · top-10 airports by degree closed,16,26593039.50639382,europe,air
+D1 · top-10 airports by degree closed,17,39596444.39152901,europe,air
+D1 · top-10 airports by degree closed,18,49727067.03849263,europe,air
+D1 · top-10 airports by degree closed,19,63887042.533538416,europe,air
+D1 · top-10 airports by degree closed,20,80627923.7151747,europe,air
+D1 · top-10 airports by degree closed,21,88789342.24993944,europe,air
+D1 · top-10 airports by degree closed,22,91562702.03859153,europe,air
+D1 · top-10 airports by degree closed,23,89315813.85527033,europe,air
+D1 · top-10 airports by degree closed,24,83036690.63229838,europe,air
+D1 · top-10 airports by degree closed,25,76207320.60638623,europe,air
+D1 · top-10 airports by degree closed,26,68040584.08919558,europe,air
+D1 · top-10 airports by degree closed,27,59420702.715003714,europe,air
+D1 · top-10 airports by degree closed,28,51805056.045264356,europe,air
+D1 · top-10 airports by degree closed,29,45233341.568245284,europe,air
+D1 · top-10 airports by degree closed,30,39514176.340739965,europe,air
+D1 · top-10 airports by degree closed,31,34378786.096257135,europe,air
+D1 · top-10 airports by degree closed,32,29910059.025820293,europe,air
+D1 · top-10 airports by degree closed,33,26023014.71479929,europe,air
+D1 · top-10 airports by degree closed,34,22643052.56378623,europe,air
+D1 · top-10 airports by degree closed,35,19705401.296210703,europe,air
+D1 · top-10 airports by degree closed,36,17150535.9966801,europe,air
+D1 · top-10 airports by degree closed,37,14927127.885076689,europe,air
+D1 · top-10 airports by degree closed,38,12986653.354638014,europe,air
+D1 · top-10 airports by degree closed,39,11298438.017367119,europe,air
+D1 · top-10 airports by degree closed,40,9829688.306502536,europe,air
+D1 · top-10 airports by degree closed,41,8551873.72947704,europe,air
+D1 · top-10 airports by degree closed,42,7440172.745205773,europe,air
+D1 · top-10 airports by degree closed,43,6472990.615863322,europe,air
+D1 · top-10 airports by degree closed,44,5631539.92641451,europe,air
+D1 · top-10 airports by degree closed,45,4899475.633604916,europe,air
+D1 · top-10 airports by degree closed,46,4262577.557547432,europe,air
+D1 · top-10 airports by degree closed,47,3708474.148950516,europe,air
+D1 · top-10 airports by degree closed,48,3226402.166376946,europe,air
+D1 · top-10 airports by degree closed,49,2806997.5953361173,europe,air
+D1 · top-10 airports by degree closed,50,2442113.747834529,europe,air
+D1 · top-10 airports by degree closed,51,2124663.0089676464,europe,air
+D1 · top-10 airports by degree closed,52,1848479.1564690112,europe,air
+D1 · top-10 airports by degree closed,53,1608197.5787556889,europe,air
+D1 · top-10 airports by degree closed,54,1399151.0646831454,europe,air
+D1 · top-10 airports by degree closed,55,1217279.1407000315,europe,air
+D1 · top-10 airports by degree closed,56,1059049.194249434,europe,air
+D1 · top-10 airports by degree closed,57,921387.8512095336,europe,air
+D1 · top-10 airports by degree closed,58,801621.2743505193,europe,air
+D1 · top-10 airports by degree closed,59,697423.2230750995,europe,air
+D1 · top-10 airports by degree closed,60,606769.8654732096,europe,air
+D1 · top-10 airports by degree closed,61,527900.4648859596,europe,air
+D1 · top-10 airports by degree closed,62,459283.1772873741,europe,air
+D1 · top-10 airports by degree closed,63,399585.29507158266,europe,air
+D1 · top-10 airports by degree closed,64,347647.3592062621,europe,air
+D1 · top-10 airports by degree closed,65,302460.63685802696,europe,air
+D1 · top-10 airports by degree closed,66,263147.5269717522,europe,air
+D1 · top-10 airports by degree closed,67,228944.51316333783,europe,air
+D1 · top-10 airports by degree closed,68,199187.33276901828,europe,air
+D1 · top-10 airports by degree closed,69,173298.07394512172,europe,air
+D1 · top-10 airports by degree closed,70,150773.9501664572,europe,air
+D1 · top-10 airports by degree closed,71,131177.5340567476,europe,air
+D1 · top-10 airports by degree closed,72,114128.26083370399,europe,air
+D1 · top-10 airports by degree closed,73,99295.03631511307,europe,air
+D1 · top-10 airports by degree closed,74,86389.80588977951,europe,air
+D1 · top-10 airports by degree closed,75,75161.95952513341,europe,air
+D1 · top-10 airports by degree closed,76,65393.464124416365,europe,air
+D1 · top-10 airports by degree closed,77,56894.62867607739,europe,air
+D1 · top-10 airports by degree closed,78,49500.41993082962,europe,air
+D1 · top-10 airports by degree closed,79,43067.257036528594,europe,air
+D1 · top-10 airports by degree closed,80,37470.22286539445,europe,air
+D1 · top-10 airports by degree closed,81,32600.6378628568,europe,air
+D1 · top-10 airports by degree closed,82,28363.94928970475,europe,air
+D1 · top-10 airports by degree closed,83,24677.894856084295,europe,air
+D1 · top-10 airports by degree closed,84,21470.905076224237,europe,air
+D1 · top-10 airports by degree closed,85,18680.713310140607,europe,air
+D1 · top-10 airports by degree closed,86,16253.146493057753,europe,air
+D1 · top-10 airports by degree closed,87,14141.073063268599,europe,air
+D1 · top-10 airports by degree closed,88,12303.48765282554,europe,air
+D1 · top-10 airports by degree closed,89,10704.714762130443,europe,air
+D1 · top-10 airports by degree closed,90,9313.715950788308,europe,air
+D1 · top-10 airports by degree closed,91,8103.487087906049,europe,air
+D1 · top-10 airports by degree closed,92,7050.533954419516,europe,air
+D1 · top-10 airports by degree closed,93,6134.416012003967,europe,air
+D1 · top-10 airports by degree closed,94,5337.349477232892,europe,air
+D1 · top-10 airports by degree closed,95,4643.86199162074,europe,air
+D1 · top-10 airports by degree closed,96,4040.4921803957322,europe,air
+D1 · top-10 airports by degree closed,97,3515.528264769417,europe,air
+D1 · top-10 airports by degree closed,98,3058.780651038126,europe,air
+D1 · top-10 airports by degree closed,99,2661.384079804726,europe,air
+D1 · top-10 airports by degree closed,100,2315.625492767206,europe,air
+D1 · top-10 airports by degree closed,101,2014.7942740377453,europe,air
+D1 · top-10 airports by degree closed,102,1753.0519575354529,europe,air
+D1 · top-10 airports by degree closed,103,1525.3188700802584,europe,air
+D1 · top-10 airports by degree closed,104,1327.1755087489216,europe,air
+D1 · top-10 airports by degree closed,105,1154.7767372267285,europe,air
+D1 · top-10 airports by degree closed,106,1004.7771348590753,europe,air
+D1 · top-10 airports by degree closed,107,874.2660487122137,europe,air
+D1 · top-10 airports by degree closed,108,760.7110873995109,europe,air
+D1 · top-10 airports by degree closed,109,661.9089593792437,europe,air
+D1 · top-10 airports by degree closed,110,575.9427010668692,europe,air
+D1 · top-10 airports by degree closed,111,501.1444641995761,europe,air
+D1 · top-10 airports by degree closed,112,436.06313985415915,europe,air
+D1 · top-10 airports by degree closed,113,379.4361904479873,europe,air
+D1 · top-10 airports by degree closed,114,330.16514277150105,europe,air
+D1 · top-10 airports by degree closed,115,287.294266196572,europe,air
+D1 · top-10 airports by degree closed,116,249.99202205910055,europe,air
+D1 · top-10 airports by degree closed,117,217.53492402783462,europe,air
+D1 · top-10 airports by degree closed,118,189.29349608978043,europe,air
+D1 · top-10 airports by degree closed,119,164.7200555150892,europe,air
+D1 · top-10 airports by degree closed,120,143.33808360206967,europe,air
+D1 · top-10 airports by degree closed,121,124.73297783428131,europe,air
+D1 · top-10 airports by degree closed,122,108.54400590530905,europe,air
+D1 · top-10 airports by degree closed,123,94.45730540377569,europe,air
+D1 · top-10 airports by degree closed,124,82.19979325464983,europe,air
+D1 · top-10 airports by degree closed,125,71.53386667727554,europe,air
+D1 · top-10 airports by degree closed,126,62.252792788847074,europe,air
+D1 · top-10 airports by degree closed,127,54.17669735273992,europe,air
+D1 · top-10 airports by degree closed,128,47.14907480385517,europe,air
+D1 · top-10 airports by degree closed,129,41.033751803847835,europe,air
+D1 · top-10 airports by degree closed,130,35.712245384335155,europe,air
+D1 · top-10 airports by degree closed,131,31.081464396913653,europe,air
+D1 · top-10 airports by degree closed,132,27.05170965381908,europe,air
+D1 · top-10 airports by degree closed,133,23.544933941772335,europe,air
+D1 · top-10 airports by degree closed,134,20.49322813656895,europe,air
+D1 · top-10 airports by degree closed,135,17.83750403525829,europe,air
+D1 · top-10 airports by degree closed,136,15.52634834155294,europe,air
+D1 · top-10 airports by degree closed,137,13.515025562562137,europe,air
+D1 · top-10 airports by degree closed,138,11.764610465570126,europe,air
+D1 · top-10 airports by degree closed,139,10.241233258508961,europe,air
+D1 · top-10 airports by degree closed,140,8.915422845838403,europe,air
+D1 · top-10 airports by degree closed,141,7.761535415228131,europe,air
+D1 · top-10 airports by degree closed,142,6.757257266702052,europe,air
+D1 · top-10 airports by degree closed,143,5.88317223690953,europe,air
+D1 · top-10 airports by degree closed,144,5.122385324911938,europe,air
+D1 · top-10 airports by degree closed,145,4.460195216656649,europe,air
+D1 · top-10 airports by degree closed,146,3.8838093543322247,europe,air
+D1 · top-10 airports by degree closed,147,3.382096022483001,europe,air
+D1 · top-10 airports by degree closed,148,2.945368641138869,europe,air
+D1 · top-10 airports by degree closed,149,2.5651980812331976,europe,air
+D1 · top-10 airports by degree closed,150,2.234249361372689,europe,air
+D1 · top-10 airports by degree closed,151,1.9461395581440004,europe,air
+D1 · top-10 airports by degree closed,152,1.695314173778138,europe,air
+D1 · top-10 airports by degree closed,153,1.4769395631356161,europe,air
+D1 · top-10 airports by degree closed,154,1.2868093335756288,europe,air
+D1 · top-10 airports by degree closed,155,1.1212629023796334,europe,air
+D1 · top-10 airports by degree closed,156,0.9771146322763581,europe,air
+D1 · top-10 airports by degree closed,157,0.8515921708399126,europe,air
+D1 · top-10 airports by degree closed,158,0.7422827980888889,europe,air
+D1 · top-10 airports by degree closed,159,0.6470867419678775,europe,air
+D1 · top-10 airports by degree closed,160,0.5641765565590409,europe,air
+D1 · top-10 airports by degree closed,161,0.49196177547371917,europe,air
+D1 · top-10 airports by degree closed,162,0.42905815519501417,europe,air
+D1 · top-10 airports by degree closed,163,0.37426091216774104,europe,air
+D1 · top-10 airports by degree closed,164,0.32652143488984414,europe,air
+D1 · top-10 airports by degree closed,165,0.28492701965255324,europe,air
+D1 · top-10 airports by degree closed,166,0.24868323721309937,europe,air
+D1 · top-10 airports by degree closed,167,0.21709858870159562,europe,air
+D1 · top-10 airports by degree closed,168,0.1895711534527555,europe,air
+D1 · top-10 airports by degree closed,169,0.16557697007482142,europe,air
+D1 · top-10 airports by degree closed,170,0.1446599256718407,europe,air
+D1 · top-10 airports by degree closed,171,0.1264229573732839,europe,air
+D1 · top-10 airports by degree closed,172,0.11052039576425651,europe,air
+D1 · top-10 airports by degree closed,173,0.09665130194378493,europe,air
+D1 · top-10 airports by degree closed,174,0.08455366919730431,europe,air
+D1 · top-10 airports by degree closed,175,0.07399937702617125,europe,air
+D1 · top-10 airports by degree closed,176,0.06478979985685164,europe,air
+D1 · top-10 airports by degree closed,177,0.05675198543823201,europe,air
+D1 · top-10 airports by degree closed,178,0.049735328973358174,europe,air
+D1 · top-10 airports by degree closed,179,0.04360867863592632,europe,air
+D1 · top-10 airports by degree closed,180,0.0382578164783277,europe,air
+D1 · top-10 airports by degree closed,181,0.03358326600905996,europe,air
+D1 · top-10 airports by degree closed,182,0.029498384043888205,europe,air
+D1 · top-10 airports by degree closed,183,0.025927699939964167,europe,air
+D1 · top-10 airports by degree closed,184,0.02280547011194882,europe,air
+D1 · top-10 airports by degree closed,185,0.020074419896915954,europe,air
+D1 · top-10 airports by degree closed,186,0.017684648461258834,europe,air
+D1 · top-10 airports by degree closed,187,0.015592675598293988,europe,air
+D1 · top-10 airports by degree closed,188,0.013760612010936608,europe,air
+D1 · top-10 airports by degree closed,189,0.012155437062941721,europe,air
+D1 · top-10 airports by degree closed,190,0.01074837006108004,europe,air
+D1 · top-10 airports by degree closed,191,0.009514322939545834,europe,air
+D1 · top-10 airports by degree closed,192,0.008431423791938886,europe,air
+D1 · top-10 airports by degree closed,193,0.007480602065831608,europe,air
+D1 · top-10 airports by degree closed,194,0.0066452274267703735,europe,air
+D1 · top-10 airports by degree closed,195,0.005910795335663007,europe,air
+D1 · top-10 airports by degree closed,196,0.005264653285968158,europe,air
+D1 · top-10 airports by degree closed,197,0.004695762432412519,europe,air
+D1 · top-10 airports by degree closed,198,0.004194490026332237,europe,air
+D1 · top-10 airports by degree closed,199,0.00375242866740356,europe,air
+D1 · top-10 airports by degree closed,200,0.0033622388990128334,europe,air
+D1 · top-10 airports by degree closed,201,0.003017512124839708,europe,air
+D1 · top-10 airports by degree closed,202,0.0027126512161103683,europe,air
+D1 · top-10 airports by degree closed,203,0.0024427665200074155,europe,air
+D1 · top-10 airports by degree closed,204,0.0022035852765022322,europe,air
+D1 · top-10 airports by degree closed,205,0.001991372709149021,europe,air
+D1 · top-10 airports by degree closed,206,0.0018028632801460197,europe,air
+D1 · top-10 airports by degree closed,207,0.00163520079557828,europe,air
+D1 · top-10 airports by degree closed,208,0.0014858862169926516,europe,air
+D1 · top-10 airports by degree closed,209,0.0013527321836124756,europe,air
+D2 · top-10 airports by betweenness closed,0,6991.474623396705,europe,air
+D2 · top-10 airports by betweenness closed,1,19238.64394715441,europe,air
+D2 · top-10 airports by betweenness closed,2,50590.47911607904,europe,air
+D2 · top-10 airports by betweenness closed,3,117197.2222414216,europe,air
+D2 · top-10 airports by betweenness closed,4,185563.49529169552,europe,air
+D2 · top-10 airports by betweenness closed,5,163427.56667793595,europe,air
+D2 · top-10 airports by betweenness closed,6,146817.71801171012,europe,air
+D2 · top-10 airports by betweenness closed,7,139827.781474419,europe,air
+D2 · top-10 airports by betweenness closed,8,154670.86456405048,europe,air
+D2 · top-10 airports by betweenness closed,9,225662.98366072332,europe,air
+D2 · top-10 airports by betweenness closed,10,444282.3735102342,europe,air
+D2 · top-10 airports by betweenness closed,11,1027931.1001451719,europe,air
+D2 · top-10 airports by betweenness closed,12,2338199.8186344476,europe,air
+D2 · top-10 airports by betweenness closed,13,4259025.891629895,europe,air
+D2 · top-10 airports by betweenness closed,14,7636466.9414850585,europe,air
+D2 · top-10 airports by betweenness closed,15,15727254.674971528,europe,air
+D2 · top-10 airports by betweenness closed,16,29687437.812316358,europe,air
+D2 · top-10 airports by betweenness closed,17,43520327.67899428,europe,air
+D2 · top-10 airports by betweenness closed,18,52603454.43658711,europe,air
+D2 · top-10 airports by betweenness closed,19,62631293.749090254,europe,air
+D2 · top-10 airports by betweenness closed,20,69057171.71806209,europe,air
+D2 · top-10 airports by betweenness closed,21,72700105.17308864,europe,air
+D2 · top-10 airports by betweenness closed,22,71421694.35075632,europe,air
+D2 · top-10 airports by betweenness closed,23,65854134.79137732,europe,air
+D2 · top-10 airports by betweenness closed,24,61143940.750692725,europe,air
+D2 · top-10 airports by betweenness closed,25,58930055.51034539,europe,air
+D2 · top-10 airports by betweenness closed,26,56107961.00005703,europe,air
+D2 · top-10 airports by betweenness closed,27,50411549.608781785,europe,air
+D2 · top-10 airports by betweenness closed,28,44051811.09991386,europe,air
+D2 · top-10 airports by betweenness closed,29,38585644.03624513,europe,air
+D2 · top-10 airports by betweenness closed,30,33923935.83884448,europe,air
+D2 · top-10 airports by betweenness closed,31,29891661.154942486,europe,air
+D2 · top-10 airports by betweenness closed,32,26036258.582690082,europe,air
+D2 · top-10 airports by betweenness closed,33,22722183.501791745,europe,air
+D2 · top-10 airports by betweenness closed,34,19909099.361537874,europe,air
+D2 · top-10 airports by betweenness closed,35,17425456.191361133,europe,air
+D2 · top-10 airports by betweenness closed,36,15181613.74470123,europe,air
+D2 · top-10 airports by betweenness closed,37,13243370.86621764,europe,air
+D2 · top-10 airports by betweenness closed,38,11549295.596114602,europe,air
+D2 · top-10 airports by betweenness closed,39,10059556.030642387,europe,air
+D2 · top-10 airports by betweenness closed,40,8754583.659345202,europe,air
+D2 · top-10 airports by betweenness closed,41,7623948.123404748,europe,air
+D2 · top-10 airports by betweenness closed,42,6653263.786114165,europe,air
+D2 · top-10 airports by betweenness closed,43,5843359.139492052,europe,air
+D2 · top-10 airports by betweenness closed,44,5221954.728753399,europe,air
+D2 · top-10 airports by betweenness closed,45,4825669.985325476,europe,air
+D2 · top-10 airports by betweenness closed,46,4490564.424295144,europe,air
+D2 · top-10 airports by betweenness closed,47,3961738.0834087143,europe,air
+D2 · top-10 airports by betweenness closed,48,3459361.50857184,europe,air
+D2 · top-10 airports by betweenness closed,49,3032477.560388539,europe,air
+D2 · top-10 airports by betweenness closed,50,2674818.476732198,europe,air
+D2 · top-10 airports by betweenness closed,51,2333783.018758193,europe,air
+D2 · top-10 airports by betweenness closed,52,2030400.7756536761,europe,air
+D2 · top-10 airports by betweenness closed,53,1766457.278715368,europe,air
+D2 · top-10 airports by betweenness closed,54,1536825.7014732237,europe,air
+D2 · top-10 airports by betweenness closed,55,1337045.5993530646,europe,air
+D2 · top-10 airports by betweenness closed,56,1163236.3491518912,europe,air
+D2 · top-10 airports by betweenness closed,57,1012021.7910049317,europe,air
+D2 · top-10 airports by betweenness closed,58,880464.6560696259,europe,air
+D2 · top-10 airports by betweenness closed,59,766009.5145647282,europe,air
+D2 · top-10 airports by betweenness closed,60,666433.1387171978,europe,air
+D2 · top-10 airports by betweenness closed,61,579801.3176050583,europe,air
+D2 · top-10 airports by betweenness closed,62,504431.2855882089,europe,air
+D2 · top-10 airports by betweenness closed,63,438859.03478245734,europe,air
+D2 · top-10 airports by betweenness closed,64,381810.87676833343,europe,air
+D2 · top-10 airports by betweenness closed,65,332178.7011981009,europe,air
+D2 · top-10 airports by betweenness closed,66,288998.4507398931,europe,air
+D2 · top-10 airports by betweenness closed,67,251431.3942553309,europe,air
+D2 · top-10 airports by betweenness closed,68,218747.83445172774,europe,air
+D2 · top-10 airports by betweenness closed,69,190312.9335336138,europe,air
+D2 · top-10 airports by betweenness closed,70,165574.38151717331,europe,air
+D2 · top-10 airports by betweenness closed,71,144051.66766319962,europe,air
+D2 · top-10 airports by betweenness closed,72,125326.74662394039,europe,air
+D2 · top-10 airports by betweenness closed,73,109035.91799123131,europe,air
+D2 · top-10 airports by betweenness closed,74,94862.76150363621,europe,air
+D2 · top-10 airports by betweenness closed,75,82531.9906766478,europe,air
+D2 · top-10 airports by betweenness closed,76,71804.10546061222,europe,air
+D2 · top-10 airports by betweenness closed,77,62470.74005242398,europe,air
+D2 · top-10 airports by betweenness closed,78,54350.61549067611,europe,air
+D2 · top-10 airports by betweenness closed,79,47286.018412131554,europe,air
+D2 · top-10 airports by betweenness closed,80,41139.73756830636,europe,air
+D2 · top-10 airports by betweenness closed,81,35792.39859316277,europe,air
+D2 · top-10 airports by betweenness closed,82,31140.14524912723,europe,air
+D2 · top-10 airports by betweenness closed,83,27092.622109154352,europe,air
+D2 · top-10 airports by betweenness closed,84,23571.219488092836,europe,air
+D2 · top-10 airports by betweenness closed,85,20507.54653091923,europe,air
+D2 · top-10 airports by betweenness closed,86,17842.102797450512,europe,air
+D2 · top-10 airports by betweenness closed,87,15523.12253901994,europe,air
+D2 · top-10 airports by betweenness closed,88,13505.569217206763,europe,air
+D2 · top-10 airports by betweenness closed,89,11750.260733213145,europe,air
+D2 · top-10 airports by betweenness closed,90,10223.108375575775,europe,air
+D2 · top-10 airports by betweenness closed,91,8894.454702908428,europe,air
+D2 · top-10 airports by betweenness closed,92,7738.4975002066985,europe,air
+D2 · top-10 airports by betweenness closed,93,6732.788619240418,europe,air
+D2 · top-10 airports by betweenness closed,94,5857.797968192488,europe,air
+D2 · top-10 airports by betweenness closed,95,5096.534181232313,europe,air
+D2 · top-10 airports by betweenness closed,96,4434.214599721383,europe,air
+D2 · top-10 airports by betweenness closed,97,3857.978154625894,europe,air
+D2 · top-10 airports by betweenness closed,98,3356.6355730638156,europe,air
+D2 · top-10 airports by betweenness closed,99,2920.4520569299707,europe,air
+D2 · top-10 airports by betweenness closed,100,2540.9582123064224,europe,air
+D2 · top-10 airports by betweenness closed,101,2210.785557129647,europe,air
+D2 · top-10 airports by betweenness closed,102,1923.5234120106675,europe,air
+D2 · top-10 airports by betweenness closed,103,1673.5943944637656,europe,air
+D2 · top-10 airports by betweenness closed,104,1456.1460981621062,europe,air
+D2 · top-10 airports by betweenness closed,105,1266.9568532242552,europe,air
+D2 · top-10 airports by betweenness closed,106,1102.3537370511576,europe,air
+D2 · top-10 airports by betweenness closed,107,959.1412431918761,europe,air
+D2 · top-10 airports by betweenness closed,108,834.5392227406071,europe,air
+D2 · top-10 airports by betweenness closed,109,726.1288928787608,europe,air
+D2 · top-10 airports by betweenness closed,110,631.8058638728572,europe,air
+D2 · top-10 airports by betweenness closed,111,549.7392721655438,europe,air
+D2 · top-10 airports by betweenness closed,112,478.33622580132067,europe,air
+D2 · top-10 airports by betweenness closed,113,416.21087161447855,europe,air
+D2 · top-10 airports by betweenness closed,114,362.15748337866705,europe,air
+D2 · top-10 airports by betweenness closed,115,315.12704821926434,europe,air
+D2 · top-10 airports by betweenness closed,116,274.20689653840265,europe,air
+D2 · top-10 airports by betweenness closed,117,238.60297981801892,europe,air
+D2 · top-10 airports by betweenness closed,118,207.62445209695386,europe,air
+D2 · top-10 airports by betweenness closed,119,180.670255662928,europe,air
+D2 · top-10 airports by betweenness closed,120,157.21745042834243,europe,air
+D2 · top-10 airports by betweenness closed,121,136.8110603264403,europe,air
+D2 · top-10 airports by betweenness closed,122,119.05523952928199,europe,air
+D2 · top-10 airports by betweenness closed,123,103.60558692357814,europe,air
+D2 · top-10 airports by betweenness closed,124,90.16245958261555,europe,air
+D2 · top-10 airports by betweenness closed,125,78.4651553755146,europe,air
+D2 · top-10 airports by betweenness closed,126,68.2868517357548,europe,air
+D2 · top-10 airports by betweenness closed,127,59.430202297193205,europe,air
+D2 · top-10 airports by betweenness closed,128,51.72350588294471,europe,air
+D2 · top-10 airports by betweenness closed,129,45.017373448676054,europe,air
+D2 · top-10 airports by betweenness closed,130,39.181828253008135,europe,air
+D2 · top-10 airports by betweenness closed,131,34.10378294167126,europe,air
+D2 · top-10 airports by betweenness closed,132,29.684844552247693,europe,air
+D2 · top-10 airports by betweenness closed,133,25.83940481494898,europe,air
+D2 · top-10 airports by betweenness closed,134,22.492978665612632,europe,air
+D2 · top-10 airports by betweenness closed,135,19.580758707584522,europe,air
+D2 · top-10 airports by betweenness closed,136,17.046357553009074,europe,air
+D2 · top-10 airports by betweenness closed,137,14.840713622737386,europe,air
+D2 · top-10 airports by betweenness closed,138,12.921139158452853,europe,air
+D2 · top-10 airports by betweenness closed,139,11.25049196236025,europe,air
+D2 · top-10 airports by betweenness closed,140,9.796454782529516,europe,air
+D2 · top-10 airports by betweenness closed,141,8.530908352396697,europe,air
+D2 · top-10 airports by betweenness closed,142,7.429385911603799,europe,air
+D2 · top-10 airports by betweenness closed,143,6.470598617629225,europe,air
+D2 · top-10 airports by betweenness closed,144,5.6360226342531865,europe,air
+D2 · top-10 airports by betweenness closed,145,4.909539880553882,europe,air
+D2 · top-10 airports by betweenness closed,146,4.277125466101686,europe,air
+D2 · top-10 airports by betweenness closed,147,3.7265757445469068,europe,air
+D2 · top-10 airports by betweenness closed,148,3.2472717064884,europe,air
+D2 · top-10 airports by betweenness closed,149,2.8299731186831094,europe,air
+D2 · top-10 airports by betweenness closed,150,2.4666394136369076,europe,air
+D2 · top-10 airports by betweenness closed,151,2.150273852999031,europe,air
+D2 · top-10 airports by betweenness closed,152,1.8747879400530114,europe,air
+D2 · top-10 airports by betweenness closed,153,1.6348834497318665,europe,air
+D2 · top-10 airports by betweenness closed,154,1.4259497866195536,europe,air
+D2 · top-10 airports by betweenness closed,155,1.2439746789766812,europe,air
+D2 · top-10 airports by betweenness closed,156,1.08546647572524,europe,air
+D2 · top-10 airports by betweenness closed,157,0.9473865385724748,europe,air
+D2 · top-10 airports by betweenness closed,158,0.8270904174221658,europe,air
+D2 · top-10 airports by betweenness closed,159,0.722276667718135,europe,air
+D2 · top-10 airports by betweenness closed,160,0.6309423167006944,europe,air
+D2 · top-10 airports by betweenness closed,161,0.5513441146125033,europe,air
+D2 · top-10 airports by betweenness closed,162,0.48196481917203554,europe,air
+D2 · top-10 airports by betweenness closed,163,0.42148385932089405,europe,air
+D2 · top-10 airports by betweenness closed,164,0.36875180924246964,europe,air
+D2 · top-10 airports by betweenness closed,165,0.322768177594268,europe,air
+D2 · top-10 airports by betweenness closed,166,0.28266208123044373,europe,air
+D2 · top-10 airports by betweenness closed,167,0.24767542866385994,europe,air
+D2 · top-10 airports by betweenness closed,168,0.21714828721515428,europe,air
+D2 · top-10 airports by betweenness closed,169,0.19050615016536113,europe,air
+D2 · top-10 airports by betweenness closed,170,0.16724885709126142,europe,air
+D2 · top-10 airports by betweenness closed,171,0.14694095263450102,europe,air
+D2 · top-10 airports by betweenness closed,172,0.12920329685931523,europe,air
+D2 · top-10 airports by betweenness closed,173,0.11370576463115652,europe,air
+D2 · top-10 airports by betweenness closed,174,0.1001608925709691,europe,air
+D2 · top-10 airports by betweenness closed,175,0.08831835051734346,europe,air
+D2 · top-10 airports by betweenness closed,176,0.07796013041808153,europe,air
+D2 · top-10 airports by betweenness closed,177,0.06889635948419237,europe,air
+D2 · top-10 airports by betweenness closed,178,0.06096165654306687,europe,air
+D2 · top-10 airports by betweenness closed,179,0.054011961058493374,europe,air
+D2 · top-10 airports by betweenness closed,180,0.04792177344768114,europe,air
+D2 · top-10 airports by betweenness closed,181,0.042581753297396635,europe,air
+D2 · top-10 airports by betweenness closed,182,0.03789662901741385,europe,air
+D2 · top-10 airports by betweenness closed,183,0.03378337850434986,europe,air
+D2 · top-10 airports by betweenness closed,184,0.030169645639720185,europe,air
+D2 · top-10 airports by betweenness closed,185,0.02699236201460286,europe,air
+D2 · top-10 airports by betweenness closed,186,0.024196547248298714,europe,air
+D2 · top-10 airports by betweenness closed,187,0.02173426472695084,europe,air
+D2 · top-10 airports by betweenness closed,188,0.019563712597345885,europe,air
+D2 · top-10 airports by betweenness closed,189,0.017648432469448604,europe,air
+D2 · top-10 airports by betweenness closed,190,0.01595662055941828,europe,air
+D2 · top-10 airports by betweenness closed,191,0.014460527987116306,europe,air
+D2 · top-10 airports by betweenness closed,192,0.013135938666891125,europe,air
+D2 · top-10 airports by betweenness closed,193,0.011961714731175573,europe,air
+D2 · top-10 airports by betweenness closed,194,0.010919400732259471,europe,air
+D2 · top-10 airports by betweenness closed,195,0.009992879003832745,europe,air
+D2 · top-10 airports by betweenness closed,196,0.009168069552564835,europe,air
+D2 · top-10 airports by betweenness closed,197,0.008432668710265882,europe,air
+D2 · top-10 airports by betweenness closed,198,0.00777592152574367,europe,air
+D2 · top-10 airports by betweenness closed,199,0.007188423526839539,europe,air
+D2 · top-10 airports by betweenness closed,200,0.00666194804992329,europe,air
+D2 · top-10 airports by betweenness closed,201,0.006189295827337009,europe,air
+D2 · top-10 airports by betweenness closed,202,0.005764163952459463,europe,air
+D2 · top-10 airports by betweenness closed,203,0.005381031715532446,europe,air
+D2 · top-10 airports by betweenness closed,204,0.005035061128384346,europe,air
+D2 · top-10 airports by betweenness closed,205,0.0047220102389999175,europe,air
+D2 · top-10 airports by betweenness closed,206,0.0044381575829968494,europe,air
+D2 · top-10 airports by betweenness closed,207,0.004180236333245168,europe,air
+D2 · top-10 airports by betweenness closed,208,0.0039453768952520275,europe,air
+D2 · top-10 airports by betweenness closed,209,0.0037310568581402667,europe,air
+A · full network,0,6992.702427676513,europe,air+land+water
+A · full network,1,19434.785484571017,europe,air+land+water
+A · full network,2,53316.51898157004,europe,air+land+water
+A · full network,3,142274.61353055108,europe,air+land+water
+A · full network,4,358385.2840936669,europe,air+land+water
+A · full network,5,812830.0635489475,europe,air+land+water
+A · full network,6,1630504.5597991582,europe,air+land+water
+A · full network,7,3353662.325573786,europe,air+land+water
+A · full network,8,6590772.673978161,europe,air+land+water
+A · full network,9,11704838.274007535,europe,air+land+water
+A · full network,10,22796310.98241771,europe,air+land+water
+A · full network,11,45041110.77202029,europe,air+land+water
+A · full network,12,85675467.03380291,europe,air+land+water
+A · full network,13,140972887.903644,europe,air+land+water
+A · full network,14,186191087.6083963,europe,air+land+water
+A · full network,15,209126918.33869523,europe,air+land+water
+A · full network,16,215471040.8257177,europe,air+land+water
+A · full network,17,209309372.67227292,europe,air+land+water
+A · full network,18,191133649.9512018,europe,air+land+water
+A · full network,19,167113260.82993037,europe,air+land+water
+A · full network,20,145839873.18764305,europe,air+land+water
+A · full network,21,127167614.07352613,europe,air+land+water
+A · full network,22,110965171.4682769,europe,air+land+water
+A · full network,23,96769382.4334392,europe,air+land+water
+A · full network,24,84238767.14175087,europe,air+land+water
+A · full network,25,73325748.69040605,europe,air+land+water
+A · full network,26,63798768.3316523,europe,air+land+water
+A · full network,27,55517402.568262205,europe,air+land+water
+A · full network,28,48320341.8723709,europe,air+land+water
+A · full network,29,42043058.58356575,europe,air+land+water
+A · full network,30,36577592.630956054,europe,air+land+water
+A · full network,31,31822846.243744344,europe,air+land+water
+A · full network,32,27686735.03617809,europe,air+land+water
+A · full network,33,24089357.482187092,europe,air+land+water
+A · full network,34,20961159.540306974,europe,air+land+water
+A · full network,35,18243052.65928171,europe,air+land+water
+A · full network,36,15877413.706479385,europe,air+land+water
+A · full network,37,13813750.269855442,europe,air+land+water
+A · full network,38,12018720.763257999,europe,air+land+water
+A · full network,39,10456680.156519383,europe,air+land+water
+A · full network,40,9097311.832638403,europe,air+land+water
+A · full network,41,7914661.360314326,europe,air+land+water
+A · full network,42,6885755.432118708,europe,air+land+water
+A · full network,43,5990607.263610635,europe,air+land+water
+A · full network,44,5211828.349421773,europe,air+land+water
+A · full network,45,4534290.6885181805,europe,air+land+water
+A · full network,46,3944832.919288432,europe,air+land+water
+A · full network,47,3432004.656723955,europe,air+land+water
+A · full network,48,2985844.0656169164,europe,air+land+water
+A · full network,49,2597684.3491725717,europe,air+land+water
+A · full network,50,2259985.3940667016,europe,air+land+water
+A · full network,51,1966187.301626478,europe,air+land+water
+A · full network,52,1710582.9599468529,europe,air+land+water
+A · full network,53,1488207.181625166,europe,air+land+water
+A · full network,54,1294740.2535860504,europe,air+land+water
+A · full network,55,1126424.0254263226,europe,air+land+water
+A · full network,56,979988.9062731478,europe,air+land+water
+A · full network,57,852590.3520493165,europe,air+land+water
+A · full network,58,741753.6093930798,europe,air+land+water
+A · full network,59,645325.6428677046,europe,air+land+water
+A · full network,60,561433.3116332632,europe,air+land+water
+A · full network,61,488446.98315068765,europe,air+land+water
+A · full network,62,424948.8771039911,europe,air+land+water
+A · full network,63,369705.5246123572,europe,air+land+water
+A · full network,64,321643.80774446786,europe,air+land+water
+A · full network,65,279830.1138958158,europe,air+land+water
+A · full network,66,243452.20009684298,europe,air+land+water
+A · full network,67,211803.41496092157,europe,air+land+water
+A · full network,68,184268.97177901497,europe,air+land+water
+A · full network,69,160314.00611196566,europe,air+land+water
+A · full network,70,139473.18589572894,europe,air+land+water
+A · full network,71,121341.67223288004,europe,air+land+water
+A · full network,72,105567.25528118538,europe,air+land+water
+A · full network,73,91843.512476627,europe,air+land+water
+A · full network,74,79903.85618740531,europe,air+land+water
+A · full network,75,69516.35517289795,europe,air+land+water
+A · full network,76,60479.229252933685,europe,air+land+water
+A · full network,77,52616.92967004319,europe,air+land+water
+A · full network,78,45776.72900460265,europe,air+land+water
+A · full network,79,39825.754400995786,europe,air+land+water
+A · full network,80,34648.4064743639,europe,air+land+water
+A · full network,81,30144.113759469,europe,air+land+water
+A · full network,82,26225.37908119651,europe,air+land+water
+A · full network,83,22816.079896885683,europe,air+land+water
+A · full network,84,19849.9895941509,europe,air+land+water
+A · full network,85,17269.49101998093,europe,air+land+water
+A · full network,86,15024.457251050742,europe,air+land+water
+A · full network,87,13071.277863888816,europe,air+land+water
+A · full network,88,11372.011789919223,europe,air+land+water
+A · full network,89,9893.650299345292,europe,air+land+water
+A · full network,90,8607.475797125771,europe,air+land+water
+A · full network,91,7488.5039754718455,europe,air+land+water
+A · full network,92,6514.998486517557,europe,air+land+water
+A · full network,93,5668.048707541388,europe,air+land+water
+A · full network,94,4931.202396707527,europe,air+land+water
+A · full network,95,4290.14610355949,europe,air+land+water
+A · full network,96,3732.427126148436,europe,air+land+water
+A · full network,97,3247.211613733819,europe,air+land+water
+A · full network,98,2825.074116132105,europe,air+land+water
+A · full network,99,2457.8144916494084,europe,air+land+water
+A · full network,100,2138.2986169822334,europe,air+land+water
+A · full network,101,1860.319804830559,europe,air+land+water
+A · full network,102,1618.4782372207253,europe,air+land+water
+A · full network,103,1408.0760724959196,europe,air+land+water
+A · full network,104,1225.0261883975209,europe,air+land+water
+A · full network,105,1065.7727885455474,europe,air+land+water
+A · full network,106,927.2223300763596,europe,air+land+water
+A · full network,107,806.6834306872138,europe,air+land+water
+A · full network,108,701.8145877648102,europe,air+land+water
+A · full network,109,610.5786940269394,europe,air+land+water
+A · full network,110,531.2034661305522,europe,air+land+water
+A · full network,111,462.1470175606372,europe,air+land+water
+A · full network,112,402.0679070434195,europe,air+land+water
+A · full network,113,349.79908066573546,europe,air+land+water
+A · full network,114,304.3252015187942,europe,air+land+water
+A · full network,115,264.7629264881671,europe,air+land+water
+A · full network,116,230.343747061008,europe,air+land+water
+A · full network,117,200.3990608282707,europe,air+land+water
+A · full network,118,174.34718369158503,europe,air+land+water
+A · full network,119,151.68205048319052,europe,air+land+water
+A · full network,120,131.96338450523783,europe,air+land+water
+A · full network,121,114.80814502894461,europe,air+land+water
+A · full network,122,99.88308661882989,europe,air+land+water
+A · full network,123,86.89828574477028,europe,air+land+water
+A · full network,124,75.6015089344652,europe,air+land+water
+A · full network,125,65.77331306606084,europe,air+land+water
+A · full network,126,57.22278262271472,europe,air+land+water
+A · full network,127,49.783821104051114,europe,air+land+water
+A · full network,128,43.31192455411359,europe,air+land+water
+A · full network,129,37.681374530671576,europe,air+land+water
+A · full network,130,32.78279598850677,europe,air+land+water
+A · full network,131,28.521032637863037,europe,air+land+water
+A · full network,132,24.813298506290074,europe,air+land+water
+A · full network,133,21.587569797440345,europe,air+land+water
+A · full network,134,18.781185808216435,europe,air+land+water
+A · full network,135,16.33963172668403,europe,air+land+water
+A · full network,136,14.215479666251598,europe,air+land+water
+A · full network,137,12.367467365402739,europe,air+land+water
+A · full network,138,10.759696656459877,europe,air+land+water
+A · full network,139,9.360936133405623,europe,air+land+water
+A · full network,140,8.144014472884749,europe,air+land+water
+A · full network,141,7.085292623473602,europe,air+land+water
+A · full network,142,6.164204610342495,europe,air+land+water
+A · full network,143,5.36285803531025,europe,air+land+water
+A · full network,144,4.665686511890133,europe,air+land+water
+A · full network,145,4.059147283778492,europe,air+land+water
+A · full network,146,3.5314581529387326,europe,air+land+water
+A · full network,147,3.0723686070333605,europe,air+land+water
+A · full network,148,2.6729607002889946,europe,air+land+water
+A · full network,149,2.325475819848167,europe,air+land+water
+A · full network,150,2.0231639724947215,europe,air+land+water
+A · full network,151,1.7601526641043426,europe,air+land+water
+A · full network,152,1.5313328247660007,europe,air+land+water
+A · full network,153,1.3322595636371837,europe,air+land+water
+A · full network,154,1.1590658256675597,europe,air+land+water
+A · full network,155,1.0083872729482346,europe,air+land+water
+A · full network,156,0.8772969314853158,europe,air+land+water
+A · full network,157,0.7632483338926617,europe,air+land+water
+A · full network,158,0.6640260535343532,europe,air+land+water
+A · full network,159,0.577702669228454,europe,air+land+water
+A · full network,160,0.502601324539115,europe,air+land+water
+A · full network,161,0.43726315436056007,europe,air+land+water
+A · full network,162,0.3804189460450279,europe,air+land+water
+A · full network,163,0.33096448458397126,europe,air+land+water
+A · full network,164,0.2879391029156046,europe,air+land+water
+A · full network,165,0.250507020692387,europe,air+land+water
+A · full network,166,0.2179411090086601,europe,air+land+water
+A · full network,167,0.18960876571362928,europe,air+land+water
+A · full network,168,0.16495962693360278,europe,air+land+water
+A · full network,169,0.14351487609629146,europe,air+land+water
+A · full network,170,0.12485794278190789,europe,air+land+water
+A · full network,171,0.10862641072358618,europe,air+land+water
+A · full network,172,0.09450497776771567,europe,air+land+water
+A · full network,173,0.08221933103940356,europe,air+land+water
+A · full network,174,0.0715308183364033,europe,air+land+water
+A · full network,175,0.062231812241811624,europe,air+land+water
+A · full network,176,0.05414167690209649,europe,air+land+water
+A · full network,177,0.04710325912396572,europe,air+land+water
+A · full network,178,0.0409798356286288,europe,air+land+water
+A · full network,179,0.03565245716299267,europe,air+land+water
+A · full network,180,0.031017637876391575,europe,air+land+water
+A · full network,181,0.026985345078332935,europe,air+land+water
+A · full network,182,0.023477250327728273,europe,air+land+water
+A · full network,183,0.020425207880517247,europe,air+land+water
+A · full network,184,0.01776993093909453,europe,air+land+water
+A · full network,185,0.015459839989305944,europe,air+land+water
+A · full network,186,0.013450060853630541,europe,air+land+water
+A · full network,187,0.011701552997445033,europe,air+land+water
+A · full network,188,0.010180351155470396,europe,air+land+water
+A · full network,189,0.008856905546777394,europe,air+land+water
+A · full network,190,0.007705507861838769,europe,air+land+water
+A · full network,191,0.006703791871262348,europe,air+land+water
+A · full network,192,0.005832298955386879,europe,air+land+water
+A · full network,193,0.00507410011502866,europe,air+land+water
+A · full network,194,0.004414467120829603,europe,air+land+water
+A · full network,195,0.0038405864131887415,europe,air+land+water
+A · full network,196,0.0033413101952014905,europe,air+land+water
+A · full network,197,0.0029069398835158185,europe,air+land+water
+A · full network,198,0.0025290377105762424,europe,air+land+water
+A · full network,199,0.002200262818575351,europe,air+land+water
+A · full network,200,0.001914228661190976,europe,air+land+water
+A · full network,201,0.0016653789430969555,europe,air+land+water
+A · full network,202,0.0014488796873370045,europe,air+land+water
+A · full network,203,0.0012605253339395442,europe,air+land+water
+A · full network,204,0.00109665704571223,europe,air+land+water
+A · full network,205,0.000954091634282861,europe,air+land+water
+A · full network,206,0.0008300597257546841,europe,air+land+water
+A · full network,207,0.0007221519648262616,europe,air+land+water
+A · full network,208,0.0006282722123755384,europe,air+land+water
+A · full network,209,0.0005465968273577907,europe,air+land+water
+"B · air closed, land+water open",0,6992.702427676513,europe,air+land+water
+"B · air closed, land+water open",1,19434.790895812563,europe,air+land+water
+"B · air closed, land+water open",2,53316.88871755855,europe,air+land+water
+"B · air closed, land+water open",3,142283.29895392014,europe,air+land+water
+"B · air closed, land+water open",4,358506.14952680754,europe,air+land+water
+"B · air closed, land+water open",5,813851.785347583,europe,air+land+water
+"B · air closed, land+water open",6,1634333.8201708223,europe,air+land+water
+"B · air closed, land+water open",7,3296913.2279425934,europe,air+land+water
+"B · air closed, land+water open",8,5923976.980804352,europe,air+land+water
+"B · air closed, land+water open",9,8181990.177434196,europe,air+land+water
+"B · air closed, land+water open",10,11503073.647844087,europe,air+land+water
+"B · air closed, land+water open",11,14348394.227089483,europe,air+land+water
+"B · air closed, land+water open",12,16365329.318790773,europe,air+land+water
+"B · air closed, land+water open",13,19390536.50783863,europe,air+land+water
+"B · air closed, land+water open",14,23324512.887963176,europe,air+land+water
+"B · air closed, land+water open",15,28420442.657072708,europe,air+land+water
+"B · air closed, land+water open",16,34221176.855573565,europe,air+land+water
+"B · air closed, land+water open",17,38402685.74116211,europe,air+land+water
+"B · air closed, land+water open",18,42558237.274003305,europe,air+land+water
+"B · air closed, land+water open",19,49367040.906634,europe,air+land+water
+"B · air closed, land+water open",20,56658488.014889725,europe,air+land+water
+"B · air closed, land+water open",21,62426649.011320524,europe,air+land+water
+"B · air closed, land+water open",22,70478234.15583982,europe,air+land+water
+"B · air closed, land+water open",23,77170297.88229628,europe,air+land+water
+"B · air closed, land+water open",24,82770988.30190277,europe,air+land+water
+"B · air closed, land+water open",25,84805115.2975228,europe,air+land+water
+"B · air closed, land+water open",26,87300605.54039787,europe,air+land+water
+"B · air closed, land+water open",27,89776118.47667131,europe,air+land+water
+"B · air closed, land+water open",28,90615117.2962513,europe,air+land+water
+"B · air closed, land+water open",29,92689432.61661284,europe,air+land+water
+"B · air closed, land+water open",30,102190268.9491826,europe,air+land+water
+"B · air closed, land+water open",31,112450216.16893926,europe,air+land+water
+"B · air closed, land+water open",32,117002186.67352147,europe,air+land+water
+"B · air closed, land+water open",33,114615048.63397455,europe,air+land+water
+"B · air closed, land+water open",34,104689731.59597497,europe,air+land+water
+"B · air closed, land+water open",35,96381226.20887668,europe,air+land+water
+"B · air closed, land+water open",36,89382718.11597925,europe,air+land+water
+"B · air closed, land+water open",37,82619173.56622669,europe,air+land+water
+"B · air closed, land+water open",38,77690562.55914412,europe,air+land+water
+"B · air closed, land+water open",39,72069431.19724707,europe,air+land+water
+"B · air closed, land+water open",40,64645964.14809844,europe,air+land+water
+"B · air closed, land+water open",41,57365555.49813889,europe,air+land+water
+"B · air closed, land+water open",42,49981365.46609587,europe,air+land+water
+"B · air closed, land+water open",43,43519936.88422832,europe,air+land+water
+"B · air closed, land+water open",44,37868424.18987098,europe,air+land+water
+"B · air closed, land+water open",45,32952217.137696728,europe,air+land+water
+"B · air closed, land+water open",46,28669097.217043184,europe,air+land+water
+"B · air closed, land+water open",47,24943700.02638367,europe,air+land+water
+"B · air closed, land+water open",48,21703638.282167196,europe,air+land+water
+"B · air closed, land+water open",49,18883131.602698304,europe,air+land+water
+"B · air closed, land+water open",50,16428462.861822918,europe,air+land+water
+"B · air closed, land+water open",51,14293126.164449818,europe,air+land+water
+"B · air closed, land+water open",52,12435934.313991142,europe,air+land+water
+"B · air closed, land+water open",53,10821260.461842101,europe,air+land+water
+"B · air closed, land+water open",54,9418082.050297886,europe,air+land+water
+"B · air closed, land+water open",55,8200757.744026679,europe,air+land+water
+"B · air closed, land+water open",56,7139805.526271718,europe,air+land+water
+"B · air closed, land+water open",57,6212070.338616088,europe,air+land+water
+"B · air closed, land+water open",58,5405328.6593643,europe,air+land+water
+"B · air closed, land+water open",59,4703052.874074762,europe,air+land+water
+"B · air closed, land+water open",60,4091656.037072984,europe,air+land+water
+"B · air closed, land+water open",61,3559740.7715487815,europe,air+land+water
+"B · air closed, land+water open",62,3096974.4825028954,europe,air+land+water
+"B · air closed, land+water open",63,2694367.806906225,europe,air+land+water
+"B · air closed, land+water open",64,2344099.996830274,europe,air+land+water
+"B · air closed, land+water open",65,2039367.0006783213,europe,air+land+water
+"B · air closed, land+water open",66,1774249.2931409902,europe,air+land+water
+"B · air closed, land+water open",67,1543596.8869881176,europe,air+land+water
+"B · air closed, land+water open",68,1342929.293216755,europe,air+land+water
+"B · air closed, land+water open",69,1168348.4863307755,europe,air+land+water
+"B · air closed, land+water open",70,1016463.1841109358,europe,air+land+water
+"B · air closed, land+water open",71,884322.9710032565,europe,air+land+water
+"B · air closed, land+water open",72,769360.985460852,europe,air+land+water
+"B · air closed, land+water open",73,669344.0579280097,europe,air+land+water
+"B · air closed, land+water open",74,582329.330884449,europe,air+land+water
+"B · air closed, land+water open",75,506626.5182827201,europe,air+land+water
+"B · air closed, land+water open",76,440765.0712580611,europe,air+land+water
+"B · air closed, land+water open",77,383465.6122955513,europe,air+land+water
+"B · air closed, land+water open",78,333615.0829552618,europe,air+land+water
+"B · air closed, land+water open",79,290245.1223929552,europe,air+land+water
+"B · air closed, land+water open",80,252513.256672973,europe,air+land+water
+"B · air closed, land+water open",81,219686.5334703633,europe,air+land+water
+"B · air closed, land+water open",82,191127.2842616723,europe,air+land+water
+"B · air closed, land+water open",83,166280.73743089038,europe,air+land+water
+"B · air closed, land+water open",84,144664.24167159386,europe,air+land+water
+"B · air closed, land+water open",85,125857.89034678545,europe,air+land+water
+"B · air closed, land+water open",86,109496.36468193748,europe,air+land+water
+"B · air closed, land+water open",87,95261.83734292656,europe,air+land+water
+"B · air closed, land+water open",88,82877.79854882616,europe,air+land+water
+"B · air closed, land+water open",89,72103.68479002808,europe,air+land+water
+"B · air closed, land+water open",90,62730.20581300172,europe,air+land+water
+"B · air closed, land+water open",91,54575.2790970294,europe,air+land+water
+"B · air closed, land+water open",92,47480.49284896205,europe,air+land+water
+"B · air closed, land+water open",93,41308.02880865318,europe,air+land+water
+"B · air closed, land+water open",94,35937.98508968363,europe,air+land+water
+"B · air closed, land+water open",95,31266.04705078991,europe,air+land+water
+"B · air closed, land+water open",96,27201.460954004844,europe,air+land+water
+"B · air closed, land+water open",97,23665.271047238344,europe,air+land+water
+"B · air closed, land+water open",98,20588.78582612138,europe,air+land+water
+"B · air closed, land+water open",99,17912.243681809094,europe,air+land+water
+"B · air closed, land+water open",100,15583.652014568492,europe,air+land+water
+"B · air closed, land+water open",101,13557.777262598993,europe,air+land+water
+"B · air closed, land+water open",102,11795.26622710557,europe,air+land+water
+"B · air closed, land+water open",103,10261.881625111799,europe,air+land+water
+"B · air closed, land+water open",104,8927.837020406685,europe,air+land+water
+"B · air closed, land+water open",105,7767.218213467995,europe,air+land+water
+"B · air closed, land+water open",106,6757.479850695149,europe,air+land+water
+"B · air closed, land+water open",107,5879.007474441534,europe,air+land+water
+"B · air closed, land+water open",108,5114.736506542316,europe,air+land+water
+"B · air closed, land+water open",109,4449.820763983412,europe,air+land+water
+"B · air closed, land+water open",110,3871.3440675332754,europe,air+land+water
+"B · air closed, land+water open",111,3368.06934125237,europe,air+land+water
+"B · air closed, land+water open",112,2930.2203290662605,europe,air+land+water
+"B · air closed, land+water open",113,2549.2916881840524,europe,air+land+water
+"B · air closed, land+water open",114,2217.8837703723316,europe,air+land+water
+"B · air closed, land+water open",115,1929.5588816633763,europe,air+land+water
+"B · air closed, land+water open",116,1678.7162283012199,europe,air+land+water
+"B · air closed, land+water open",117,1460.4831197146434,europe,air+land+water
+"B · air closed, land+water open",118,1270.6203151036132,europe,air+land+water
+"B · air closed, land+water open",119,1105.4396749694235,europe,air+land+water
+"B · air closed, land+water open",120,961.7325179458686,europe,air+land+water
+"B · air closed, land+water open",121,836.7072912423172,europe,air+land+water
+"B · air closed, land+water open",122,727.9353439291503,europe,air+land+water
+"B · air closed, land+water open",123,633.3037496960574,europe,air+land+water
+"B · air closed, land+water open",124,550.9742626517242,europe,air+land+water
+"B · air closed, land+water open",125,479.3476088695369,europe,air+land+water
+"B · air closed, land+water open",126,417.0324200323212,europe,air+land+water
+"B · air closed, land+water open",127,362.8182057032468,europe,air+land+water
+"B · air closed, land+water open",128,315.65183920149684,europe,air+land+water
+"B · air closed, land+water open",129,274.6171003140858,europe,air+land+water
+"B · air closed, land+water open",130,238.91687745512854,europe,air+land+water
+"B · air closed, land+water open",131,207.8576835443926,europe,air+land+water
+"B · air closed, land+water open",132,180.83618482162944,europe,air+land+water
+"B · air closed, land+water open",133,157.3274809150339,europe,air+land+water
+"B · air closed, land+water open",134,136.87490850079666,europe,air+land+water
+"B · air closed, land+water open",135,119.08117048690835,europe,air+land+water
+"B · air closed, land+water open",136,103.60061840306366,europe,air+land+water
+"B · air closed, land+water open",137,90.13253807987277,europe,air+land+water
+"B · air closed, land+water open",138,78.41530818977134,europe,air+land+water
+"B · air closed, land+water open",139,68.2213181776082,europe,air+land+water
+"B · air closed, land+water open",140,59.35254686025367,europe,air+land+water
+"B · air closed, land+water open",141,51.636715808255744,europe,air+land+water
+"B · air closed, land+water open",142,44.92394278787869,europe,air+land+water
+"B · air closed, land+water open",143,39.083830255674414,europe,air+land+water
+"B · air closed, land+water open",144,34.00293234875768,europe,air+land+water
+"B · air closed, land+water open",145,29.582551166343908,europe,air+land+water
+"B · air closed, land+water open",146,25.736819534685736,europe,air+land+water
+"B · air closed, land+water open",147,22.39103301256648,europe,air+land+water
+"B · air closed, land+water open",148,19.480198736078435,europe,air+land+water
+"B · air closed, land+water open",149,16.947772913579065,europe,air+land+water
+"B · air closed, land+water open",150,14.744562446302014,europe,air+land+water
+"B · air closed, land+water open",151,12.82776933828805,europe,air+land+water
+"B · air closed, land+water open",152,11.160159333024307,europe,air+land+water
+"B · air closed, land+water open",153,9.709338627319916,europe,air+land+water
+"B · air closed, land+water open",154,8.44712461237733,europe,air+land+water
+"B · air closed, land+water open",155,7.348998418523957,europe,air+land+water
+"B · air closed, land+water open",156,6.393628629128328,europe,air+land+water
+"B · air closed, land+water open",157,5.56245691170686,europe,air+land+water
+"B · air closed, land+water open",158,4.839337516986463,europe,air+land+water
+"B · air closed, land+water open",159,4.210223643088767,europe,air+land+water
+"B · air closed, land+water open",160,3.6628945723701998,europe,air+land+water
+"B · air closed, land+water open",161,3.1867182804726752,europe,air+land+water
+"B · air closed, land+water open",162,2.772444906197536,europe,air+land+water
+"B · air closed, land+water open",163,2.4120270702957436,europe,air+land+water
+"B · air closed, land+water open",164,2.098463552815233,europe,air+land+water
+"B · air closed, land+water open",165,1.8256632923929974,europe,air+land+water
+"B · air closed, land+water open",166,1.5883270656391226,europe,air+land+water
+"B · air closed, land+water open",167,1.3818445482008128,europe,air+land+water
+"B · air closed, land+water open",168,1.2022047578880246,europe,air+land+water
+"B · air closed, land+water open",169,1.0459181401927118,europe,air+land+water
+"B · air closed, land+water open",170,0.9099487826905152,europe,air+land+water
+"B · air closed, land+water open",171,0.7916554415701873,europe,air+land+water
+"B · air closed, land+water open",172,0.6887402347141538,europe,air+land+water
+"B · air closed, land+water open",173,0.5992040046785662,europe,air+land+water
+"B · air closed, land+water open",174,0.5213074844859188,europe,air+land+water
+"B · air closed, land+water open",175,0.4535375118646,europe,air+land+water
+"B · air closed, land+water open",176,0.3945776356372779,europe,air+land+water
+"B · air closed, land+water open",177,0.34328254327877733,europe,air+land+water
+"B · air closed, land+water open",178,0.2986558128914151,europe,air+land+water
+"B · air closed, land+water open",179,0.25983055742352673,europe,air+land+water
+"B · air closed, land+water open",180,0.22605258513957213,europe,air+land+water
+"B · air closed, land+water open",181,0.19666574922911562,europe,air+land+water
+"B · air closed, land+water open",182,0.17109920196662914,europe,air+land+water
+"B · air closed, land+water open",183,0.14885630583051218,europe,air+land+water
+"B · air closed, land+water open",184,0.12950498617663161,europe,air+land+water
+"B · air closed, land+water open",185,0.11266933806429522,europe,air+land+water
+"B · air closed, land+water open",186,0.09802232419484239,europe,air+land+water
+"B · air closed, land+water open",187,0.0852794221182135,europe,air+land+water
+"B · air closed, land+water open",188,0.07419309730266091,europe,air+land+water
+"B · air closed, land+water open",189,0.06454799470539357,europe,air+land+water
+"B · air closed, land+water open",190,0.056156755439034776,europe,air+land+water
+"B · air closed, land+water open",191,0.048856377271437476,europe,air+land+water
+"B · air closed, land+water open",192,0.042505048260521136,europe,air+land+water
+"B · air closed, land+water open",193,0.03697939201657765,europe,air+land+water
+"B · air closed, land+water open",194,0.03217207108047556,europe,air+land+water
+"B · air closed, land+water open",195,0.02798970186269618,europe,air+land+water
+"B · air closed, land+water open",196,0.024351040640293503,europe,air+land+water
+"B · air closed, land+water open",197,0.021185405374248123,europe,air+land+water
+"B · air closed, land+water open",198,0.018431302690564096,europe,air+land+water
+"B · air closed, land+water open",199,0.016035233353822204,europe,air+land+water
+"B · air closed, land+water open",200,0.013950653029170507,europe,air+land+water
+"B · air closed, land+water open",201,0.012137068145255425,europe,air+land+water
+"B · air closed, land+water open",202,0.010559249294971132,europe,air+land+water
+"B · air closed, land+water open",203,0.009186546894110987,europe,air+land+water
+"B · air closed, land+water open",204,0.007992295804393828,europe,air+land+water
+"B · air closed, land+water open",205,0.006953297355496421,europe,air+land+water
+"B · air closed, land+water open",206,0.006049368704221337,europe,air+land+water
+"B · air closed, land+water open",207,0.005262950776972694,europe,air+land+water
+"B · air closed, land+water open",208,0.004578767179709784,europe,air+land+water
+"B · air closed, land+water open",209,0.003983527449606488,europe,air+land+water
+C · air closed (air-only model),0,6955.785449794757,europe,air+land+water
+C · air closed (air-only model),1,18851.8970082114,europe,air+land+water
+C · air closed (air-only model),2,47455.69504232005,europe,air+land+water
+C · air closed (air-only model),3,97244.49134276297,europe,air+land+water
+C · air closed (air-only model),4,106867.97705039842,europe,air+land+water
+C · air closed (air-only model),5,92975.14003384662,europe,air+land+water
+C · air closed (air-only model),6,80888.37182944655,europe,air+land+water
+C · air closed (air-only model),7,70372.8834916185,europe,air+land+water
+C · air closed (air-only model),8,61224.4086377081,europe,air+land+water
+C · air closed (air-only model),9,53265.235514806045,europe,air+land+water
+C · air closed (air-only model),10,46340.754897881256,europe,air+land+water
+C · air closed (air-only model),11,40316.45676115669,europe,air+land+water
+C · air closed (air-only model),12,35075.31738220632,europe,air+land+water
+C · air closed (air-only model),13,30515.526122519495,europe,air+land+water
+C · air closed (air-only model),14,26548.50772659196,europe,air+land+water
+C · air closed (air-only model),15,23097.201722135007,europe,air+land+water
+C · air closed (air-only model),16,20094.565498257456,europe,air+land+water
+C · air closed (air-only model),17,17482.271983483988,europe,air+land+water
+C · air closed (air-only model),18,15209.576625631069,europe,air+land+water
+C · air closed (air-only model),19,13232.33166429903,europe,air+land+water
+C · air closed (air-only model),20,11512.128547940156,europe,air+land+water
+C · air closed (air-only model),21,10015.551836707935,europe,air+land+water
+C · air closed (air-only model),22,8713.530097935904,europe,air+land+water
+C · air closed (air-only model),23,7580.771185204236,europe,air+land+water
+C · air closed (air-only model),24,6595.270931127685,europe,air+land+water
+C · air closed (air-only model),25,5737.885710081086,europe,air+land+water
+C · air closed (air-only model),26,4991.960567770544,europe,air+land+water
+C · air closed (air-only model),27,4343.005693960373,europe,air+land+water
+C · air closed (air-only model),28,3778.414953745524,europe,air+land+water
+C · air closed (air-only model),29,3287.2210097586058,europe,air+land+water
+C · air closed (air-only model),30,2859.882278489987,europe,air+land+water
+C · air closed (air-only model),31,2488.097582286289,europe,air+land+water
+C · air closed (air-only model),32,2164.6448965890713,europe,air+land+water
+C · air closed (air-only model),33,1883.241060032492,europe,air+land+water
+C · air closed (air-only model),34,1638.419722228268,europe,air+land+water
+C · air closed (air-only model),35,1425.425158338593,europe,air+land+water
+C · air closed (air-only model),36,1240.119887754576,europe,air+land+water
+C · air closed (air-only model),37,1078.904302346481,europe,air+land+water
+C · air closed (air-only model),38,938.6467430414384,europe,air+land+water
+C · air closed (air-only model),39,816.6226664460514,europe,air+land+water
+C · air closed (air-only model),40,710.4617198080648,europe,air+land+water
+C · air closed (air-only model),41,618.1016962330164,europe,air+land+water
+C · air closed (air-only model),42,537.7484757227243,europe,air+land+water
+C · air closed (air-only model),43,467.8411738787701,europe,air+land+water
+C · air closed (air-only model),44,407.02182127453,europe,air+land+water
+C · air closed (air-only model),45,354.1089845088411,europe,air+land+water
+C · air closed (air-only model),46,308.0748165226918,europe,air+land+water
+C · air closed (air-only model),47,268.02509037474186,europe,air+land+water
+C · air closed (air-only model),48,233.18182862602544,europe,air+land+water
+C · air closed (air-only model),49,202.86819090464212,europe,air+land+water
+C · air closed (air-only model),50,176.49532608703865,europe,air+land+water
+C · air closed (air-only model),51,153.55093369572361,europe,air+land+water
+C · air closed (air-only model),52,133.58931231527953,europe,air+land+water
+C · air closed (air-only model),53,116.2227017142932,europe,air+land+water
+C · air closed (air-only model),54,101.11375049143508,europe,air+land+water
+C · air closed (air-only model),55,87.96896292754852,europe,air+land+water
+C · air closed (air-only model),56,76.53299774696721,europe,air+land+water
+C · air closed (air-only model),57,66.58370803986148,europe,air+land+water
+C · air closed (air-only model),58,57.92782599467949,europe,air+land+water
+C · air closed (air-only model),59,50.397208615371156,europe,air+land+water
+C · air closed (air-only model),60,43.84557149537291,europe,air+land+water
+C · air closed (air-only model),61,38.14564720097443,europe,air+land+water
+C · air closed (air-only model),62,33.18671306484775,europe,air+land+water
+C · air closed (air-only model),63,28.872440366417543,europe,air+land+water
+C · air closed (air-only model),64,25.11902311878326,europe,air+land+water
+C · air closed (air-only model),65,21.853550113341438,europe,air+land+water
+C · air closed (air-only model),66,19.01258859860705,europe,air+land+water
+C · air closed (air-only model),67,16.540952080788134,europe,air+land+water
+C · air closed (air-only model),68,14.390628310285678,europe,air+land+water
+C · air closed (air-only model),69,12.519846629948539,europe,air+land+water
+C · air closed (air-only model),70,10.892266568055229,europe,air+land+water
+C · air closed (air-only model),71,9.476271914208048,europe,air+land+water
+C · air closed (air-only model),72,8.244356565361002,europe,air+land+water
+C · air closed (air-only model),73,7.172590211864072,europe,air+land+water
+C · air closed (air-only model),74,6.240153484321742,europe,air+land+water
+C · air closed (air-only model),75,5.428933531359916,europe,air+land+water
+C · air closed (air-only model),76,4.723172172283126,europe,air+land+water
+C · air closed (air-only model),77,4.10915978988632,europe,air+land+water
+C · air closed (air-only model),78,3.574969017201098,europe,air+land+water
+C · air closed (air-only model),79,3.1102230449649553,europe,air+land+water
+C · air closed (air-only model),80,2.705894049119511,europe,air+land+water
+C · air closed (air-only model),81,2.3541278227339744,europe,air+land+water
+C · air closed (air-only model),82,2.0480912057785576,europe,air+land+water
+C · air closed (air-only model),83,1.7818393490273452,europe,air+land+water
+C · air closed (air-only model),84,1.5502002336537903,europe,air+land+water
+C · air closed (air-only model),85,1.3486742032787975,europe,air+land+water
+C · air closed (air-only model),86,1.1733465568525538,europe,air+land+water
+C · air closed (air-only model),87,1.0208115044617219,europe,air+land+water
+C · air closed (air-only model),88,0.888106008881698,europe,air+land+water
+C · air closed (air-only model),89,0.7726522277270773,europe,air+land+water
+C · air closed (air-only model),90,0.6722074381225572,europe,air+land+water
+C · air closed (air-only model),91,0.5848204711666248,europe,air+land+water
+C · air closed (air-only model),92,0.5087938099149636,europe,air+land+water
+C · air closed (air-only model),93,0.4426506146260183,europe,air+land+water
+C · air closed (air-only model),94,0.3851060347246359,europe,air+land+water
+C · air closed (air-only model),95,0.3350422502104332,europe,air+land+water
+C · air closed (air-only model),96,0.2914867576830769,europe,air+land+water
+C · air closed (air-only model),97,0.25359347918427694,europe,air+land+water
+C · air closed (air-only model),98,0.22062632689032094,europe,air+land+water
+C · air closed (air-only model),99,0.19194490439457923,europe,air+land+water
+C · air closed (air-only model),100,0.16699206682328394,europe,air+land+water
+C · air closed (air-only model),101,0.14528309813625703,europe,air+land+water
+C · air closed (air-only model),102,0.12639629537854363,europe,air+land+water
+C · air closed (air-only model),103,0.10996477697933296,europe,air+land+water
+C · air closed (air-only model),104,0.09566935597201967,europe,air+land+water
+C · air closed (air-only model),105,0.08323233969565712,europe,air+land+water
+C · air closed (air-only model),106,0.07241213553522169,europe,air+land+water
+C · air closed (air-only model),107,0.06299855791564286,europe,air+land+water
+C · air closed (air-only model),108,0.05480874538660929,europe,air+land+water
+C · air closed (air-only model),109,0.04768360848635009,europe,air+land+water
+C · air closed (air-only model),110,0.04148473938312457,europe,air+land+water
+C · air closed (air-only model),111,0.03609172326331838,europe,air+land+water
+C · air closed (air-only model),112,0.03139979923908699,europe,air+land+water
+C · air closed (air-only model),113,0.027317825338005683,europe,air+land+water
+C · air closed (air-only model),114,0.023766508044064945,europe,air+land+water
+C · air closed (air-only model),115,0.0206768619983365,europe,air+land+water
+C · air closed (air-only model),116,0.017988869938552757,europe,air+land+water
+C · air closed (air-only model),117,0.015650316846540897,europe,air+land+water
+C · air closed (air-only model),118,0.01361577565649058,europe,air+land+water
+C · air closed (air-only model),119,0.011845724821146805,europe,air+land+water
+C · air closed (air-only model),120,0.01030578059439772,europe,air+land+water
+C · air closed (air-only model),121,0.008966029117126018,europe,air+land+water
+C · air closed (air-only model),122,0.007800445331899635,europe,air+land+water
+C · air closed (air-only model),123,0.006786387438752682,europe,air+land+water
+C · air closed (air-only model),124,0.005904157071714834,europe,air+land+water
+C · air closed (air-only model),125,0.005136616652391905,europe,air+land+water
+C · air closed (air-only model),126,0.004468856487580958,europe,air+land+water
+C · air closed (air-only model),127,0.003887905144195433,europe,air+land+water
+C · air closed (air-only model),128,0.0033824774754500266,europe,air+land+water
+C · air closed (air-only model),129,0.002942755403641523,europe,air+land+water
+C · air closed (air-only model),130,0.002560197201168125,europe,air+land+water
+C · air closed (air-only model),131,0.0022273715650162687,europe,air+land+water
+C · air closed (air-only model),132,0.0019378132615641538,europe,air+land+water
+C · air closed (air-only model),133,0.0016858975375608138,europe,air+land+water
+C · air closed (air-only model),134,0.001466730857677908,europe,air+land+water
+C · air closed (air-only model),135,0.0012760558461797798,europe,air+land+water
+C · air closed (air-only model),136,0.0011101685861764083,europe,air+land+water
+C · air closed (air-only model),137,0.0009658466699734753,europe,air+land+water
+C · air closed (air-only model),138,0.0008402866028769235,europe,air+land+water
+C · air closed (air-only model),139,0.0007310493445029235,europe,air+land+water
+C · air closed (air-only model),140,0.0006360129297175434,europe,air+land+water
+C · air closed (air-only model),141,0.0005533312488542628,europe,air+land+water
+C · air closed (air-only model),142,0.00048139818650320867,europe,air+land+water
+C · air closed (air-only model),143,0.00041881642225779153,europe,air+land+water
+C · air closed (air-only model),144,0.0003643702873642786,europe,air+land+water
+C · air closed (air-only model),145,0.0003170021500069224,europe,air+land+water
+C · air closed (air-only model),146,0.00027579187050602247,europe,air+land+water
+C · air closed (air-only model),147,0.00023993892734023954,europe,air+land+water
+C · air closed (air-only model),148,0.00020874686678600842,europe,air+land+water
+C · air closed (air-only model),149,0.00018160977410382732,europe,air+land+water
+C · air closed (air-only model),150,0.00015800050347032976,europe,air+land+water
+C · air closed (air-only model),151,0.0001374604380191869,europe,air+land+water
+C · air closed (air-only model),152,0.0001195905810766926,europe,air+land+water
+C · air closed (air-only model),153,0.00010404380553672255,europe,air+land+water
+C · air closed (air-only model),154,9.051811081694862e-05,europe,air+land+water
+C · air closed (air-only model),155,7.875075641074531e-05,europe,air+land+water
+C · air closed (air-only model),156,6.851315807734841e-05,europe,air+land+water
+C · air closed (air-only model),157,5.9606447527293115e-05,europe,air+land+water
+C · air closed (air-only model),158,5.185760934874501e-05,europe,air+land+water
+C · air closed (air-only model),159,4.511612013340816e-05,europe,air+land+water
+C · air closed (air-only model),160,3.9251024516065096e-05,europe,air+land+water
+C · air closed (air-only model),161,3.4148391328976635e-05,europe,air+land+water
+C · air closed (air-only model),162,2.9709100456209672e-05,europe,air+land+water
+C · air closed (air-only model),163,2.5846917396902415e-05,europe,air+land+water
+C · air closed (air-only model),164,2.2486818135305103e-05,europe,air+land+water
+C · air closed (air-only model),165,1.9563531777715438e-05,europe,air+land+water
+C · air closed (air-only model),166,1.702027264661243e-05,europe,air+land+water
+C · air closed (air-only model),167,1.4807637202552813e-05,europe,air+land+water
+C · air closed (air-only model),168,1.2882644366220947e-05,europe,air+land+water
+C · air closed (air-only model),169,1.1207900598612224e-05,europe,air+land+water
+C · air closed (air-only model),170,9.750873520792635e-06,europe,air+land+water
+C · air closed (air-only model),171,8.483259963089592e-06,europe,air+land+water
+C · air closed (air-only model),172,7.380436167887945e-06,europe,air+land+water
+C · air closed (air-only model),173,6.420979466062512e-06,europe,air+land+water
+C · air closed (air-only model),174,5.586252135474385e-06,europe,air+land+water
+C · air closed (air-only model),175,4.860039357862715e-06,europe,air+land+water
+C · air closed (air-only model),176,4.228234241340562e-06,europe,air+land+water
+C · air closed (air-only model),177,3.678563789966289e-06,europe,air+land+water
+C · air closed (air-only model),178,3.2003504972706713e-06,europe,air+land+water
+C · air closed (air-only model),179,2.784304932625484e-06,europe,air+land+water
+C · air closed (air-only model),180,2.422345291384171e-06,europe,air+land+water
+C · air closed (air-only model),181,2.107440403504229e-06,europe,air+land+water
+C · air closed (air-only model),182,1.8334731510486792e-06,europe,air+land+water
+C · air closed (air-only model),183,1.595121641412351e-06,europe,air+land+water
+C · air closed (air-only model),184,1.3877558280287453e-06,europe,air+land+water
+C · air closed (air-only model),185,1.2073475703850083e-06,europe,air+land+water
+C · air closed (air-only model),186,1.0503923862349572e-06,europe,air+land+water
+C · air closed (air-only model),187,9.138413760244128e-07,europe,air+land+water
+C · air closed (air-only model),188,7.950419971412391e-07,europe,air+land+water
+C · air closed (air-only model),189,6.916865375128781e-07,europe,air+land+water
+C · air closed (air-only model),190,6.017672876362039e-07,europe,air+land+water
+C · air closed (air-only model),191,5.235375402434974e-07,europe,air+land+water
+C · air closed (air-only model),192,4.554776600118427e-07,europe,air+land+water
+C · air closed (air-only model),193,3.962655642103032e-07,europe,air+land+water
+C · air closed (air-only model),194,3.4475104086296376e-07,europe,air+land+water
+C · air closed (air-only model),195,2.9993340555077844e-07,europe,air+land+water
+C · air closed (air-only model),196,2.6094206282917725e-07,europe,air+land+water
+C · air closed (air-only model),197,2.270195946613842e-07,europe,air+land+water
+C · air closed (air-only model),198,1.9750704735540426e-07,europe,air+land+water
+C · air closed (air-only model),199,1.718311311992017e-07,europe,air+land+water
+C · air closed (air-only model),200,1.494930841433055e-07,europe,air+land+water
+C · air closed (air-only model),201,1.3005898320467578e-07,europe,air+land+water
+C · air closed (air-only model),202,1.1315131538806792e-07,europe,air+land+water
+C · air closed (air-only model),203,9.844164438761909e-08,europe,air+land+water
+C · air closed (air-only model),204,8.56442306172286e-08,europe,air+land+water
+C · air closed (air-only model),205,7.451048063698888e-08,europe,air+land+water
+C · air closed (air-only model),206,6.482411815418033e-08,europe,air+land+water
+C · air closed (air-only model),207,5.6396982794136884e-08,europe,air+land+water
+C · air closed (air-only model),208,4.906537503089909e-08,europe,air+land+water
+C · air closed (air-only model),209,4.2686876276882203e-08,europe,air+land+water
+D1 · top-10 airports by degree closed,0,6992.702427676513,europe,air+land+water
+D1 · top-10 airports by degree closed,1,19434.790876232557,europe,air+land+water
+D1 · top-10 airports by degree closed,2,53316.88765045297,europe,air+land+water
+D1 · top-10 airports by degree closed,3,142283.2701796021,europe,air+land+water
+D1 · top-10 airports by degree closed,4,358505.6098503354,europe,air+land+water
+D1 · top-10 airports by degree closed,5,813843.9792168976,europe,air+land+water
+D1 · top-10 airports by degree closed,6,1634245.0699210498,europe,air+land+water
+D1 · top-10 airports by degree closed,7,3296158.4158639577,europe,air+land+water
+D1 · top-10 airports by degree closed,8,5920144.869573929,europe,air+land+water
+D1 · top-10 airports by degree closed,9,8188086.112303531,europe,air+land+water
+D1 · top-10 airports by degree closed,10,11694056.404646587,europe,air+land+water
+D1 · top-10 airports by degree closed,11,15596064.667193111,europe,air+land+water
+D1 · top-10 airports by degree closed,12,20431861.24674546,europe,air+land+water
+D1 · top-10 airports by degree closed,13,30396677.16264479,europe,air+land+water
+D1 · top-10 airports by degree closed,14,49966164.66610466,europe,air+land+water
+D1 · top-10 airports by degree closed,15,84341742.88971126,europe,air+land+water
+D1 · top-10 airports by degree closed,16,129827023.9800745,europe,air+land+water
+D1 · top-10 airports by degree closed,17,167087882.97295362,europe,air+land+water
+D1 · top-10 airports by degree closed,18,195643132.6064408,europe,air+land+water
+D1 · top-10 airports by degree closed,19,210843096.93417233,europe,air+land+water
+D1 · top-10 airports by degree closed,20,209648466.77837366,europe,air+land+water
+D1 · top-10 airports by degree closed,21,190260729.71900216,europe,air+land+water
+D1 · top-10 airports by degree closed,22,166016230.61086023,europe,air+land+water
+D1 · top-10 airports by degree closed,23,144751681.28280643,europe,air+land+water
+D1 · top-10 airports by degree closed,24,126284374.96206568,europe,air+land+water
+D1 · top-10 airports by degree closed,25,110255040.02796707,europe,air+land+water
+D1 · top-10 airports by degree closed,26,96145800.7679865,europe,air+land+water
+D1 · top-10 airports by degree closed,27,83705383.62031664,europe,air+land+water
+D1 · top-10 airports by degree closed,28,72876961.82986826,europe,air+land+water
+D1 · top-10 airports by degree closed,29,63451064.7531102,europe,air+land+water
+D1 · top-10 airports by degree closed,30,55223548.832054734,europe,air+land+water
+D1 · top-10 airports by degree closed,31,48061161.399153836,europe,air+land+water
+D1 · top-10 airports by degree closed,32,41813918.24017227,europe,air+land+water
+D1 · top-10 airports by degree closed,33,36378244.78356834,europe,air+land+water
+D1 · top-10 airports by degree closed,34,31649425.605527695,europe,air+land+water
+D1 · top-10 airports by degree closed,35,27535887.07442421,europe,air+land+water
+D1 · top-10 airports by degree closed,36,23958168.38172926,europe,air+land+water
+D1 · top-10 airports by degree closed,37,20847110.442259844,europe,air+land+water
+D1 · top-10 airports by degree closed,38,18143948.621365003,europe,air+land+water
+D1 · top-10 airports by degree closed,39,15790858.95867035,europe,air+land+water
+D1 · top-10 airports by degree closed,40,13738461.50970617,europe,air+land+water
+D1 · top-10 airports by degree closed,41,11953236.491142172,europe,air+land+water
+D1 · top-10 airports by degree closed,42,10399692.143888848,europe,air+land+water
+D1 · top-10 airports by degree closed,43,9047732.293250887,europe,air+land+water
+D1 · top-10 airports by degree closed,44,7871527.1887598615,europe,air+land+water
+D1 · top-10 airports by degree closed,45,6848228.726977406,europe,air+land+water
+D1 · top-10 airports by degree closed,46,5957959.051062733,europe,air+land+water
+D1 · top-10 airports by degree closed,47,5183424.42265741,europe,air+land+water
+D1 · top-10 airports by degree closed,48,4509579.287986718,europe,air+land+water
+D1 · top-10 airports by degree closed,49,3923334.0145079526,europe,air+land+water
+D1 · top-10 airports by degree closed,50,3413300.621457625,europe,air+land+water
+D1 · top-10 airports by degree closed,51,2969571.565281324,europe,air+land+water
+D1 · top-10 airports by degree closed,52,2583527.282888324,europe,air+land+water
+D1 · top-10 airports by degree closed,53,2247668.7542474214,europe,air+land+water
+D1 · top-10 airports by degree closed,54,1955471.8318256151,europe,air+land+water
+D1 · top-10 airports by degree closed,55,1701260.5071881455,europe,air+land+water
+D1 · top-10 airports by degree closed,56,1480096.6529333193,europe,air+land+water
+D1 · top-10 airports by degree closed,57,1287684.0981710986,europe,air+land+water
+D1 · top-10 airports by degree closed,58,1120285.1741862749,europe,air+land+water
+D1 · top-10 airports by degree closed,59,974648.1091631878,europe,air+land+water
+D1 · top-10 airports by degree closed,60,847943.8615946088,europe,air+land+water
+D1 · top-10 airports by degree closed,61,737711.1653462693,europe,air+land+water
+D1 · top-10 airports by degree closed,62,641808.7188620958,europe,air+land+water
+D1 · top-10 airports by degree closed,63,558373.5897720671,europe,air+land+water
+D1 · top-10 airports by degree closed,64,485785.0269005087,europe,air+land+water
+D1 · top-10 airports by degree closed,65,422632.9767128794,europe,air+land+water
+D1 · top-10 airports by degree closed,66,367690.69262413366,europe,air+land+water
+D1 · top-10 airports by degree closed,67,319890.9050967196,europe,air+land+water
+D1 · top-10 airports by degree closed,68,278305.0896256122,europe,air+land+water
+D1 · top-10 airports by degree closed,69,242125.4298851068,europe,air+land+water
+D1 · top-10 airports by degree closed,70,210649.12566637684,europe,air+land+water
+D1 · top-10 airports by degree closed,71,183264.7407830209,europe,air+land+water
+D1 · top-10 airports by degree closed,72,159440.32574878237,europe,air+land+water
+D1 · top-10 airports by degree closed,73,138713.08450707505,europe,air+land+water
+D1 · top-10 airports by degree closed,74,120680.38448559515,europe,air+land+water
+D1 · top-10 airports by degree closed,75,104991.93534376848,europe,air+land+water
+D1 · top-10 airports by degree closed,76,91342.98448297482,europe,air+land+water
+D1 · top-10 airports by degree closed,77,79468.39714039594,europe,air+land+water
+D1 · top-10 airports by degree closed,78,69137.50607062303,europe,air+land+water
+D1 · top-10 airports by degree closed,79,60149.630768620504,europe,air+land+water
+D1 · top-10 airports by degree closed,80,52330.179193674514,europe,air+land+water
+D1 · top-10 airports by degree closed,81,45527.25626920255,europe,air+land+water
+D1 · top-10 airports by degree closed,82,39608.713277565155,europe,air+land+water
+D1 · top-10 airports by degree closed,83,34459.58083353317,europe,air+land+water
+D1 · top-10 airports by degree closed,84,29979.835571187137,europe,air+land+water
+D1 · top-10 airports by degree closed,85,26082.45716150549,europe,air+land+water
+D1 · top-10 airports by degree closed,86,22691.73791765346,europe,air+land+water
+D1 · top-10 airports by degree closed,87,19741.812151573587,europe,air+land+water
+D1 · top-10 airports by degree closed,88,17175.376714209757,europe,air+land+water
+D1 · top-10 airports by degree closed,89,14942.577865493906,europe,air+land+water
+D1 · top-10 airports by degree closed,90,13000.04285122711,europe,air+land+water
+D1 · top-10 airports by degree closed,91,11310.03737495988,europe,air+land+water
+D1 · top-10 airports by degree closed,92,9839.732598522472,europe,air+land+water
+D1 · top-10 airports by degree closed,93,8560.567432481446,europe,air+land+water
+D1 · top-10 airports by degree closed,94,7447.69372883271,europe,air+land+water
+D1 · top-10 airports by degree closed,95,6479.49359864077,europe,air+land+water
+D1 · top-10 airports by degree closed,96,5637.159478381727,europe,air+land+water
+D1 · top-10 airports by degree closed,97,4904.3287876588765,europe,air+land+water
+D1 · top-10 airports by degree closed,98,4266.7660814128485,europe,air+land+water
+D1 · top-10 airports by degree closed,99,3712.086522342316,europe,air+land+water
+D1 · top-10 airports by degree closed,100,3229.5153019081554,europe,air+land+water
+D1 · top-10 airports by degree closed,101,2809.678336605449,europe,air+land+water
+D1 · top-10 airports by degree closed,102,2444.4201737187186,europe,air+land+water
+D1 · top-10 airports by degree closed,103,2126.6455693277426,europe,air+land+water
+D1 · top-10 airports by degree closed,104,1850.181661171546,europe,air+land+water
+D1 · top-10 airports by degree closed,105,1609.6580590391281,europe,air+land+water
+D1 · top-10 airports by degree closed,106,1400.4025234085823,europe,air+land+water
+D1 · top-10 airports by degree closed,107,1218.3502058624067,europe,air+land+water
+D1 · top-10 airports by degree closed,108,1059.9646882482098,europe,air+land+water
+D1 · top-10 airports by degree closed,109,922.1692867479712,europe,air+land+water
+D1 · top-10 airports by degree closed,110,802.2872864178275,europe,air+land+water
+D1 · top-10 airports by degree closed,111,697.9899452372692,europe,air+land+water
+D1 · top-10 airports by degree closed,112,607.2512576315808,europe,air+land+water
+D1 · top-10 airports by degree closed,113,528.308598736046,europe,air+land+water
+D1 · top-10 airports by degree closed,114,459.6284849055327,europe,air+land+water
+D1 · top-10 airports by degree closed,115,399.87678535758903,europe,air+land+water
+D1 · top-10 airports by degree closed,116,347.89280630172834,europe,air+land+water
+D1 · top-10 airports by degree closed,117,302.66674413172336,europe,air+land+water
+D1 · top-10 airports by degree closed,118,263.3200697027422,europe,air+land+water
+D1 · top-10 airports by degree closed,119,229.08846265231787,europe,air+land+water
+D1 · top-10 airports by degree closed,120,199.30696425946917,europe,air+land+water
+D1 · top-10 airports by degree closed,121,173.39706043203074,europe,air+land+water
+D1 · top-10 airports by degree closed,122,150.85544390553684,europe,air+land+water
+D1 · top-10 airports by degree closed,123,131.24423735617015,europe,air+land+water
+D1 · top-10 airports by degree closed,124,114.18248750895626,europe,air+land+water
+D1 · top-10 airports by degree closed,125,99.33876501183207,europe,air+land+water
+D1 · top-10 airports by degree closed,126,86.42472632603119,europe,air+land+water
+D1 · top-10 airports by degree closed,127,75.18951257067297,europe,air+land+water
+D1 · top-10 airports by degree closed,128,65.41487651751407,europe,air+land+water
+D1 · top-10 airports by degree closed,129,56.91094307634668,europe,air+land+water
+D1 · top-10 airports by degree closed,130,49.51252091726441,europe,air+land+water
+D1 · top-10 airports by degree closed,131,43.075893582006174,europe,air+land+water
+D1 · top-10 airports by degree closed,132,37.47602775080217,europe,air+land+water
+D1 · top-10 airports by degree closed,133,32.6041444345092,europe,air+land+water
+D1 · top-10 airports by degree closed,134,28.3656059117506,europe,air+land+water
+D1 · top-10 airports by degree closed,135,24.678077364212303,europe,air+land+water
+D1 · top-10 airports by degree closed,136,21.469927499336926,europe,air+land+water
+D1 · top-10 airports by degree closed,137,18.678837092055684,europe,air+land+water
+D1 · top-10 airports by degree closed,138,16.250588416084902,europe,air+land+water
+D1 · top-10 airports by degree closed,139,14.13801204914494,europe,air+land+water
+D1 · top-10 airports by degree closed,140,12.300070593492814,europe,air+land+water
+D1 · top-10 airports by degree closed,141,10.701061512778768,europe,air+land+water
+D1 · top-10 airports by degree closed,142,9.309923600105504,europe,air+land+water
+D1 · top-10 airports by degree closed,143,8.09963360523453,europe,air+land+water
+D1 · top-10 airports by degree closed,144,7.046681300251155,europe,air+land+water
+D1 · top-10 airports by degree closed,145,6.130612786689102,europe,air+land+water
+D1 · top-10 airports by degree closed,146,5.33363317272546,europe,air+land+water
+D1 · top-10 airports by degree closed,147,4.640260902337328,europe,air+land+water
+D1 · top-10 airports by degree closed,148,4.037027021665457,europe,air+land+water
+D1 · top-10 airports by degree closed,149,3.512213540748367,europe,air+land+water
+D1 · top-10 airports by degree closed,150,3.0556258082290313,europe,air+land+water
+D1 · top-10 airports by degree closed,151,2.658394477347975,europe,air+land+water
+D1 · top-10 airports by degree closed,152,2.312803216355765,europe,air+land+water
+D1 · top-10 airports by degree closed,153,2.0121388165705607,europe,air+land+water
+D1 · top-10 airports by degree closed,154,1.7505607863870483,europe,air+land+water
+D1 · top-10 airports by degree closed,155,1.5229878980632123,europe,air+land+water
+D1 · top-10 airports by degree closed,156,1.3249994834239658,europe,air+land+water
+D1 · top-10 airports by degree closed,157,1.1527495611225493,europe,air+land+water
+D1 · top-10 airports by degree closed,158,1.0028921273572924,europe,air+land+water
+D1 · top-10 airports by degree closed,159,0.8725161587946224,europe,air+land+water
+D1 · top-10 airports by degree closed,160,0.759089065111583,europe,air+land+water
+D1 · top-10 airports by degree closed,161,0.6604074927073911,europe,air+land+water
+D1 · top-10 airports by degree closed,162,0.5745545239321108,europe,air+land+water
+D1 · top-10 airports by degree closed,163,0.49986244041527217,europe,air+land+water
+D1 · top-10 airports by degree closed,164,0.4348803271614795,europe,air+land+water
+D1 · top-10 airports by degree closed,165,0.3783458881133428,europe,air+land+water
+D1 · top-10 airports by degree closed,166,0.3291609256910079,europe,air+land+water
+D1 · top-10 airports by degree closed,167,0.28637000799135925,europe,air+land+water
+D1 · top-10 airports by degree closed,168,0.24914190925115953,europe,air+land+water
+D1 · top-10 airports by degree closed,169,0.21675346304983828,europe,air+land+water
+D1 · top-10 airports by degree closed,170,0.18857551459579164,europe,air+land+water
+D1 · top-10 airports by degree closed,171,0.16406069921535413,europe,air+land+water
+D1 · top-10 airports by degree closed,172,0.1427328096381088,europe,air+land+water
+D1 · top-10 airports by degree closed,173,0.12417754553502425,europe,air+land+water
+D1 · top-10 airports by degree closed,174,0.10803446561656133,europe,air+land+water
+D1 · top-10 airports by degree closed,175,0.09398998595796343,europe,air+land+water
+D1 · top-10 airports by degree closed,176,0.08177128854220395,europe,air+land+water
+D1 · top-10 airports by degree closed,177,0.07114102169230313,europe,air+land+water
+D1 · top-10 airports by degree closed,178,0.06189268944740186,europe,air+land+water
+D1 · top-10 airports by degree closed,179,0.053846640319910086,europe,air+land+water
+D1 · top-10 airports by degree closed,180,0.046846577514193986,europe,air+land+water
+D1 · top-10 airports by degree closed,181,0.04075652281680672,europe,air+land+water
+D1 · top-10 airports by degree closed,182,0.03545817518096511,europe,air+land+water
+D1 · top-10 airports by degree closed,183,0.030848612695023578,europe,air+land+water
+D1 · top-10 airports by degree closed,184,0.026838293295028327,europe,air+land+water
+D1 · top-10 airports by degree closed,185,0.023349315384623794,europe,air+land+water
+D1 · top-10 airports by degree closed,186,0.020313904574357347,europe,air+land+water
+D1 · top-10 airports by degree closed,187,0.0176730971448626,europe,air+land+water
+D1 · top-10 airports by degree closed,188,0.015375594659818331,europe,air+land+water
+D1 · top-10 airports by degree closed,189,0.013376767479213734,europe,air+land+water
+D1 · top-10 airports by degree closed,190,0.011637787815881262,europe,air+land+water
+D1 · top-10 airports by degree closed,191,0.010124875494673353,europe,air+land+water
+D1 · top-10 airports by degree closed,192,0.00880864176294014,europe,air+land+water
+D1 · top-10 airports by degree closed,193,0.007663518405639903,europe,air+land+water
+D1 · top-10 airports by degree closed,194,0.006667261075480557,europe,air+land+water
+D1 · top-10 airports by degree closed,195,0.005800517190138844,europe,air+land+water
+D1 · top-10 airports by degree closed,196,0.005046450002837556,europe,air+land+water
+D1 · top-10 airports by degree closed,197,0.004390411543744736,europe,air+land+water
+D1 · top-10 airports by degree closed,198,0.0038196580789883606,europe,air+land+water
+D1 · top-10 airports by degree closed,199,0.0033231025599968515,europe,air+land+water
+D1 · top-10 airports by degree closed,200,0.002891099254423334,europe,air+land+water
+D1 · top-10 airports by degree closed,201,0.0025152563750480217,europe,air+land+water
+D1 · top-10 airports by degree closed,202,0.002188273066921793,europe,air+land+water
+D1 · top-10 airports by degree closed,203,0.0019037975861797907,europe,air+land+water
+D1 · top-10 airports by degree closed,204,0.0016563039156081228,europe,air+land+water
+D1 · top-10 airports by degree closed,205,0.0014409844201858958,europe,air+land+water
+D1 · top-10 airports by degree closed,206,0.0012536564574059277,europe,air+land+water
+D1 · top-10 airports by degree closed,207,0.0010906811282530133,europe,air+land+water
+D1 · top-10 airports by degree closed,208,0.0009488925905543628,europe,air+land+water
+D1 · top-10 airports by degree closed,209,0.0008255365615939159,europe,air+land+water
+D2 · top-10 airports by betweenness closed,0,6992.702427676513,europe,air+land+water
+D2 · top-10 airports by betweenness closed,1,19434.78118610156,europe,air+land+water
+D2 · top-10 airports by betweenness closed,2,53316.3197279877,europe,air+land+water
+D2 · top-10 airports by betweenness closed,3,142270.16322253557,europe,air+land+water
+D2 · top-10 airports by betweenness closed,4,358317.3941731366,europe,air+land+water
+D2 · top-10 airports by betweenness closed,5,812049.6527849508,europe,air+land+water
+D2 · top-10 airports by betweenness closed,6,1623365.7270894805,europe,air+land+water
+D2 · top-10 airports by betweenness closed,7,3308042.535697016,europe,air+land+water
+D2 · top-10 airports by betweenness closed,8,6342001.494740579,europe,air+land+water
+D2 · top-10 airports by betweenness closed,9,10845923.013266848,europe,air+land+water
+D2 · top-10 airports by betweenness closed,10,20273935.55855078,europe,air+land+water
+D2 · top-10 airports by betweenness closed,11,37832229.7366938,europe,air+land+water
+D2 · top-10 airports by betweenness closed,12,68158231.1111935,europe,air+land+water
+D2 · top-10 airports by betweenness closed,13,107112790.35937496,europe,air+land+water
+D2 · top-10 airports by betweenness closed,14,138630890.78064883,europe,air+land+water
+D2 · top-10 airports by betweenness closed,15,159801624.8282379,europe,air+land+water
+D2 · top-10 airports by betweenness closed,16,185546944.53463778,europe,air+land+water
+D2 · top-10 airports by betweenness closed,17,203262784.29027662,europe,air+land+water
+D2 · top-10 airports by betweenness closed,18,203699951.65106,europe,air+land+water
+D2 · top-10 airports by betweenness closed,19,188524012.2162355,europe,air+land+water
+D2 · top-10 airports by betweenness closed,20,165527536.37067437,europe,air+land+water
+D2 · top-10 airports by betweenness closed,21,144438628.7383269,europe,air+land+water
+D2 · top-10 airports by betweenness closed,22,125990166.48849928,europe,air+land+water
+D2 · top-10 airports by betweenness closed,23,109836772.33998048,europe,air+land+water
+D2 · top-10 airports by betweenness closed,24,95606841.63031189,europe,air+land+water
+D2 · top-10 airports by betweenness closed,25,83213075.98854923,europe,air+land+water
+D2 · top-10 airports by betweenness closed,26,72446486.41190758,europe,air+land+water
+D2 · top-10 airports by betweenness closed,27,63060391.677554,europe,air+land+water
+D2 · top-10 airports by betweenness closed,28,54888124.0280051,europe,air+land+water
+D2 · top-10 airports by betweenness closed,29,47768811.39767292,europe,air+land+water
+D2 · top-10 airports by betweenness closed,30,41558997.494340956,europe,air+land+water
+D2 · top-10 airports by betweenness closed,31,36156666.90641335,europe,air+land+water
+D2 · top-10 airports by betweenness closed,32,31457155.16724081,europe,air+land+water
+D2 · top-10 airports by betweenness closed,33,27369616.332114227,europe,air+land+water
+D2 · top-10 airports by betweenness closed,34,23814972.960891917,europe,air+land+water
+D2 · top-10 airports by betweenness closed,35,20725852.245255474,europe,air+land+water
+D2 · top-10 airports by betweenness closed,36,18037490.97222093,europe,air+land+water
+D2 · top-10 airports by betweenness closed,37,15693015.952293675,europe,air+land+water
+D2 · top-10 airports by betweenness closed,38,13653680.617469823,europe,air+land+water
+D2 · top-10 airports by betweenness closed,39,11879099.168643314,europe,air+land+water
+D2 · top-10 airports by betweenness closed,40,10334816.357972436,europe,air+land+water
+D2 · top-10 airports by betweenness closed,41,8991290.284738481,europe,air+land+water
+D2 · top-10 airports by betweenness closed,42,7822422.585854411,europe,air+land+water
+D2 · top-10 airports by betweenness closed,43,6805507.678555557,europe,air+land+water
+D2 · top-10 airports by betweenness closed,44,5920791.703013984,europe,air+land+water
+D2 · top-10 airports by betweenness closed,45,5151088.799880417,europe,air+land+water
+D2 · top-10 airports by betweenness closed,46,4481447.270859183,europe,air+land+water
+D2 · top-10 airports by betweenness closed,47,3898859.1380652934,europe,air+land+water
+D2 · top-10 airports by betweenness closed,48,3392007.46051877,europe,air+land+water
+D2 · top-10 airports by betweenness closed,49,2951046.4994269176,europe,air+land+water
+D2 · top-10 airports by betweenness closed,50,2567410.4619461494,europe,air+land+water
+D2 · top-10 airports by betweenness closed,51,2233647.1082368097,europe,air+land+water
+D2 · top-10 airports by betweenness closed,52,1943272.9895907787,europe,air+land+water
+D2 · top-10 airports by betweenness closed,53,1690647.5055964876,europe,air+land+water
+D2 · top-10 airports by betweenness closed,54,1470863.3338687741,europe,air+land+water
+D2 · top-10 airports by betweenness closed,55,1279651.1039114562,europe,air+land+water
+D2 · top-10 airports by betweenness closed,56,1113296.4633761737,europe,air+land+water
+D2 · top-10 airports by betweenness closed,57,968567.9257064766,europe,air+land+water
+D2 · top-10 airports by betweenness closed,58,842654.0975874028,europe,air+land+water
+D2 · top-10 airports by betweenness closed,59,733109.0668260483,europe,air+land+water
+D2 · top-10 airports by betweenness closed,60,637804.8898072458,europe,air+land+water
+D2 · top-10 airports by betweenness closed,61,554890.2555796929,europe,air+land+water
+D2 · top-10 airports by betweenness closed,62,482754.52361064433,europe,air+land+water
+D2 · top-10 airports by betweenness closed,63,419996.43663231016,europe,air+land+water
+D2 · top-10 airports by betweenness closed,64,365396.9008180754,europe,air+land+water
+D2 · top-10 airports by betweenness closed,65,317895.30453569803,europe,air+land+water
+D2 · top-10 airports by betweenness closed,66,276568.91566249746,europe,air+land+water
+D2 · top-10 airports by betweenness closed,67,240614.95724949447,europe,air+land+water
+D2 · top-10 airports by betweenness closed,68,209335.01334915237,europe,air+land+water
+D2 · top-10 airports by betweenness closed,69,182121.4620854616,europe,air+land+water
+D2 · top-10 airports by betweenness closed,70,158445.67242487188,europe,air+land+water
+D2 · top-10 airports by betweenness closed,71,137847.73536696937,europe,air+land+water
+D2 · top-10 airports by betweenness closed,72,119927.53008033626,europe,air+land+water
+D2 · top-10 airports by betweenness closed,73,104336.95144072529,europe,air+land+water
+D2 · top-10 airports by betweenness closed,74,90773.14798925049,europe,air+land+water
+D2 · top-10 airports by betweenness closed,75,78972.63895599628,europe,air+land+water
+D2 · top-10 airports by betweenness closed,76,68706.19607054263,europe,air+land+water
+D2 · top-10 airports by betweenness closed,77,59774.39073710909,europe,air+land+water
+D2 · top-10 airports by betweenness closed,78,52003.7200769199,europe,air+land+water
+D2 · top-10 airports by betweenness closed,79,45243.23658505197,europe,air+land+water
+D2 · top-10 airports by betweenness closed,80,39361.61593188505,europe,air+land+water
+D2 · top-10 airports by betweenness closed,81,34244.6059503564,europe,air+land+water
+D2 · top-10 airports by betweenness closed,82,29792.8072548666,europe,air+land+water
+D2 · top-10 airports by betweenness closed,83,25919.742379722447,europe,air+land+water
+D2 · top-10 airports by betweenness closed,84,22550.17592957802,europe,air+land+water
+D2 · top-10 airports by betweenness closed,85,19618.65311031454,europe,air+land+water
+D2 · top-10 airports by betweenness closed,86,17068.228250902594,europe,air+land+water
+D2 · top-10 airports by betweenness closed,87,14849.358617419439,europe,air+land+water
+D2 · top-10 airports by betweenness closed,88,12918.942031241582,europe,air+land+water
+D2 · top-10 airports by betweenness closed,89,11239.479596870195,europe,air+land+water
+D2 · top-10 airports by betweenness closed,90,9778.347275137348,europe,air+land+water
+D2 · top-10 airports by betweenness closed,91,8507.162151893848,europe,air+land+water
+D2 · top-10 airports by betweenness closed,92,7401.231091766222,europe,air+land+water
+D2 · top-10 airports by betweenness closed,93,6439.071066924095,europe,air+land+water
+D2 · top-10 airports by betweenness closed,94,5601.99184310674,europe,air+land+water
+D2 · top-10 airports by betweenness closed,95,4873.732916465251,europe,air+land+water
+D2 · top-10 airports by betweenness closed,96,4240.147648614426,europe,air+land+water
+D2 · top-10 airports by betweenness closed,97,3688.928464127218,europe,air+land+water
+D2 · top-10 airports by betweenness closed,98,3209.3677723542824,europe,air+land+water
+D2 · top-10 airports by betweenness closed,99,2792.1499694064632,europe,air+land+water
+D2 · top-10 airports by betweenness closed,100,2429.1704798790897,europe,air+land+water
+D2 · top-10 airports by betweenness closed,101,2113.3783231517145,europe,air+land+water
+D2 · top-10 airports by betweenness closed,102,1838.6391460685327,europe,air+land+water
+D2 · top-10 airports by betweenness closed,103,1599.616061370042,europe,air+land+water
+D2 · top-10 airports by betweenness closed,104,1391.665977128322,europe,air+land+water
+D2 · top-10 airports by betweenness closed,105,1210.7494033554958,europe,air+land+water
+D2 · top-10 airports by betweenness closed,106,1053.351983752887,europe,air+land+water
+D2 · top-10 airports by betweenness closed,107,916.4162283326139,europe,air+land+water
+D2 · top-10 airports by betweenness closed,108,797.2821207982214,europe,air+land+water
+D2 · top-10 airports by betweenness closed,109,693.6354469656981,europe,air+land+water
+D2 · top-10 airports by betweenness closed,110,603.4628404896439,europe,air+land+water
+D2 · top-10 airports by betweenness closed,111,525.0126726449355,europe,air+land+water
+D2 · top-10 airports by betweenness closed,112,456.76102643668685,europe,air+land+water
+D2 · top-10 airports by betweenness closed,113,397.3820940758385,europe,air+land+water
+D2 · top-10 airports by betweenness closed,114,345.7224227828516,europe,air+land+water
+D2 · top-10 airports by betweenness closed,115,300.77850863686547,europe,air+land+water
+D2 · top-10 airports by betweenness closed,116,261.6773032244124,europe,air+land+water
+D2 · top-10 airports by betweenness closed,117,227.65925442375595,europe,air+land+water
+D2 · top-10 airports by betweenness closed,118,198.06355188722634,europe,air+land+water
+D2 · top-10 airports by betweenness closed,119,172.31529061081875,europe,air+land+water
+D2 · top-10 airports by betweenness closed,120,149.9143032397148,europe,air+land+water
+D2 · top-10 airports by betweenness closed,121,130.42544417406043,europe,air+land+water
+D2 · top-10 airports by betweenness closed,122,113.47013674097042,europe,air+land+water
+D2 · top-10 airports by betweenness closed,123,98.71901923415328,europe,air+land+water
+D2 · top-10 airports by betweenness closed,124,85.88554696836778,europe,air+land+water
+D2 · top-10 airports by betweenness closed,125,74.72042606678549,europe,air+land+water
+D2 · top-10 airports by betweenness closed,126,65.00677085598355,europe,air+land+water
+D2 · top-10 airports by betweenness closed,127,56.55589079957703,europe,air+land+water
+D2 · top-10 airports by betweenness closed,128,49.203625130469526,europe,air+land+water
+D2 · top-10 airports by betweenness closed,129,42.8071539809027,europe,air+land+water
+D2 · top-10 airports by betweenness closed,130,37.242224065591934,europe,air+land+water
+D2 · top-10 airports by betweenness closed,131,32.40073502604807,europe,air+land+water
+D2 · top-10 airports by betweenness closed,132,28.18863955013163,europe,air+land+water
+D2 · top-10 airports by betweenness closed,133,24.52411647606018,europe,air+land+water
+D2 · top-10 airports by betweenness closed,134,21.335981392890467,europe,air+land+water
+D2 · top-10 airports by betweenness closed,135,18.562303862934222,europe,air+land+water
+D2 · top-10 airports by betweenness closed,136,16.14920440525667,europe,air+land+water
+D2 · top-10 airports by betweenness closed,137,14.049807871317453,europe,air+land+water
+D2 · top-10 airports by betweenness closed,138,12.223332881775764,europe,air+land+water
+D2 · top-10 airports by betweenness closed,139,10.63429963650874,europe,air+land+water
+D2 · top-10 airports by betweenness closed,140,9.251840709325565,europe,air+land+water
+D2 · top-10 airports by betweenness closed,141,8.049101439367167,europe,air+land+water
+D2 · top-10 airports by betweenness closed,142,7.002718271622536,europe,air+land+water
+D2 · top-10 airports by betweenness closed,143,6.092364913176693,europe,air+land+water
+D2 · top-10 airports by betweenness closed,144,5.300357489145384,europe,air+land+water
+D2 · top-10 airports by betweenness closed,145,4.61131102833731,europe,air+land+water
+D2 · top-10 airports by betweenness closed,146,4.0118406057794775,europe,air+land+water
+D2 · top-10 airports by betweenness closed,147,3.4903013367135522,europe,air+land+water
+D2 · top-10 airports by betweenness closed,148,3.036562171372065,europe,air+land+water
+D2 · top-10 airports by betweenness closed,149,2.6418090964331866,europe,air+land+water
+D2 · top-10 airports by betweenness closed,150,2.298373920285917,europe,air+land+water
+D2 · top-10 airports by betweenness closed,151,1.9995853162103934,europe,air+land+water
+D2 · top-10 airports by betweenness closed,152,1.7396392299444106,europe,air+land+water
+D2 · top-10 airports by betweenness closed,153,1.5134861342659853,europe,air+land+water
+D2 · top-10 airports by betweenness closed,154,1.3167329404799215,europe,air+land+water
+D2 · top-10 airports by betweenness closed,155,1.1455576614108893,europe,air+land+water
+D2 · top-10 airports by betweenness closed,156,0.9966351682072025,europe,air+land+water
+D2 · top-10 airports by betweenness closed,157,0.8670725987599298,europe,air+land+water
+D2 · top-10 airports by betweenness closed,158,0.7543531630273657,europe,air+land+water
+D2 · top-10 airports by betweenness closed,159,0.6562872536671904,europe,air+land+water
+D2 · top-10 airports by betweenness closed,160,0.5709699122863294,europe,air+land+water
+D2 · top-10 airports by betweenness closed,161,0.49674382507823345,europe,air+land+water
+D2 · top-10 airports by betweenness closed,162,0.43216712902722093,europe,air+land+water
+D2 · top-10 airports by betweenness closed,163,0.3759854033061817,europe,air+land+water
+D2 · top-10 airports by betweenness closed,164,0.32710730179251135,europe,air+land+water
+D2 · top-10 airports by betweenness closed,165,0.28458335335691615,europe,air+land+water
+D2 · top-10 airports by betweenness closed,166,0.2475875181146231,europe,air+land+water
+D2 · top-10 airports by betweenness closed,167,0.21540114136388808,europe,air+land+water
+D2 · top-10 airports by betweenness closed,168,0.18739899351246025,europe,air+land+water
+D2 · top-10 airports by betweenness closed,169,0.16303712481357224,europe,air+land+water
+D2 · top-10 airports by betweenness closed,170,0.14184229898622275,europe,air+land+water
+D2 · top-10 airports by betweenness closed,171,0.12340280046479696,europe,air+land+water
+D2 · top-10 airports by betweenness closed,172,0.10736043670621458,europe,air+land+water
+D2 · top-10 airports by betweenness closed,173,0.09340358019712913,europe,air+land+water
+D2 · top-10 airports by betweenness closed,174,0.08126111500017484,europe,air+land+water
+D2 · top-10 airports by betweenness closed,175,0.07069717024918684,europe,air+land+water
+D2 · top-10 airports by betweenness closed,176,0.061506538290030055,europe,air+land+water
+D2 · top-10 airports by betweenness closed,177,0.053510688463109427,europe,air+land+water
+D2 · top-10 airports by betweenness closed,178,0.046554299094144116,europe,air+land+water
+D2 · top-10 airports by betweenness closed,179,0.040502240326132796,europe,air+land+water
+D2 · top-10 airports by betweenness closed,180,0.03523694918315613,europe,air+land+water
+D2 · top-10 airports by betweenness closed,181,0.03065614587587861,europe,air+land+water
+D2 · top-10 airports by betweenness closed,182,0.026670846987329685,europe,air+land+water
+D2 · top-10 airports by betweenness closed,183,0.023203636944528545,europe,air+land+water
+D2 · top-10 airports by betweenness closed,184,0.020187164198793472,europe,air+land+water
+D2 · top-10 airports by betweenness closed,185,0.017562832902607375,europe,air+land+water
+D2 · top-10 airports by betweenness closed,186,0.01527966466848764,europe,air+land+water
+D2 · top-10 airports by betweenness closed,187,0.01329330829920014,europe,air+land+water
+D2 · top-10 airports by betweenness closed,188,0.011565178253043033,europe,air+land+water
+D2 · top-10 airports by betweenness closed,189,0.010061705108641576,europe,air+land+water
+D2 · top-10 airports by betweenness closed,190,0.008753683469317807,europe,air+land+water
+D2 · top-10 airports by betweenness closed,191,0.00761570463989057,europe,air+land+water
+D2 · top-10 airports by betweenness closed,192,0.00662566305549019,europe,air+land+water
+D2 · top-10 airports by betweenness closed,193,0.0057643268746260055,europe,air+land+water
+D2 · top-10 airports by betweenness closed,194,0.005014964395154116,europe,air+land+water
+D2 · top-10 airports by betweenness closed,195,0.0043630190361683896,europe,air+land+water
+D2 · top-10 airports by betweenness closed,196,0.0037958265722448595,europe,air+land+water
+D2 · top-10 airports by betweenness closed,197,0.0033023691272336623,europe,air+land+water
+D2 · top-10 airports by betweenness closed,198,0.002873061148857425,europe,air+land+water
+D2 · top-10 airports by betweenness closed,199,0.002499563206611337,europe,air+land+water
+D2 · top-10 airports by betweenness closed,200,0.002174619995935765,europe,air+land+water
+D2 · top-10 airports by betweenness closed,201,0.0018919194018460277,europe,air+land+water
+D2 · top-10 airports by betweenness closed,202,0.001645969884289963,europe,air+land+water
+D2 · top-10 airports by betweenness closed,203,0.0014319938034087056,europe,air+land+water
+D2 · top-10 airports by betweenness closed,204,0.0012458346125133067,europe,air+land+water
+D2 · top-10 airports by betweenness closed,205,0.0010838761159741679,europe,air+land+water
+D2 · top-10 airports by betweenness closed,206,0.0009429722235846478,europe,air+land+water
+D2 · top-10 airports by betweenness closed,207,0.0008203858368572313,europe,air+land+water
+D2 · top-10 airports by betweenness closed,208,0.0007137356801010457,europe,air+land+water
+D2 · top-10 airports by betweenness closed,209,0.000620950043459171,europe,air+land+water

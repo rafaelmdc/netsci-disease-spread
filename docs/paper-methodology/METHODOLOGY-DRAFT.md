@@ -144,13 +144,17 @@ $R_0$ differs roughly sevenfold, because transmissibility $\beta$ differs, not d
 
 With the disease types fixed, the remaining variable is the intervention, and the network
 structure of Section 3.1 defines the available choices, because each intervention is a
-decision about which structural elements to remove. Under a fixed budget we compare two modes.
-The first is node targeting (vaccination): a fixed number of cities are rendered immune so
-that they no longer transmit. The targeting rule is the object of study, and we compare no
-intervention (control), random selection, selection by degree (the highest-traffic cities),
-selection by betweenness (the structural bridges), and a structural rule based on $k$-core and
-motif membership rather than raw connectivity (Kitsak et al., 2010). We additionally vary
-coverage between low and high adherence. The second mode is edge targeting (interdiction): we
+decision about which structural elements to remove. We compare two modes.
+The first is node targeting (vaccination): a number of cities are rendered immune so
+that they no longer transmit. The targeting rule is the object of study, and at a fixed budget
+we compare no intervention (control), random selection, selection by degree (the
+highest-traffic cities), selection by betweenness (the structural bridges), and a structural
+rule based on $k$-core and motif membership rather than raw connectivity (Kitsak et al., 2010).
+Having identified the most effective rule, we then sweep the budget itself, from a handful of
+cities to a few hundred, to trace the dose-response: how many cities must be vaccinated before
+the outbreak is substantially contained, and where the returns begin to diminish. Coverage and
+per-city efficacy are held fixed throughout, so that the budget and the targeting rule are the
+only things that vary. The second mode is edge targeting (interdiction): we
 close routes rather than immunise cities, in four scenarios: (A) no intervention; (B) close
 all air routes while retaining land and water; (C) close all air routes within an air-only
 model; and (D) close only the top-$k$ routes ranked by degree versus by betweenness.
@@ -175,12 +179,19 @@ networks whose nodes are individuals, whereas here nodes are well-mixed cities. 
 this empirically, the metapopulation peak tracks the well-mixed SIR ceiling for $\beta/\gamma$
 rather than an inflated value.
 
+Every run is seeded inside the largest connected component of the substrate. Adding the sparser
+layers (ferries especially) brings in cities that sit in small disconnected pockets, and a seed
+dropped in such a pocket cannot reach the mainland, so the outbreak fizzles. Mixing those fizzles
+with full epidemics under one average would conflate two different questions, whether an outbreak
+takes off and how large it grows, so we remove the first by always seeding where the outbreak can
+spread, and measure the second.
+
 We do not calibrate to outbreak data, because the transport network carries no ground-truth
 epidemic to fit, so absolute incidence is illustrative rather than predictive. Across any
-comparison the only inputs that change are the disease type, the protection strategy, the
-layer set, and the random seed. We report final epidemic size, peak active infection, and peak
-day, averaged over seeds, and we verify the engine against analytic limits, namely single-node
-dynamics and the final-size correspondence between SIR and bond percolation (Newman, 2002).
+comparison the only inputs that change are the disease type, the protection strategy, and the
+layer set. We report final epidemic size, peak active infection, and peak day, and we verify the
+engine against analytic limits, namely single-node dynamics and the final-size correspondence
+between SIR and bond percolation (Newman, 2002).
 
 ### 3.6 Implementation and reproducibility
 

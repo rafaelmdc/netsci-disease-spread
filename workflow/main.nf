@@ -7,7 +7,7 @@
 // The story the stages tell:
 //   1. retrieve            open data sources (OpenFlights, GeoNames, OSM ferries)
 //   2. netgen build-all    every network the methodology needs (air across regions
-//                          + the europe air -> +land -> +water ladder)
+//                          + the europe air -> +water -> +land ladder)
 //   3. simulate            the epidemic stages (default: the staged protocol --
 //                          spread, then vaccinate, then re-check the winner on the
 //                          other diseases; see src/evaluate/staged.py). Set

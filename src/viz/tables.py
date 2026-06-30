@@ -20,8 +20,16 @@ import pandas as pd
 from src.paths import RESULTS, ROOT
 
 TEX = ROOT / "docs" / "tex"
-RUNGS = ["air", "air+land", "air+land+water"]
-RUNG_LABEL = {"air": "air", "air+land": "+land", "air+land+water": "+water"}
+RUNGS = ["air", "air+water", "air+land+water"]
+RUNG_LABEL = {"air": "air", "air+water": "+water", "air+land+water": "+land"}
+# Disease type label per model (all five supported).
+DISEASE = {"sir": "Measles", "sis": "Gonorrhea", "seir": "COVID",
+           "seirs": "Flu", "seiqrd": "Ebola", "sqir": "SQIR"}
+
+
+def _disease(model: str) -> str:
+    name = DISEASE.get(model, model.upper())
+    return f"{name} ({model.upper()})" if model in DISEASE else name
 
 
 def _write(df: pd.DataFrame, name: str, caption: str, label: str,
@@ -61,7 +69,7 @@ def table_archetypes() -> Path:
 
 
 def table_region_structure(structure: pd.DataFrame) -> Path | None:
-    air = structure[structure["combo"] == "air"].copy()
+    air = (structure[structure["combo"] == "air"] if "combo" in structure else structure).copy()
     if air.empty:
         return None
     air = air.sort_values("spearman_deg_btw", ascending=False)
@@ -83,8 +91,8 @@ def table_spread_ladder(summary: pd.DataFrame) -> Path | None:
         return None
     piv = (df.groupby(["model", "combo"])["peak_infected"].mean()
            .unstack("combo").reindex(columns=RUNGS))
-    piv = piv.rename(columns=RUNG_LABEL).reset_index().rename(columns={"model": "Model"})
-    piv["Model"] = piv["Model"].str.upper()
+    piv = piv.rename(columns=RUNG_LABEL).reset_index().rename(columns={"model": "Disease"})
+    piv["Disease"] = piv["Disease"].map(_disease)
     return _write(piv, "T3-spread-ladder",
                   "Europe peak active infections by disease as realism is added "
                   "(mean over seeds).", "tab:spread")
@@ -103,7 +111,7 @@ def table_vaccination(summary: pd.DataFrame, anchor: str = "seir") -> Path | Non
     df["Reduction"] = ((ctrl - df["Peak"]) / ctrl * 100).map("{:.0f}\\%".format)
     df["Strategy"] = df["Strategy"].str.capitalize()
     return _write(df, "T4-vaccination-ranking",
-                  f"Vaccination on the {anchor.upper()} flagship (air+land+water, "
+                  f"Vaccination on the {_disease(anchor)} flagship (air+land+water, "
                   f"{hi * 100:.0f}\\% coverage): peak and reduction vs.\\ no "
                   f"vaccination (control peak {ctrl:,.0f}).", "tab:vacc")
 
@@ -111,6 +119,7 @@ def table_vaccination(summary: pd.DataFrame, anchor: str = "seir") -> Path | Non
 def table_interdiction(region: str = "europe") -> Path | None:
     from src.paths import network_figure
 
+    header = {"air": "air-only", "air+land+water": "multilayer"}
     rows = []
     for combo in ("air", "air+land+water"):
         p = network_figure(region, combo, "interdiction.parquet")
@@ -119,13 +128,37 @@ def table_interdiction(region: str = "europe") -> Path | None:
         df = pd.read_parquet(p)
         peaks = df.groupby("scenario")["infectious"].max()
         for scenario, peak in peaks.items():
-            rows.append({"Scenario": scenario, RUNG_LABEL.get(combo, combo): peak})
+            rows.append({"Scenario": scenario, header[combo]: peak})
     if not rows:
         return None
     merged = (pd.DataFrame(rows).groupby("Scenario").first().reset_index())
     return _write(merged, "T5-interdiction",
                   "Peak active infections under interdiction scenarios A--D, on "
                   "the air-only vs.\\ multilayer substrate.", "tab:interdiction")
+
+
+def table_dose(summary: pd.DataFrame, anchor: str = "sir",
+               flagship: str = "air+land+water") -> Path | None:
+    s = summary[(summary["region"] == "europe") & (summary["model"] == anchor)
+                & (summary["combo"] == flagship)]
+    if s.empty:
+        return None
+    hi = s[s["strategy"] != "control"]["coverage"].max()
+    cand = s[(s["strategy"] != "control") & (s["coverage"] == hi)]
+    if cand.empty:
+        return None
+    winner = cand.groupby("strategy")["budget"].nunique().idxmax()
+    w = cand[cand["strategy"] == winner].groupby("budget")["peak_infected"].mean().sort_index()
+    if len(w) < 2:
+        return None
+    ctrl = s[s["strategy"] == "control"]["peak_infected"].mean()
+    df = pd.DataFrame({"Cities": w.index.astype(int), "Peak": w.to_numpy()})
+    df["Reduction"] = ((ctrl - df["Peak"]) / ctrl * 100).map("{:.0f}\\%".format)
+    return _write(df, "T6-dose-response",
+                  f"Dose-response: peak active infections and reduction vs.\\ no "
+                  f"vaccination as the number of cities vaccinated grows "
+                  f"({_disease(anchor)}, {winner}, flagship, control peak "
+                  f"{ctrl:,.0f}).", "tab:dose")
 
 
 def build_all(anchor: str = "seir", echo=print) -> list[Path]:
@@ -148,6 +181,7 @@ def build_all(anchor: str = "seir", echo=print) -> list[Path]:
     if summary is not None:
         _try("T3 spread ladder", lambda: table_spread_ladder(summary))
         _try("T4 vaccination", lambda: table_vaccination(summary, anchor))
+        _try("T6 dose-response", lambda: table_dose(summary, anchor))
     _try("T5 interdiction", lambda: table_interdiction())
     return made
 

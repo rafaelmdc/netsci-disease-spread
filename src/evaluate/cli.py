@@ -56,6 +56,20 @@ def staged(
     typer.echo(f"staged protocol complete - winning strategy: {winner.value}")
 
 
+@app.command()
+def dose(
+    config: str = typer.Option("experiment.yaml", help="path to the master experiment config"),
+    workers: int = typer.Option(4, help="parallel worker threads"),
+) -> None:
+    """Run ONLY the dose-response stage (stage 4): sweep the already-chosen
+    winning strategy's budget on the flagship. Reuses the winner from the last
+    stage-2 results, so stages 1-3 are not re-simulated."""
+    from src.evaluate.staged import run_dose
+
+    winner = run_dose(load_experiment_config(config), workers=workers, echo=typer.echo)
+    typer.echo(f"dose-response complete for winner: {winner.value}")
+
+
 @app.command(name="operating-point")
 def operating_point(
     region: str = "europe",

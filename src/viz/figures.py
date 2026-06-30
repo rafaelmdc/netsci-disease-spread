@@ -29,14 +29,25 @@ TEX = ROOT / "docs" / "tex"
 COL_W = 3.4  # one column of a double-column page (inches)
 WIDE = 7.0  # full text width
 
-# realism ladder, in order, with a light->dark sequential palette
-RUNGS = ["air", "air+land", "air+land+water"]
-RUNG_LABEL = {"air": "air", "air+land": "+land", "air+land+water": "+water"}
-RUNG_COLOR = {"air": "#9ecae1", "air+land": "#4292c6", "air+land+water": "#084594"}
+# realism ladder, in order (water added before land), light->dark palette
+RUNGS = ["air", "air+water", "air+land+water"]
+RUNG_LABEL = {"air": "air", "air+water": "+water", "air+land+water": "+land"}
+RUNG_COLOR = {"air": "#9ecae1", "air+water": "#4292c6", "air+land+water": "#084594"}
 STRAT_COLOR = {
     "control": "#bdbdbd", "random": "#fdae6b", "degree": "#74c476",
     "betweenness": "#6baed6", "subgraph": "#9e9ac8", "kcore": "#fb6a4a",
 }
+# Disease TYPE label per model, so figures read as diseases (all five supported).
+DISEASE = {
+    "sir": "Measles", "sis": "Gonorrhea", "seir": "COVID",
+    "seirs": "Flu", "seiqrd": "Ebola", "sqir": "SQIR",
+}
+
+
+def _disease(model: str, two_line: bool = False) -> str:
+    name = DISEASE.get(model, model.upper())
+    sep = "\n" if two_line else " "
+    return f"{name}{sep}({model.upper()})" if model in DISEASE else name
 
 
 def _style() -> None:
@@ -84,7 +95,7 @@ def fig_spread_ladder(summary: pd.DataFrame) -> Path | None:
         ax.bar([xi + (i - 1) * width for xi in x], vals, width,
                label=RUNG_LABEL[rung], color=RUNG_COLOR[rung])
     ax.set_xticks(list(x))
-    ax.set_xticklabels([m.upper() for m in models])
+    ax.set_xticklabels([_disease(m, two_line=True) for m in models])
     ax.yaxis.set_major_formatter(plt.FuncFormatter(_millions))
     ax.set_ylabel("peak active infections")
     ax.set_title("Europe: peak outbreak by disease and realism")
@@ -94,7 +105,7 @@ def fig_spread_ladder(summary: pd.DataFrame) -> Path | None:
 
 
 # --------------------------------------------------------------------------- #
-# F6 — Vaccination on the anchor disease: strategy x coverage, per rung.
+# F6 — Vaccination on the anchor disease: strategy per rung (one coverage).
 # --------------------------------------------------------------------------- #
 def fig_vaccination_panel(summary: pd.DataFrame, anchor: str = "seir") -> Path | None:
     df = summary[(summary["region"] == "europe") & (summary["model"] == anchor)]
@@ -102,7 +113,7 @@ def fig_vaccination_panel(summary: pd.DataFrame, anchor: str = "seir") -> Path |
     if df.empty:
         return None
     rungs = [r for r in RUNGS if r in df["combo"].unique()]
-    covs = sorted(c for c in df["coverage"].unique() if c > 0)
+    hi = df[df["strategy"] != "control"]["coverage"].max()  # the operating coverage
     order = ["control", "random", "degree", "betweenness", "subgraph"]
     present = set(df["strategy"].unique())
     strats = [s for s in order if s in present]
@@ -111,28 +122,24 @@ def fig_vaccination_panel(summary: pd.DataFrame, anchor: str = "seir") -> Path |
     axes = axes if len(rungs) > 1 else [axes]
     for ax, rung in zip(axes, rungs, strict=False):
         sub = df[df["combo"] == rung]
-        x = range(len(strats))
-        # control baseline as a reference line
         ctrl = sub[sub["strategy"] == "control"]["peak_infected"].mean()
-        for j, cov in enumerate(covs):
-            vals = [
-                sub[(sub["strategy"] == s) & (sub["coverage"] == cov)]["peak_infected"].mean()
-                if s != "control" else ctrl
-                for s in strats
-            ]
-            off = (j - (len(covs) - 1) / 2) * (0.8 / max(1, len(covs)))
-            ax.bar([xi + off for xi in x], vals, 0.8 / max(1, len(covs)),
-                   label=f"{cov:.0%}", color=plt.cm.Blues(0.4 + 0.5 * j / max(1, len(covs))))
+        vals = [
+            ctrl if s == "control"
+            else sub[(sub["strategy"] == s) & (sub["coverage"] == hi)]["peak_infected"].mean()
+            for s in strats
+        ]
+        ax.bar(range(len(strats)), vals,
+               color=[STRAT_COLOR.get(s, "#6baed6") for s in strats])
         if pd.notna(ctrl):
             ax.axhline(ctrl, ls="--", lw=0.7, color="#888", zorder=0)
-        ax.set_xticks(list(x))
+        ax.set_xticks(range(len(strats)))
         ax.set_xticklabels(strats, rotation=40, ha="right")
         ax.set_title(RUNG_LABEL[rung])
         ax.yaxis.set_major_formatter(plt.FuncFormatter(_millions))
     axes[0].set_ylabel("peak active infections")
-    fig.suptitle(f"Vaccination on {anchor.upper()}: strategy by coverage, "
-                 f"across the realism ladder", fontsize=9)
-    axes[-1].legend(title="coverage", frameon=False, loc="upper right")
+    cov_txt = f"{hi:.0%} coverage" if pd.notna(hi) else ""
+    fig.suptitle(f"Vaccination on {_disease(anchor)} ({cov_txt}): strategy across "
+                 f"the realism ladder", fontsize=9)
     fig.tight_layout(rect=(0, 0, 1, 0.95))
     return _save(fig, "F6-vaccination-panel", df)
 
@@ -181,7 +188,7 @@ def fig_staged_story(summary: pd.DataFrame, anchor: str = "seir",
              color=["#08519c" if s == winner else "#9ecae1" for s in ranking.index][::-1])
     ax1.xaxis.set_major_formatter(plt.FuncFormatter(_millions))
     ax1.set_xlabel("mean peak (anchor disease)")
-    ax1.set_title(f"Stage 2: pick the winner on {anchor.upper()}\n(winner: {winner})")
+    ax1.set_title(f"Stage 2: pick the winner on {_disease(anchor)}\n(winner: {winner})")
 
     if not others.empty:
         comp = (others[others["strategy"].isin(["control", winner])]
@@ -195,7 +202,7 @@ def fig_staged_story(summary: pd.DataFrame, anchor: str = "seir",
             ax2.bar([xi + (j - 0.5) * 0.4 for xi in x], comp[col].values, 0.4,
                     label=col, color="#bdbdbd" if col == "control" else "#08519c")
         ax2.set_xticks(list(x))
-        ax2.set_xticklabels([m.upper() for m in models])
+        ax2.set_xticklabels([_disease(m, two_line=True) for m in models])
         ax2.yaxis.set_major_formatter(plt.FuncFormatter(_millions))
         ax2.set_ylabel("peak active infections")
         ax2.set_title(f"Stage 3: does '{winner}' generalise?\n"
@@ -209,7 +216,10 @@ def fig_staged_story(summary: pd.DataFrame, anchor: str = "seir",
 # F4 — Region spectrum: cross-region rho + a degree-betweenness scatter.
 # --------------------------------------------------------------------------- #
 def fig_region_spectrum(structure: pd.DataFrame, scatter_region: str = "europe") -> Path | None:
-    air = structure[structure["combo"] == "air"].copy()
+    # `evaluate structure` writes air-only rows without a combo column; the
+    # aggregate writer adds one. Handle both.
+    air = structure[structure["combo"] == "air"] if "combo" in structure else structure
+    air = air.copy()
     if air.empty:
         return None
     air = air.sort_values("spearman_deg_btw")
@@ -281,6 +291,39 @@ def fig_interdiction(region: str = "europe") -> Path | None:
 
 
 # --------------------------------------------------------------------------- #
+# F8 — Dose-response: how many cities must we vaccinate for a great reduction?
+# --------------------------------------------------------------------------- #
+def fig_dose_response(summary: pd.DataFrame, anchor: str = "sir",
+                      flagship: str = "air+land+water") -> Path | None:
+    s = summary[(summary["region"] == "europe") & (summary["model"] == anchor)
+                & (summary["combo"] == flagship)]
+    if s.empty:
+        return None
+    hi = s[s["strategy"] != "control"]["coverage"].max()
+    cand = s[(s["strategy"] != "control") & (s["coverage"] == hi)]
+    if cand.empty:
+        return None
+    # the dose stage sweeps budget for one strategy: pick the one with most budgets
+    winner = cand.groupby("strategy")["budget"].nunique().idxmax()
+    w = (cand[cand["strategy"] == winner].groupby("budget")["peak_infected"]
+         .mean().sort_index())
+    if len(w) < 2:
+        return None  # no budget sweep present yet
+    ctrl = s[s["strategy"] == "control"]["peak_infected"].mean()
+    reduction = (ctrl - w.to_numpy()) / ctrl * 100.0
+    _style()
+    fig, ax = plt.subplots(figsize=(COL_W, 2.4))
+    ax.plot(w.index, reduction, "-o", color="#08519c", ms=4)
+    ax.set_xlabel("cities vaccinated (budget)")
+    ax.set_ylabel("peak reduction vs no\nvaccination (%)")
+    ax.set_ylim(0, max(5, reduction.max() * 1.15))
+    ax.set_title(f"How many cities? {_disease(anchor)}, "
+                 f"{winner} ({RUNG_LABEL[flagship]})")
+    out = pd.DataFrame({"budget": w.index, "peak": w.to_numpy(), "reduction_pct": reduction})
+    return _save(fig, "F8-dose-response", out)
+
+
+# --------------------------------------------------------------------------- #
 def build_all(anchor: str = "seir", echo=print) -> list[Path]:
     """Build every result figure whose backing table is present."""
     made: list[Path] = []
@@ -308,6 +351,8 @@ def build_all(anchor: str = "seir", echo=print) -> list[Path]:
         _try("Fstaged story", lambda: fig_staged_story(summary, anchor))
     if gap is not None:
         _try("F6b degree-vs-betweenness", lambda: fig_degbtw_gap(gap, anchor))
+    if summary is not None:
+        _try("F8 dose-response", lambda: fig_dose_response(summary, anchor))
     _try("F7 interdiction", lambda: fig_interdiction())
     return made
 

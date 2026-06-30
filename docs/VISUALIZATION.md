@@ -72,7 +72,7 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 1. **`results/index.html` — the whole study.**
    - Cross-region table: region · ρ(deg,btw) · # anomalous gateways (artifact 1).
    - One row per network linking to its folder.
-   - Europe-ladder strip: air → +land → +water (artifact 2).
+   - Europe-ladder strip: air → +water → +land (artifact 2).
 
 2. **`results/<region>/<combo>/index.html` — one network.**
    - The network itself (`network.html`) + Gephi export.
@@ -94,7 +94,7 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 | Artifact (EXPERIMENTS.md §5) | File | Notes |
 |------------------------------|------|-------|
 | 1 Cross-region structural table | `results/index.html` | ρ + gateways, 8 rows |
-| 2 Europe ladder structural | `results/index.html` strip + each net `structure.html` | how bridges change air→+land→+water |
+| 2 Europe ladder structural | `results/index.html` strip + each net `structure.html` | how bridges change air→+water→+land |
 | 3 Vaccination 4×3 panel | per-net `strategy_panel.html` | down=more realism, across=disease |
 | 4 ⭐ Animated geo-spread | `spread_geo.html` | per-node infection over days, play+slider |
 | 5 Air-interdiction triptych | `interdiction.html` (flagship) | A vs B vs C animated side by side |

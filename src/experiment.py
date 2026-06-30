@@ -68,6 +68,10 @@ class Protocol(BaseModel):
     )
     # Metric used to choose the best strategy (a summary key; lower is better).
     rank_by: str = "peak_infected"
+    # Stage 4 (dose-response): budgets (number of cities vaccinated) to sweep for
+    # the WINNING strategy on the flagship, answering "how many cities for a great
+    # reduction?". Empty list disables the stage.
+    budget_grid: list[int] = Field(default_factory=lambda: [5, 15, 30, 60, 120, 200])
 
 
 class NetworkSpec(BaseModel):

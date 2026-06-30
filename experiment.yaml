@@ -18,12 +18,14 @@
 #     OpenFlights data everywhere => differences reflect topology, not data);
 #   * air+land+water for EUROPE only -> the multilayer flagship, where ground
 #     and ferry flow data is dense enough to be defensible (validated vs
-#     Eurostat). Europe also gets the air and air+land rungs so the ladder
-#     (air -> +land -> +water) is an apples-to-apples comparison.
+#     Eurostat). Europe also gets the air and air+water rungs so the ladder
+#     (air -> +water -> +land) is an apples-to-apples comparison. Water is added
+#     BEFORE land: land coupling is so strong it swamps water's marginal effect,
+#     so we show water's contribution first, then land's.
 networks:
   # -- Europe ladder (same region, more realism each step) --
-  - {region: europe,   layers: [air, land, water]}   # 1 (flagship)
-  - {region: europe,   layers: [air, land]}          # 2
+  - {region: europe,   layers: [air, land, water]}   # 1 (flagship, full)
+  - {region: europe,   layers: [air, water]}         # 2  (+water)
   - {region: europe,   layers: [air]}                # 3  (shared pivot)
   # -- Cross-region spectrum (same layer everywhere, fair comparison) --
   - {region: americas, layers: [air]}                # 4
@@ -48,10 +50,14 @@ layer_sets: [[air]]
 protocol:
   mode: staged
   ladder_region: europe
-  rungs: [[air], [air, land], [air, land, water]]
-  anchor_disease: seir          # COVID-like; its winner is re-checked on the rest
+  rungs: [[air], [air, water], [air, land, water]]   # add water before land
+  anchor_disease: sir           # immunizing (measles); winner re-checked on the rest
   flagship: [air, land, water]
   rank_by: peak_infected        # best strategy = lowest peak (lower is better)
+  # Stage 4 dose-response: sweep the winning strategy's budget on the flagship to
+  # find how many cities are needed for a great reduction. 15 is included so it
+  # connects to the strategy comparison; the high end probes diminishing returns.
+  budget_grid: [5, 15, 30, 60, 120, 200]
 
 # --- Population proxy (fallback only) -----------------------------------------
 # Real GeoNames city populations are used for nodes; this proxy
@@ -60,20 +66,32 @@ population:
   p0: 150000
   p_route: 45000
 
-# --- Models: which to run and their parameters -------------------------------
-# Remove a model to skip it. SEIR needs `sigma`; SQIR needs `kappa` + `gamma_q`.
+# --- Disease types: literature-anchored, not generic --------------------------
+# Each entry is a disease TYPE keyed by its model, with parameters taken from a
+# real exemplar (see docs/paper-methodology/disease-types.md for every value +
+# source). beta is NOT generic: it is derived so the within-city reproduction
+# number equals the exemplar's literature R0, beta = R0 * gamma (and R0*(gamma+kappa)
+# for the isolation type). The engine + figures handle all five; we currently RUN
+# two -- the immunizing and endemic ends of the spectrum.
 models:
-  sir:  {beta: 0.32, gamma: 0.12}
-  sis:  {beta: 0.32, gamma: 0.12}
-  seir: {beta: 0.32, gamma: 0.12, sigma: 0.2}
-  sqir: {beta: 0.32, gamma: 0.12, kappa: 0.15, gamma_q: 0.1}
+  # Immunizing, acute (measles): gamma=0.13 (~8 d), R0~15  -> beta = 15 * 0.13
+  sir:  {beta: 1.95,  gamma: 0.13}
+  # Endemic, no immunity (gonorrhea): gamma~0.03 (long), R0~1.4 -> beta = 1.4 * 0.03
+  sis:  {beta: 0.042, gamma: 0.03}
+  # --- Other types, ready to enable (engine + figures already support them) ----
+  # Latent + immunizing (COVID): R0~2.7 -> beta = 2.7 * 0.13
+  # seir:   {beta: 0.35, gamma: 0.13, sigma: 0.20}
+  # Recurrent, waning (influenza): R0~1.5 -> beta = 1.5 * 0.21
+  # seirs:  {beta: 0.32, gamma: 0.21, sigma: 0.70, omega: 0.001}
+  # Lethal, isolation-controlled (Ebola): R0~2.0 -> beta = 2.0 * (gamma+kappa)
+  # seiqrd: {beta: 0.60, gamma: 0.10, sigma: 0.09, kappa: 0.20, gamma_q: 0.10, mu: 0.71}
 
 # --- Vaccination strategies --------------------------------------------------
 # Blueprint set (control, random, degree, betweenness) + subgraph (novelty).
 # kcore available in the registry but excluded to keep the grid focused.
 strategies: [control, random, degree, betweenness, subgraph]
 budgets:    [15]            # number of cities immunised
-coverages:  [0.01, 0.75]    # low vs high adherence (blueprint comparison)
+coverages:  [0.75]          # single operating coverage (coverage sweep dropped)
 efficacies: [0.85]
 
 # --- Sensitivity axes (for ranking-stability / operating-point analysis) -----
@@ -98,10 +116,14 @@ tau_by_layer: {air: 0.0002, land: 0.3, water: 0.0005}
 #   transit: {water: {speed_kmh: 40, beta: 0.3, control: 0.0},
 #             air:   {speed_kmh: 800, beta: 0.1, control: 0.0}}
 transit: null
-# Horizon = 210 days, chosen from the operating-point scan, NOT the blueprint's
-# model before its peak. 210 captures the peak and most of the decline for all
-# four under one uniform horizon (required for cross-model comparability).
-# Re-check with:  netsci evaluate operating-point --model seir --horizon 300
-horizons:    [210]
-seeds:       [0, 1, 2]      # patient-zero randomisation; results averaged over
+# Horizon = 1460 days (4 years), one uniform horizon for cross-disease
+# comparability. The acute type (measles) peaks and burns out in the first
+# ~few months, so the long tail is cheap flat S/R state; the endemic type
+# (gonorrhea, SIS) is slow (growth rate r = beta - gamma ~= 0.012/day) and needs
+# years to approach its endemic equilibrium, which a 210-day horizon never let
+# it reach. So peak active infections means the transient peak for acute types
+# and the (near-)equilibrium prevalence for endemic ones -- comparable, but read
+# with that in mind.
+horizons:    [1460]
+seeds:       [0]            # single seed (seeded in the giant component, so it takes off)
 seed_size:   2500           # initial infectious seed

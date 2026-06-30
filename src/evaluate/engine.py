@@ -36,7 +36,8 @@ ProgressFn = Callable[[int, dict[str, float]], None]
 #: called every N days with (absolute_day_index, per-node infectious array)
 NodeProgressFn = Callable[[int, "np.ndarray"], None]
 
-_RATE_FIELDS = ("beta", "gamma", "sigma", "kappa", "gamma_q", "omega")  # mu is a fraction, not a rate
+# mu is a fraction, not a rate, so it is excluded here
+_RATE_FIELDS = ("beta", "gamma", "sigma", "kappa", "gamma_q", "omega")
 _DEFAULT_LAND_COMMUTE = 0.3  # commuting participation fraction if land has no explicit rate
 
 # Default in-transit transmission per layer: trip duration = distance/speed, so
@@ -67,6 +68,15 @@ class SimResult:
 
 
 # --- mobility operators -----------------------------------------------------
+
+def _giant_component_indices(graph: nx.DiGraph, nodes: list[str]) -> np.ndarray:
+    """Indices (into ``nodes``) of the largest weakly-connected component. Used
+    to place the seed where the outbreak can reach the bulk of the population,
+    so sparse-layer fragmentation does not produce fizzled runs."""
+    idx = {n: k for k, n in enumerate(nodes)}
+    giant = max(nx.weakly_connected_components(graph), key=len)
+    return np.array(sorted(idx[n] for n in giant))
+
 
 def diffusion_rate(data: dict, sim: SimConfig) -> float:
     """Per-day relocation fraction of an edge from its air+water weights only
@@ -247,7 +257,11 @@ def simulate(
     tracked = [*model.compartments, VACCINATED]
 
     if init_state is None:
-        seed_node = int(rng.integers(len(nodes)))
+        # Seed inside the largest connected component so the outbreak can take
+        # off: sparse layers (ferries) fragment the network, and a seed dropped
+        # in an isolated pocket would fizzle, contaminating the mean.
+        giant = _giant_component_indices(graph, nodes)
+        seed_node = int(giant[rng.integers(len(giant))])
         state: State = model.init_state(population, seed_node, cfg.sim.seed_size)
         state[VACCINATED] = np.zeros_like(population, dtype=float)
 

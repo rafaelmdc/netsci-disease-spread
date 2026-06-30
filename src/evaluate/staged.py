@@ -71,14 +71,37 @@ def stage_recheck(master: ExperimentConfig, winner: StrategyName) -> ExperimentC
     )
 
 
+def stage_dose(master: ExperimentConfig, winner: StrategyName) -> ExperimentConfig:
+    """The winning strategy on the anchor disease at the flagship rung, swept
+    over budget (number of cities vaccinated) at the most adherent coverage.
+    Produces the dose-response curve: how many cities for a great reduction?"""
+    anchor = master.protocol.anchor_disease
+    flagship = NetworkSpec(
+        region=master.protocol.ladder_region, layers=list(master.protocol.flagship)
+    )
+    return master.model_copy(
+        update={
+            "networks_spec": [flagship],
+            "models": {anchor: master.models[anchor]},
+            "strategies": [StrategyName.CONTROL, winner],
+            "budgets": list(master.protocol.budget_grid),
+            "coverages": [max(master.coverages)],
+        }
+    )
+
+
 def staged_total(master: ExperimentConfig) -> int:
-    """Total runs the protocol will execute (the re-check count is the same
-    whichever strategy wins, so a placeholder winner gives the exact total)."""
-    return (
+    """Total runs the protocol will execute (the re-check and dose counts are the
+    same whichever strategy wins, so a placeholder winner gives the exact total)."""
+    placeholder = StrategyName.BETWEENNESS
+    total = (
         len(stage_spread(master).expand())
         + len(stage_vaccinate(master).expand())
-        + len(stage_recheck(master, StrategyName.BETWEENNESS).expand())
+        + len(stage_recheck(master, placeholder).expand())
     )
+    if master.protocol.budget_grid:
+        total += len(stage_dose(master, placeholder).expand())
+    return total
 
 
 def pick_winner(master: ExperimentConfig) -> tuple[StrategyName, pd.Series]:
@@ -128,5 +151,29 @@ def run_staged(
 
     echo(f"STAGE 3 - re-check: '{winner.value}' on the other diseases at the flagship")
     run_experiment(stage_recheck(master, winner), workers, maps, echo, on_run)
+    collect(write=True)
+
+    if master.protocol.budget_grid:
+        echo(f"STAGE 4 - dose: '{winner.value}' across budgets "
+             f"{master.protocol.budget_grid} on the flagship")
+        run_experiment(stage_dose(master, winner), workers, maps, echo, on_run)
+        collect(write=True)
+    return winner
+
+
+def run_dose(
+    master: ExperimentConfig,
+    workers: int = 4,
+    maps: bool = False,
+    echo: Echo = print,
+    on_run: OnRun | None = None,
+) -> StrategyName:
+    """Run only the dose-response stage, reusing the winner already chosen by an
+    earlier stage-2 (read from results/summary.parquet). For iterating on the
+    budget sweep without re-simulating stages 1-3."""
+    winner, _ = pick_winner(master)
+    echo(f"DOSE: '{winner.value}' across budgets {master.protocol.budget_grid} "
+         f"on the flagship")
+    run_experiment(stage_dose(master, winner), workers, maps, echo, on_run)
     collect(write=True)
     return winner

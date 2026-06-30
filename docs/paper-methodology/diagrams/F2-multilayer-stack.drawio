@@ -62,7 +62,7 @@
         <mxCell id="couplabel" value="dashed links: the same city&#10;shared across layers" style="text;html=1;fontSize=10;fontStyle=2;align=left;" vertex="1" parent="1">
           <mxGeometry x="30" y="300" width="150" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="ladder" value="Realism ladder: air, then air with land, then air with land and water" style="text;html=1;fontSize=11;fontStyle=2;align=center;" vertex="1" parent="1">
+        <mxCell id="ladder" value="Realism ladder: air, then air with water, then air with land and water" style="text;html=1;fontSize=11;fontStyle=2;align=center;" vertex="1" parent="1">
           <mxGeometry x="200" y="600" width="500" height="30" as="geometry" />
         </mxCell>
       </root>
