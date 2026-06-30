@@ -6,21 +6,40 @@
 % ===========================================================================
 \documentclass{sigkddExp}
 
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hyphens]{url}
+\usepackage{microtype}        % protrusion: tightens justification, kills most overfull boxes
+\graphicspath{{figures/}}
+
+% Let TeX stretch a little harder before declaring an overfull line.
+\setlength{\emergencystretch}{2em}
+
+% Emails are long single tokens that overflow the narrow author columns; render
+% them in normal roman and let them break at . and @ so they wrap in-column.
+\urlstyle{rm}
+
+% sigkddExp.cls invokes \addauthorsection from \thebibliography but never
+% defines it (used to list authors beyond the first three). We have no extra
+% authors, so make it a no-op to avoid an undefined-control-sequence crash.
+\providecommand{\addauthorsection}{}
+
 \begin{document}
 
 \title{How Do Different Diseases Spread, and How Can Network Science Help Us Protect Populations?}
 
-\numberofauthors{5}
+\numberofauthors{3}
 \author{
 \alignauthor Matilde Maria\\
        \affaddr{MSc Bioinformatics, 202509350}\\
-       \email{matildem.msousa@gmail.com}
+       \email{\url{matildem.msousa@gmail.com}}
 \alignauthor Lucas Caridade\\
        \affaddr{MSc Bioinformatics, 202509274}\\
-       \email{lucascaridade.work@gmail.com}
+       \email{\url{lucascaridade.work@gmail.com}}
 \alignauthor Rafael Correia\\
        \affaddr{MSc Bioinformatics, 202207367}\\
-       \email{rafaelmdcorreia@gmail.com}
+       \email{\url{rafaelmdcorreia@gmail.com}}
 }
 
 \date{\today}
@@ -42,5 +61,7 @@ abstract
 
 \bibliographystyle{abbrv}
 \bibliography{references}
+
+\input{appendix}
 
 \end{document}

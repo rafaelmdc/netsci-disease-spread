@@ -285,7 +285,7 @@
 % +++++++++++++++++++++++++++++++++++++++++++++
 % -- End of block B --
 
-\def\email#1{{{\eaddfnt{\vskip 4pt#1}}}}net
+\def\email#1{{{\eaddfnt{\vskip 4pt#1}}}}
 
 \newcount\savesection
 \newcount\sectioncntr

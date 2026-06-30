@@ -71,20 +71,19 @@ population:
 # real exemplar (see docs/paper-methodology/disease-types.md for every value +
 # source). beta is NOT generic: it is derived so the within-city reproduction
 # number equals the exemplar's literature R0, beta = R0 * gamma (and R0*(gamma+kappa)
-# for the isolation type). The engine + figures handle all five; we currently RUN
-# two -- the immunizing and endemic ends of the spectrum.
+# for the isolation type). All five are RUN (per-value sources in disease-types.md
+# / the paper's Appendix A).
 models:
   # Immunizing, acute (measles): gamma=0.13 (~8 d), R0~15  -> beta = 15 * 0.13
-  sir:  {beta: 1.95,  gamma: 0.13}
+  sir:    {beta: 1.95,  gamma: 0.13}
   # Endemic, no immunity (gonorrhea): gamma~0.03 (long), R0~1.4 -> beta = 1.4 * 0.03
-  sis:  {beta: 0.042, gamma: 0.03}
-  # --- Other types, ready to enable (engine + figures already support them) ----
+  sis:    {beta: 0.042, gamma: 0.03}
   # Latent + immunizing (COVID): R0~2.7 -> beta = 2.7 * 0.13
-  # seir:   {beta: 0.35, gamma: 0.13, sigma: 0.20}
+  seir:   {beta: 0.35,  gamma: 0.13, sigma: 0.20}
   # Recurrent, waning (influenza): R0~1.5 -> beta = 1.5 * 0.21
-  # seirs:  {beta: 0.32, gamma: 0.21, sigma: 0.70, omega: 0.001}
+  seirs:  {beta: 0.32,  gamma: 0.21, sigma: 0.70, omega: 0.001}
   # Lethal, isolation-controlled (Ebola): R0~2.0 -> beta = 2.0 * (gamma+kappa)
-  # seiqrd: {beta: 0.60, gamma: 0.10, sigma: 0.09, kappa: 0.20, gamma_q: 0.10, mu: 0.71}
+  seiqrd: {beta: 0.60,  gamma: 0.10, sigma: 0.09, kappa: 0.20, gamma_q: 0.10, mu: 0.71}
 
 # --- Vaccination strategies --------------------------------------------------
 # Blueprint set (control, random, degree, betweenness) + subgraph (novelty).

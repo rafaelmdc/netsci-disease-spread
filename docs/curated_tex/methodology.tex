@@ -1,118 +1,200 @@
 \section{Methodology}
-Our question is which protection strategy best contains an outbreak on the transport network
-that connects Europe, and whether the answer depends on the type of disease. Answering it
-fairly requires three components built in sequence: a transport network derived from open
-data (\ref{building the map}), a metapopulation epidemic engine that runs on it (\ref{running outbreak}), and a set
-of disease types and protection strategies evaluated on top (\ref{what to spread} and \ref{how to defend}). A
-single principle constrains every component: across any comparison, only the factor under
-study varies, while all other inputs are held fixed. The study is therefore comparative
-rather than predictive. We do not estimate how many people a real epidemic would infect; we
-quantify differences between scenarios (one strategy versus another, one disease type versus
-another) under identical conditions.
+Our question is how different types of disease spread across the transport network that
+connects Europe, and which network-science protection best contains them. Answering it fairly
+requires three components built in sequence: a transport network derived from open data
+(Section~\ref{sec:map}), a metapopulation epidemic engine that runs on it
+(Section~\ref{sec:outbreak}), and a set of disease types and protection strategies evaluated on
+top (Sections~\ref{sec:spread} and~\ref{sec:defend}). A single principle constrains every
+component: across any comparison, only the factor under study varies, while all other inputs
+are held fixed. The study is therefore comparative rather than predictive. We do not estimate
+how many people a real epidemic would infect; we quantify differences between scenarios (one
+strategy versus another, one disease type versus another) under identical conditions. The
+whole pipeline, from data retrieval through network generation to evaluation, is a single
+reproducible workflow (Figure~\ref{fig:pipeline}).
 
-\subsection{Building the map} \label{building the map}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.76\textwidth]{F1-pipeline.pdf}
+  \caption{Data and simulation pipeline. Open data sources are retrieved, assembled into
+  per-region multilayer networks, and evaluated by one engine. A single interactive simulator
+  drives the whole pipeline and can retrieve data and build networks, but is mainly used to
+  evaluate outbreaks.}
+  \label{fig:pipeline}
+\end{figure*}
+
+\subsection{Building the map} \label{sec:map}
 The substrate is a weighted graph $G=(V,E)$ in which nodes $v\in V$ are cities and edges
 $(i,j)\in E$ are travel routes carrying weight $w_{ij}$ proportional to traffic. We construct
-$G$ with NetworkX from four open sources: air routes from OpenFlights, city populations from
-GeoNames, road and rail topology from OpenStreetMap and GRIP, and ferry routes from
-OpenStreetMap. Region is a parameter of construction, which is what allows us to hold the
+$G$ with NetworkX~\cite{hagberg:networkx} from four open sources: air routes from
+OpenFlights~\cite{openflights}, city populations from GeoNames, road and rail topology from
+OpenStreetMap and GRIP~\cite{meijer:grip}, and ferry routes from OpenStreetMap. Region is a parameter of construction, which is what allows us to hold the
 construction \textbf{method} fixed while varying only geography.
 
 Because a single air layer misrepresents how an epidemic actually propagates, the same node
 set carries up to three layers, air, land, and water, combined into one shared-node multilayer
-network (Figure 2). Edge weights are layer-specific and serve as passenger-volume proxies, but
-they come from different recipes according to what data exists. Air weights are real route
-frequencies from OpenFlights, and water weights are real ferry-route frequencies counted per
-city pair from an OpenStreetMap ferry dump. That dump is filtered to passenger-carrying
-services (OSM tag `passenger` not equal to `no`) whose endpoints are at least 5 km apart: the
-first filter removes freight-only crossings, since the model concerns human movement, and the
-distance threshold discards short river and canal crossings while retaining genuine straits
-and sea ferries that connect distinct cities. Land has no comparably uniform relatively easy to flow data across
-regions, so its weights are instead modelled with a radiation kernel
-$K_{ij} = \mathrm{flux}_{ij}/\mathrm{pop}_i$ (Simini et al., 2012) computed from city
-populations. The constraint we impose for fairness is not that all layers share one recipe,
-but that each layer is built by a single method applied identically to every region
+network (Figure~\ref{fig:stack}). Edge weights are layer-specific and serve as passenger-volume
+proxies, but they come from different recipes according to what data exists. Air weights are
+real route frequencies from OpenFlights, and water weights are real ferry-route frequencies
+counted per city pair from an OpenStreetMap ferry dump. That dump is filtered to
+passenger-carrying services (OSM tag \texttt{passenger} not equal to \texttt{no}) whose
+endpoints are at least 5~km apart: the first filter removes freight-only crossings, since the
+model concerns human movement, and the distance threshold discards short river and canal
+crossings while retaining genuine straits and sea ferries that connect distinct cities. Land
+has no comparably uniform cross-region flow data, so its weights are instead modelled with a
+radiation kernel $K_{ij} = \mathrm{flux}_{ij}/\mathrm{pop}_i$~\cite{simini:radiation} computed
+from city populations. The constraint we impose for fairness is not that all layers share one
+recipe, but that each layer is built by a single method applied identically to every region
 (OpenFlights for air, the same global ferry dump for water, the radiation kernel for land), so
 that differences between regions reflect topology rather than the underlying data source;
 European commuting data (Eurostat) is reserved for validating the land kernel within Europe,
 not for parameterising any region. Node populations $N_i$ are taken from GeoNames where
 available, with a degree-based proxy $N_i = P_0 + d(i)\,P_\mathrm{route}$ as a fallback.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{F2-multilayer-stack.pdf}
+  \caption{Shared-node multilayer substrate. Each city is one shared node present on every layer
+  it uses (vertical dashed links); solid links are routes on that layer, drawn only where a route
+  exists (not all-to-all). Air and water couple cities by diffusive relocation, land by recurrent
+  commuting; the realism ladder adds water, then land.}
+  \label{fig:stack}
+\end{figure}
 
-\subsection{Running an outbreak on the map} \label{running outbreak}
-
+\subsection{Running an outbreak on the map} \label{sec:outbreak}
 Each city runs a compartmental model internally, while individuals move between cities along
-the edges of $G$ once per day. This is a metapopulation reaction–diffusion process (Colizza
-et al., 2007): a local \textbf{reaction} updates the compartments within each city, and a \textbf{mobility}
-step couples cities through the network. Within city $i$ the force of infection is
-$\lambda_i = \beta\, I_i / N_i$, and a daily step applies the reaction to every city and then
-the mobility coupling before advancing to the next day.
+the edges of $G$ once per day. This is a metapopulation reaction--diffusion process~\cite{colizza:reactiondiffusion}:
+a local \textbf{reaction} updates the compartments within each city, and a
+\textbf{mobility} step couples cities through the network. Within city $i$ the force of
+infection is $\lambda_i = \beta\, I_i / N_i$, and a daily step applies the reaction to every
+city and then the mobility coupling before advancing to the next day.
 
 The mobility step is where the multilayer map earns its keep. Treating all travel as a single
-diffusive process is a known source of error (Balcan \& Vespignani, 2011), so the engine
-implements two mechanisms matched to the layers:
+diffusive process is a known source of error~\cite{balcan:recurrent}, so the engine
+implements the two mechanisms matched to the physics of the layers, and we commit to this pair
+rather than collapsing them into one:
 
 \begin{itemize}
-    \item \textbf{Diffusive mobility (air, water).} A fraction of each compartment leaves city $i$ for
-  neighbour $j$ each day, proportional to the layer travel rate $\tau_\ell$ and the normalised
-  edge weight $w_{ij}$, and mixes into the destination population. This is the standard
-  reaction–diffusion coupling and carries a global invasion threshold in mobility rate
-  (Colizza \& Vespignani, 2008).
+  \item \textbf{Diffusive mobility (air, water).} A fraction of each compartment leaves city $i$
+  for neighbour $j$ each day, proportional to the layer travel rate $\tau_\ell$ and the
+  normalised edge weight $w_{ij}$, and mixes into the destination population. This is the
+  standard reaction--diffusion coupling and carries a global invasion threshold in mobility
+  rate~\cite{colizza:invasion}.
 
-  \item \textbf{Recurrent mobility (land, commuting).} Commuters travel to a neighbour by day, mix
-  there, and return home at night, so they are not relocated. We model this by coupling the
+  \item \textbf{Recurrent mobility (land, commuting).} Commuters travel to a neighbour by day,
+  mix there, and return home at night, so they are not relocated. We model this by coupling the
   force of infection rather than moving population: residents of $i$ experience
-  $\pi_i = \sum_j C_{ij}\, I^{*}_j / N^{*}_j$, where $C$ is the per-capita commuting matrix
-  (the land kernel with a stay-home diagonal) and $I^{*}_j = \sum_i C_{ij} I_i$,
-  $N^{*}_j = \sum_i C_{ij} N_i$ are the infectious and total people present at $j$. When no
-  land layer is present $C$ is the identity and $\pi_i = I_i/N_i$, recovering the plain
-  diffusive model.
+  $\pi_i = \sum_j C_{ij}\, I^{*}_j / N^{*}_j$, where $C$ is the per-capita commuting matrix (the
+  land kernel with a stay-home diagonal) and $I^{*}_j,\,N^{*}_j$ are the infectious and total
+  people present at $j$. When no land layer is present $C$ is the identity and
+  $\pi_i = I_i/N_i$, recovering the plain diffusive model.
 \end{itemize}
 
-The two mechanisms are distinct in principle: diffusive travel relocates individuals between cities, whereas recurrent commuting returns them to their home city after each day. Recurrent coupling is therefore the more appropriate representation of daily commuting behaviour.
+The distinction is not cosmetic: diffusive travel relocates individuals between cities, whereas
+recurrent commuting returns them home after each day, which couples neighbouring cities far more
+tightly. The two layers we add to air therefore play opposite roles: water spreads the outbreak
+diffusively to new coastal cities, while land synchronises whole regions through commuting. An
+optional extension lets transmission occur during travel by applying the reaction dynamics to
+travellers for the duration of a journey, an effect most relevant for long ferry crossings; it
+is disabled in the runs reported here.
 
-To assess the impact of this modelling choice, we compared both mechanisms on the European air+land network (SIR with $\beta=0.32$, $\gamma=0.12$; air travel rate 0.0002; land commuting rate 0.3; seed size 2500; 210 days; averaged over seeds 0--2). The resulting epidemic trajectories were very similar, with peak active infection of approximately 71 million under recurrent mobility and 73 million under diffusive mobility. This similarity arises because the air layer already synchronises much of the network. Larger differences appear when the air layer is removed or on controlled chain networks, where diffusion produces earlier and higher peaks, although the effect remains below approximately 20%.
-
-We therefore adopt recurrent mobility on modelling grounds rather than because it substantially changes outcomes in the baseline scenario. As a validation check, both approaches produce peak prevalence slightly below the theoretical peak expected for a fully synchronised SIR epidemic at this reproduction number (approximately 26\% of the population), indicating that the engine behaves within expectations.
-
-Additionally, an optional extension allows transmission to occur during travel by applying the reaction dynamics to travellers for the duration of a journey. This effect is expected to be most relevant for long ferry crossings.
-
-
-\subsection{Choosing what to spread} \label{what to spread}
+\subsection{Choosing what to spread} \label{sec:spread}
 The engine runs whichever compartmental model it is given, which makes the choice of diseases
 the substantive decision. Rather than commit to named pathogens, whose exact parameters are
-endlessly contestable, we test five disease \textbf{types}, each defined by its dynamical structure
-and parameterised from one representative exemplar using values drawn entirely from the
-literature (Table 1). The five types span the qualitative behaviours relevant to the question:
-an immunizing acute epidemic (SIR), an infection with a latent period (SEIR), a lethal
-infection controllable by isolation (SEIQR with a fatal compartment), an endemic infection
-conferring no immunity (SIS), and a recurrent infection with waning immunity (SEIRS). Each
-type adds one mechanism relative to the previous, so a difference in outcome is attributable
-to that mechanism rather than to several simultaneous changes.
+endlessly contestable, we define five disease \textbf{types}, each fixed by its dynamical
+structure and parameterised from one representative exemplar using values drawn entirely from
+the literature (Table~\ref{tab:archetypes}). The five span the qualitative behaviours relevant
+to the question: an immunizing acute epidemic (SIR), an infection with a latent period (SEIR), a
+lethal infection controllable by isolation (SEIQRD), an endemic infection conferring no immunity
+(SIS), and a recurrent infection with waning immunity (SEIRS). Each type adds one mechanism
+relative to a simpler one, so a difference in outcome is attributable to that mechanism rather
+than to several simultaneous changes. We run all five, spanning the spectrum from the highly
+transmissible immunizing type (measles-like, SIR) to the slow endemic type (gonorrhea-like, SIS),
+with the latent (COVID-like, SEIR), lethal-isolation (Ebola-like, SEIQRD), and waning-immunity
+(influenza-like, SEIRS) types in between.
 
-**Table 1: Disease types, models, and parameters.**
+\input{figures/T1-disease-archetypes}
 
-INSERT GO TO APPENDIX X TO SEE SOURCES
-
-\subsection{Choosing how to defend} \label{how to defend}
+\subsection{Choosing how to defend} \label{sec:defend}
 With the disease types fixed, the remaining variable is the intervention, and the network
-structure of Section 3.1 defines the available choices, because each intervention is a
-decision about which structural elements to remove. Under a fixed budget we compare two modes.
-The first is node targeting (vaccination): a fixed number of cities are rendered immune so
-that they no longer transmit. The targeting rule is the object of study, and we compare no
-intervention (control), random selection, selection by degree (the highest-traffic cities),
-selection by betweenness (the structural bridges), and a structural rule based on $k$-core and
-motif membership rather than raw connectivity (Kitsak et al., 2010). We additionally vary
-coverage between low and high adherence. The second mode is edge targeting (interdiction): we
-close routes rather than immunise cities, in four scenarios: (A) no intervention; (B) close
-all air routes while retaining land and water; (C) close all air routes within an air-only
-model; and (D) close only the top-$k$ routes ranked by degree versus by betweenness.
-Scenarios B and C exist specifically to contrast the conclusion a single-layer model reaches
-with the behaviour of the full multilayer network.
+structure of Section~\ref{sec:map} defines the available choices, because each intervention is a
+decision about which structural elements to remove. We compare two modes. The first is node
+targeting (vaccination): a number of cities are rendered immune so that they no longer transmit.
+The targeting rule is the object of study, and at a fixed budget we compare no intervention
+(control), random selection, selection by degree (the highest-traffic cities), selection by
+betweenness (the structural bridges), and a structural rule based on $k$-core and motif
+membership rather than raw connectivity~\cite{kitsak:spreaders}. Having identified the most
+effective rule, we then sweep the budget itself, from a handful of cities to a few hundred, to
+trace the dose--response: how many cities must be vaccinated before the outbreak is substantially
+contained, and where the returns begin to diminish. Coverage and per-city efficacy are held
+fixed throughout, so that the budget and the targeting rule are the only things that vary.
 
-\subsection{Implementation and reproducibility} \label{implementation and reproducibility}
-The study was implemented in Python using NumPy and NetworkX. The framework comprises three modules: data retrieval, network generation, and epidemic evaluation. Simulations are fully determined by their configuration and random seed, ensuring reproducibility across runs.
+The second mode is edge targeting (interdiction): we close routes rather than immunise cities,
+in four scenarios: (A) no intervention; (B) close all air routes while retaining land and water;
+(C) close all air routes within an air-only model; and (D) close only the top-$k$ routes ranked
+by degree versus by betweenness. Scenarios B and C exist specifically to contrast the conclusion
+a single-layer model reaches with the behaviour of the full multilayer network. The two modes
+are evaluated as distinct levers, not stacked, so each is read in the same currency: containment
+per unit of a fixed budget.
 
-Most experiments were conducted through an interactive web-based simulator developed as part of the project. The simulator allows users to configure outbreak scenarios and observe epidemic progression through live epidemic curves and geographic visualisations, making it suitable both for experimentation and demonstration. A batch execution mode was also retained for running larger parameter sweeps and repeated trials.
+\subsection{Parameters and protocol} \label{sec:params}
+Each disease type fixes its own clinical rates from the literature (Table~\ref{tab:archetypes}):
+the recovery rate $\gamma$, and where present the incubation rate $\sigma$, isolation rate
+$\kappa$, and waning rate $\omega$, each the reciprocal of a measured duration. We then set the
+transmission rate $\beta$ so that the within-city basic reproduction number matches that type's
+literature $R_0$. Because each city is well mixed internally, that local number is $\beta/\gamma$
+for SIR, SIS, and SEIR, and $\beta/(\gamma+\kappa)$ for the isolation type, where isolation
+shortens the infectious period. Worked through for the two extreme types, this gives the
+immunizing type (measles) $\gamma=0.13$, $R_0\approx15$, hence $\beta=1.95$; and the endemic type
+(gonorrhea) a long infectious duration $\gamma\approx0.03$ with $R_0\approx1.4$, hence
+$\beta\approx0.042$; the remaining three (COVID, Ebola, influenza) follow the same rule. We
+deliberately do not apply a degree-based $\langle k^2\rangle/\langle k\rangle$ correction: that
+adjustment is for networks whose nodes are individuals, whereas here nodes are well-mixed cities.
+Every rate and $R_0$ traces to a specific study; Appendix~\ref{app:sources} gives the measured
+quantity, a paraphrase of the source, and the citation for each value.
 
-Both interfaces use the same epidemic engine, configuration system, and output pipeline, ensuring that results are consistent regardless of how simulations are launched. The overall system architecture is shown in Figure x.
+We do not calibrate to outbreak data, because the transport network carries no ground-truth
+epidemic to fit, so absolute incidence is illustrative rather than predictive. Every run is
+seeded inside the largest connected component of the substrate. Adding the sparser layers
+(ferries especially) brings in coastal cities that sit in small disconnected pockets, and a seed
+dropped in such a pocket cannot reach the mainland, so the outbreak fizzles; mixing those fizzles
+with full epidemics under one average would conflate two different questions, whether an outbreak
+takes off and how large it grows. We therefore remove the first by always seeding where the
+outbreak can spread, and measure the second. A single uniform horizon of $1460$ days (four years)
+is used for cross-disease comparability: the acute type peaks and burns out within months, while
+the endemic type is slow and needs years to approach its equilibrium, which a short horizon never
+lets it reach. Across any comparison the only inputs that change are the disease type, the
+protection strategy, and the layer set. We report final epidemic size, peak active infection, and
+peak day, and we verify the engine against analytic limits, namely single-node dynamics and the
+final-size correspondence between SIR and bond percolation~\cite{newman:spread}.
+
+These pieces are assembled into a single staged protocol (Figure~\ref{fig:protocol}), walked one
+factor at a time rather than as a full grid. We first run each disease with no intervention to
+see how it \emph{spreads}; we then \emph{vaccinate}, comparing the targeting rules at a fixed
+budget and keeping the best; we \emph{re-check} that winner on the other disease type to see
+whether it generalises; and we trace the \emph{dose}--response by sweeping the winner's budget.
+Route \emph{interdiction} is evaluated as the separate edge-targeting lever. Every phase is run up
+the realism ladder (air, then $+$water, then $+$land), so each result can be read against both the
+disease axis and the realism axis.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.9\textwidth]{F3-protocol.pdf}
+  \caption{Experimental protocol. From one multilayer network the study splits into two
+  protection levers. Node targeting (vaccination) is walked one factor at a time: spread, then
+  vaccinate (keep the best targeting rule), then re-check that winner on the other diseases, then
+  sweep its budget (dose). Edge targeting (interdiction) progressively closes routes (air, then
+  ferries). Both levers are run for all five disease types, each up the realism ladder
+  air $\rightarrow$ $+$water $\rightarrow$ $+$land.}
+  \label{fig:protocol}
+\end{figure*}
+
+\subsection{Implementation and reproducibility} \label{sec:impl}
+The study is a single Python codebase (NumPy and NetworkX) organised as three modules, data
+retrieval, network generation, and epidemic evaluation, over one shared engine (the system
+architecture is given in Appendix~\ref{app:arch}). The interface is an interactive web-based
+simulator that configures an outbreak and streams its progression as live epidemic curves and
+geographic maps, suitable for both experimentation and demonstration; the same engine and
+configuration system are driven programmatically to run the staged protocol over many
+configurations. Either way the engine, configuration, and output pipeline are identical, so
+results do not depend on how a simulation is launched, and every run is fully determined by its
+configuration and random seed.

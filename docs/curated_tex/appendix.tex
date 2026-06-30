@@ -1,0 +1,61 @@
+\appendix
+\section{Disease parameter sources}
+\label{app:sources}
+
+Every parameter value is taken from the literature, not tuned. Each clinical rate is the
+reciprocal of a measured duration of the exemplar disease ($\mathrm{rate}=1/\mathrm{duration}$);
+each basic reproduction number $R_0$ comes from a separate epidemiological study; and the
+transmission rate $\beta$ is derived from both, $\beta=R_0\gamma$ (or $\beta=R_0(\gamma+\kappa)$
+for the isolation type). Table~\ref{tab:sources} gives the source for every value. Notably,
+measles and Ebola have similar infectious periods ($\sim$8--10~d) yet $R_0$ differs roughly
+sevenfold ($\approx$15 vs $\approx$2): the infectious period does not set $R_0$; together with
+$\beta$ it produces it.
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\caption{Source for every disease-type parameter. Rates are per day. All five types are run,
+spanning the immunizing (measles) to the endemic (gonorrhea) ends of the spectrum.}
+\label{tab:sources}
+\begin{tabular}{@{}llll>{\raggedright\arraybackslash}p{7.4cm}@{}}
+\toprule
+Disease (model) & Value & Measured quantity & Source (paraphrased) \\
+\midrule
+Measles (SIR) & $\gamma=0.13$ & infectious $\sim$8~d & contagious 4~d before to 4~d after rash~\cite{cdc:measles} \\
+              & $R_0=12$--$18$ & $R_0$ & ``often cited to be 12--18'' (review of 58 estimates)~\cite{guerra:measles} \\
+              & $\omega=0$ & immunity & natural infection confers life-long immunity~\cite{cdc:measles} \\
+\addlinespace
+COVID (SEIR) & $\sigma=0.20$ & incubation 5.1~d & ``mean incubation period 5.1 days (95\% CI 4.5--5.8)''~\cite{lauer:incubation} \\
+             & $\gamma=0.13$ & infectious $\sim$1~wk & infectiousness peaks near onset, low by $\sim$7~d~\cite{he:shedding} \\
+             & $R_0=2$--$3.3$ & $R_0$ & ``pooled $R_0$ 3.32 (95\% CI 2.81--3.82)''~\cite{alimohamadi:covidr0} \\
+\addlinespace
+Ebola (SEIQRD) & $\sigma=0.09$ & incubation 11.4~d & ``incubation period was 11.4 days''~\cite{whoebola2014} \\
+               & $\gamma,\kappa$ struct. & onset$\rightarrow$hospital $\sim$5~d & SEIHFR; community / hospital / burial transmission~\cite{legrand:ebola} \\
+               & $\mu=0.71$ & case-fatality & ``case fatality rate 70.8\% (95\% CI 69--73)''~\cite{whoebola2014} \\
+               & $R_0=1.5$--$2.5$ & $R_0$ (SEIR fit) & 1.51 Guinea, 2.53 Sierra Leone, 1.59 Liberia~\cite{althaus:ebolar0} \\
+\addlinespace
+Gonorrhea (SIS) & SIS, $\omega=\infty$ & immunity, latency & ``negligible protective immunity, negligible latent period''~\cite{hethcote:gonorrhea} \\
+                & $\gamma\approx0.03$ & untreated duration & median untreated pharyngeal gonorrhea $\approx$16 weeks~\cite{barbee:gonorrhea} \\
+\addlinespace
+Influenza (SEIRS) & $\sigma=0.70$ & incubation 1.4~d & ``median incubation period for influenza A 1.4 days''~\cite{lessler:incubation} \\
+                  & $\gamma=0.21$ & shedding 4.8~d & ``viral shedding averaged 4.80 days (95\% CI 4.31--5.29)''~\cite{carrat:influenza} \\
+                  & $\omega\approx0.001$ & immunity & influenza A immunity wanes in 2--7~yr via antigenic drift~\cite{woolthuis:influenza} \\
+                  & $R_0=1.3$--$1.8$ & $R_0$ (review) & median $R\approx1.80$ for the 1918 pandemic (IQR 1.47--2.27)~\cite{biggerstaff:influenzar0} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Implementation architecture}
+\label{app:arch}
+
+The interactive simulator and the programmatic staged-protocol runs share one engine,
+configuration system, and results pipeline (Figure~\ref{fig:arch}), so the demonstration and the
+study cannot drift apart. (This figure is a working schematic and will be refined.)
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{F5-architecture.pdf}
+  \caption{System architecture: one shared engine behind the interactive simulator and the
+  programmatic runs, writing to a common results pipeline.}
+  \label{fig:arch}
+\end{figure}
