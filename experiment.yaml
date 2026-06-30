@@ -36,6 +36,23 @@ networks:
 regions:    [europe]
 layer_sets: [[air]]
 
+# --- Protocol: how we walk the grid ------------------------------------------
+# `factorial` crosses every axis at once (the full ~864-run grid). `staged` is
+# the smaller, sequential coordinate descent down the Europe realism ladder
+# (~140 runs), implemented in src/evaluate/staged.py:
+#   1 spread     every disease x rung, control only
+#   2 vaccinate  the anchor disease x every strategy x rung  (results pick a winner)
+#   3 re-check   the winning strategy on the OTHER diseases at the flagship rung
+# The cross-region networks above are still BUILT (for the topology-only region
+# spectrum) but get no epidemic runs -- the funnel: wide=structure, deep=Europe.
+protocol:
+  mode: staged
+  ladder_region: europe
+  rungs: [[air], [air, land], [air, land, water]]
+  anchor_disease: seir          # COVID-like; its winner is re-checked on the rest
+  flagship: [air, land, water]
+  rank_by: peak_infected        # best strategy = lowest peak (lower is better)
+
 # --- Population proxy (fallback only) -----------------------------------------
 # Real GeoNames city populations are used for nodes; this proxy
 # pop(v)=p0+degree(v)*p_route only fills any node lacking a real population.
@@ -62,11 +79,17 @@ efficacies: [0.85]
 # --- Sensitivity axes (for ranking-stability / operating-point analysis) -----
 beta_scales: [1.0]          # multiplies every model's beta (R0 sensitivity)
 taus:        [0.0002]       # base/global travel rate (used for air-only runs)
-# Per-layer mobility rates for MULTIMODAL runs. air/water are diffusive
-# (relocation); land is recurrent commuting (its rate = commuting fraction).
-# Leave null for air-only. Example for [air, land, water]:
-#   tau_by_layer: {air: 0.0002, land: 0.3, water: 0.0005}
-tau_by_layer: null
+# --- Mobility coupling: the two we commit to ---------------------------------
+# The engine can express several couplings; for this study we deliberately
+# commit to TWO, the pair that the methodology builds on:
+#   * DIFFUSIVE relocation (air, water): a fraction of every compartment moves
+#     to the destination city and mixes there.
+#   * RECURRENT commuting (land): residents commute, mix, and return home, so
+#     land couples the force of infection rather than relocating people.
+# Air-only networks are therefore purely diffusive; the multimodal network adds
+# the recurrent land coupling. We set both rates explicitly (rather than leaving
+# them implicit) so the choice is on the record:
+tau_by_layer: {air: 0.0002, land: 0.3, water: 0.0005}
 # Optional in-transit transmission (refinement axis). null => transmission only
 # at cities. When set, travellers undergo the full model dynamics during the
 # trip (duration = distance/speed, so ferries dominate). `control` in [0,1] is

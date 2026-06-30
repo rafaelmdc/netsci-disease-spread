@@ -4,6 +4,8 @@ networks are actually built so the form only offers runnable scenarios."""
 from __future__ import annotations
 
 from src.config import (
+    GroundBy,
+    InterdictionConfig,
     Layer,
     ModelConfig,
     ModelName,
@@ -130,7 +132,32 @@ def build_study_config(form) -> dict:
     all_layers = {layer for net in networks for layer in net["layers"]}
     if all_layers & {"land", "water"}:
         cfg["tau_by_layer"] = {"air": 0.0002, "land": 0.3, "water": 0.0005}
+
+    # Staged ('greedy with re-check') protocol: the selected networks become the
+    # realism ladder (rungs); the largest is the flagship for the re-check.
+    if form.get("mode") == "staged":
+        rungs = [net["layers"] for net in networks]
+        cfg["protocol"] = {
+            "mode": "staged",
+            "ladder_region": region,
+            "rungs": rungs,
+            "anchor_disease": form.get("anchor") or models_sel[0],
+            "flagship": max(rungs, key=len),
+            "rank_by": "peak_infected",
+        }
     return cfg
+
+
+def _interdiction(form) -> InterdictionConfig | None:
+    """Edge-level intervention from the form: ticked layers to close + an
+    optional top-k airport grounding. None when nothing is selected."""
+    close = [Layer(name) for name in ("air", "land", "water") if form.get(f"close_{name}")]
+    k = _i(form, "ground_k", 0)
+    if not close and k <= 0:
+        return None
+    return InterdictionConfig(
+        close_layers=close, ground_top_k=k, ground_by=GroundBy(form.get("ground_by", "degree"))
+    )
 
 
 def parse_run_form(form: dict) -> RunConfig:
@@ -168,4 +195,5 @@ def parse_run_form(form: dict) -> RunConfig:
             seed=_i(form, "seed", 0),
             steps_per_day=_i(form, "steps_per_day", 1),
         ),
+        interdiction=_interdiction(form),
     )

@@ -1,53 +1,53 @@
 <mxfile host="app.diagrams.net" type="device">
-  <diagram id="F1pipeline" name="F1 — Pipeline overview">
+  <diagram id="F1pipeline" name="F1 Pipeline overview">
     <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="600" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <mxCell id="title" value="Reproducible three-module pipeline" style="text;html=1;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="title" value="Data and simulation pipeline" style="text;html=1;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="360" y="10" width="380" height="30" as="geometry" />
         </mxCell>
 
         <!-- Data sources -->
-        <mxCell id="src" value="Data sources&#10;• OpenFlights (air routes)&#10;• GeoNames (city populations)&#10;• OSM + GRIP (land topology)&#10;• OSM ferries / cargo (water)" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+        <mxCell id="src" value="Open data sources&#10;Flight routes (OpenFlights)&#10;Populations (GeoNames)&#10;Road &amp; rail (OSM, GRIP)&#10;Ferries (OSM)" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
           <mxGeometry x="40" y="200" width="200" height="140" as="geometry" />
         </mxCell>
 
         <!-- Module 1 -->
-        <mxCell id="m1" value="MODULE 1 — retrieve&#10;&#10;pull raw data per layer&#10;(openflights · geonames · ferries)" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <mxCell id="m1" value="1. Data retrieval&#10;&#10;fetch and standardise&#10;each transport layer" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="300" y="200" width="200" height="140" as="geometry" />
         </mxCell>
 
         <!-- Module 2 -->
-        <mxCell id="m2" value="MODULE 2 — netgen&#10;&#10;standardise layers →&#10;emit each (region × layer-set)&#10;as GraphML&#10;&#10;ONE uniform recipe / region" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+        <mxCell id="m2" value="2. Network generation&#10;&#10;build each region and&#10;layer-set network&#10;&#10;(one construction recipe&#10;for every region)" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="560" y="200" width="200" height="140" as="geometry" />
         </mxCell>
 
         <!-- Module 3 -->
-        <mxCell id="m3" value="MODULE 3 — evaluate&#10;&#10;• models  SIR/SIS/SEIR/SQIR&#10;• strategies (vaccination)&#10;• interdiction  (close routes)&#10;• metrics  ρ(deg,btw), gateways&#10;• aggregate → tables" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+        <mxCell id="m3" value="3. Evaluation&#10;&#10;epidemic models&#10;interventions:&#10;  vaccination, interdiction&#10;network metrics&#10;aggregation" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
           <mxGeometry x="820" y="190" width="220" height="160" as="geometry" />
         </mxCell>
 
         <!-- Artifact stores -->
-        <mxCell id="raw" value="data/raw/" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="raw" value="Raw data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry x="335" y="400" width="120" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="proc" value="data/processed/&#10;&lt;region&gt;/&lt;combo&gt;.graphml" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="proc" value="Networks&#10;(GraphML)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry x="585" y="400" width="150" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="res" value="results/&#10;summary · strategy_gap ·&#10;structure · figures · site" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="res" value="Results&#10;(tables, figures)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=14;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
           <mxGeometry x="855" y="400" width="160" height="70" as="geometry" />
         </mxCell>
 
         <!-- Entry points -->
-        <mxCell id="nf" value="Nextflow (batch sweep)" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+        <mxCell id="nf" value="Batch sweep" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
           <mxGeometry x="300" y="90" width="220" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="dash" value="Dashboard (FastAPI, live day-by-day)" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+        <mxCell id="dash" value="Interactive simulator" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
           <mxGeometry x="560" y="90" width="280" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="entrynote" value="two entry points → same engine → same results/" style="text;html=1;fontSize=11;fontStyle=2;align=center;" vertex="1" parent="1">
+        <mxCell id="entrynote" value="both paths use the same engine" style="text;html=1;fontSize=11;fontStyle=2;align=center;" vertex="1" parent="1">
           <mxGeometry x="350" y="135" width="400" height="20" as="geometry" />
         </mxCell>
 
@@ -55,10 +55,10 @@
         <mxCell id="e0" style="endArrow=block;html=1;strokeColor=#666666;" edge="1" parent="1" source="src" target="m1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e1" value="raw dumps" style="endArrow=block;html=1;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="m1" target="m2">
+        <mxCell id="e1" value="raw data" style="endArrow=block;html=1;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="m1" target="m2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" value="GraphML" style="endArrow=block;html=1;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="m2" target="m3">
+        <mxCell id="e2" value="networks" style="endArrow=block;html=1;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="m2" target="m3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e3" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="m1" target="raw">

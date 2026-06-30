@@ -30,6 +30,28 @@ def test_parse_run_form_seir_includes_sigma():
     assert cfg.model.params.sigma == 0.25
 
 
+def test_parse_run_form_interdiction():
+    from src.config import GroundBy, Layer
+    from src.dashboard.forms import parse_run_form
+
+    cfg = parse_run_form({
+        "region": "europe", "layers": ["air"], "model": "sir", "beta": "0.4", "gamma": "0.1",
+        "close_water": "on", "ground_k": "10", "ground_by": "betweenness",
+    })
+    ic = cfg.interdiction
+    assert ic is not None
+    assert ic.close_layers == [Layer.WATER]
+    assert ic.ground_top_k == 10 and ic.ground_by is GroundBy.BETWEENNESS
+
+
+def test_parse_run_form_no_interdiction_by_default():
+    from src.dashboard.forms import parse_run_form
+
+    cfg = parse_run_form({"region": "europe", "layers": ["air"], "model": "sir",
+                          "beta": "0.4", "gamma": "0.1"})
+    assert cfg.interdiction is None
+
+
 def test_job_ledger_lifecycle(tmp_path, monkeypatch):
     from src.dashboard import jobs
 

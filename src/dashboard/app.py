@@ -252,18 +252,25 @@ async def study_run(request: Request):
                          f"built — build it on the Data page first.",
             }, status_code=400)
 
-    n_runs = len(exp.expand())
+    staged = cfg.get("protocol", {}).get("mode") == "staged"
+    if staged:
+        from src.evaluate.staged import staged_total
+        n_runs = staged_total(exp)
+    else:
+        n_runs = len(exp.expand())
     maps = form.get("maps") == "on"
 
     studies = ensure_dir(RESULTS / "studies")
     region = cfg["networks"][0]["region"]
     n_nets = len(cfg["networks"])
     nets_label = f"{n_nets} networks" if n_nets > 1 else combo_name(cfg["networks"][0]["layers"])
-    title = f"{region} · {nets_label} · {n_runs} runs"
+    kind = "staged" if staged else "grid"
+    title = f"{region} · {nets_label} · {kind} · {n_runs} runs"
     job_id = jobs.create_job("study", title)
     config_path = studies / f"{job_id}.yaml"
     config_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
-    await app.state.arq.enqueue_job("run_study", job_id, str(config_path), maps)
+    worker_fn = "run_staged_study" if staged else "run_study"
+    await app.state.arq.enqueue_job(worker_fn, job_id, str(config_path), maps)
     return RedirectResponse(f"/study/{job_id}", status_code=303)
 
 

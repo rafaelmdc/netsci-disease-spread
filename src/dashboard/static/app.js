@@ -152,6 +152,8 @@ function startStudy(jobId) {
       if (ofEl) ofEl.textContent = ev.total;
       if (bar) bar.style.width = Math.min(100, (ev.done / ev.total) * 100) + "%";
       append(`[${ev.done}/${ev.total}] ${ev.network} · ${ev.label}`);
+    } else if (ev.type === "stage") {
+      append(`— ${ev.msg}`);
     } else if (ev.type === "done") {
       if (bar) bar.style.width = "100%";
       setStatus("done", "done");

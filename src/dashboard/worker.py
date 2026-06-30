@@ -17,6 +17,7 @@ from arq.connections import RedisSettings
 
 from src.config import RunConfig
 from src.dashboard import events, jobs
+from src.evaluate.interdiction import apply_interdiction
 from src.evaluate.models import get_model
 from src.evaluate.runner import continue_run, resolve_graph_path, run_and_save
 from src.netgen.graph_io import read_graphml
@@ -48,6 +49,9 @@ async def run_simulation(ctx: dict, job_id: str, config: dict) -> None:
     try:
         jobs.mark_running(job_id)
         graph = read_graphml(resolve_graph_path(cfg))
+        # edge-level intervention (close layers / ground airports) before the run,
+        # so the live map and the saved network stats reflect the interdicted graph
+        graph = apply_interdiction(graph, cfg.interdiction)
         events.publish(job_id, {
             "type": "start", "horizon": cfg.sim.horizon, "from_day": 0,
             "compartments": _compartments(cfg),
@@ -230,8 +234,48 @@ async def run_study(ctx: dict, job_id: str, config_path: str, maps: bool) -> Non
         events.publish(job_id, {"type": "failed", "error": str(exc)})
 
 
+def _staged_study(job_id: str, config_path: str, maps: bool) -> None:
+    """Run the staged protocol (spread -> vaccinate -> re-check), streaming each
+    completed run and the stage banners / picked winner to the monitor."""
+    import threading
+
+    from src.evaluate.staged import run_staged, staged_total
+    from src.experiment import load_experiment_config
+
+    exp = load_experiment_config(config_path)
+    total = staged_total(exp)
+    events.publish(job_id, {"type": "study_start", "total": total})
+
+    lock, done = threading.Lock(), {"n": 0}
+
+    def on_run(cfg, where: str) -> None:
+        with lock:
+            done["n"] += 1
+            n = done["n"]
+        events.publish(job_id, {"type": "run", "done": n, "total": total,
+                                "label": cfg.label, "network": where})
+
+    def echo(line: str) -> None:  # stage banners + winner ranking
+        events.publish(job_id, {"type": "stage", "msg": line})
+
+    winner = run_staged(exp, maps=maps, echo=echo, on_run=on_run)
+    events.publish(job_id, {"type": "stage", "msg": f"winner: {winner.value}"})
+
+
+async def run_staged_study(ctx: dict, job_id: str, config_path: str, maps: bool) -> None:
+    """Run the staged protocol from the GUI, streaming stage + per-run progress."""
+    try:
+        jobs.mark_running(job_id)
+        await asyncio.to_thread(_staged_study, job_id, config_path, maps)
+        jobs.update_job(job_id, status="done", finished_at=time.time())
+        events.publish(job_id, {"type": "done"})
+    except Exception as exc:  # noqa: BLE001
+        jobs.mark_failed(job_id, f"{exc}\n{traceback.format_exc()}")
+        events.publish(job_id, {"type": "failed", "error": str(exc)})
+
+
 class WorkerSettings:
-    functions = [run_simulation, continue_simulation, run_data_task, run_study]
+    functions = [run_simulation, continue_simulation, run_data_task, run_study, run_staged_study]
     redis_settings = RedisSettings.from_dsn(events.redis_url())
     max_jobs = 1  # one heavy job at a time
     job_timeout = 6 * 60 * 60  # the full sweep can run for ~an hour; give headroom

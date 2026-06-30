@@ -4,8 +4,10 @@
 #   make            # = make run
 #   make run        # build the image, then run the whole pipeline via Nextflow
 #
-# `make run` builds the project image and runs retrieve -> netgen -> sweep --maps
-# -> collect -> structure -> { interdiction, site } with Nextflow's live UI.
+# `make run` builds the project image and runs the methodology pipeline with
+# Nextflow's live UI: retrieve -> netgen (all networks) -> simulate (the staged
+# protocol: spread -> vaccinate -> re-check) -> collect/structure -> interdiction
+# (EDGE closures across AIR, then AIR+LAND+WATER) -> site.
 # Customise via Nextflow params, e.g.:
 #   make run NFARGS="--maps false"                 # skip the heavy outbreak maps
 #   make run NFARGS="--config configs/experiment_multimodal.yaml"
@@ -17,12 +19,13 @@
 #   make bake       # same pipeline WITHOUT Docker, in your active env (conda etc.)
 #   make clean      # wipe results/ (keeps downloaded data/)
 
-CONFIG       ?= experiment.yaml
-INTERDICTION ?= configs/europe_interdiction.yaml
-RESULTS      ?= results
-NFARGS       ?=
+CONFIG             ?= experiment.yaml
+INTERDICTION_AIR   ?= configs/europe_air_interdiction.yaml
+INTERDICTION_MULTI ?= configs/europe_interdiction.yaml
+RESULTS            ?= results
+NFARGS             ?=
 
-.PHONY: default run build bake retrieve netgen sweep collect structure interdiction site app app-build app-down nextflow clean cleaner
+.PHONY: default run build bake retrieve netgen staged sweep collect structure interdiction figures site app app-build app-down nextflow clean cleaner
 
 default: run
 
@@ -35,8 +38,8 @@ run: build
 build:
 	docker compose build
 
-## bake: full reproducible pipeline -> tables, maps, interdiction, navigable site
-bake: site interdiction
+## bake: full reproducible pipeline -> tables, maps, interdiction, paper figures, site
+bake: site figures
 	@echo "✓ bake complete — browse with: make app   (or open $(RESULTS)/index.html)"
 
 ## retrieve: one-time source downloads (OpenFlights, GeoNames, OSM ferries)
@@ -47,21 +50,30 @@ retrieve:
 netgen:
 	netsci netgen build-all --config $(CONFIG)
 
-## sweep: run the whole grid AND record per-node history for the outbreak maps
+## staged: the staged protocol (spread -> vaccinate -> re-check) — the default sim stage
+staged:
+	netsci evaluate staged --config $(CONFIG) --maps
+
+## sweep: the full FACTORIAL grid (~864 runs) — the alternative to `staged`
 sweep:
 	netsci evaluate sweep --config $(CONFIG) --maps
 
 ## collect: aggregate run JSONs -> summary.parquet + strategy_gap.parquet
-collect: sweep
+collect: staged
 	netsci evaluate collect
 
 ## structure: cross-region degree-betweenness spectrum -> structure.parquet
 structure: collect
 	netsci evaluate structure
 
-## interdiction: scenarios A-D on the flagship multilayer network
+## interdiction: EDGE closures (scenarios A-D) across AIR, then AIR+LAND+WATER
 interdiction: structure
-	netsci evaluate interdiction --config $(INTERDICTION)
+	netsci evaluate interdiction --config $(INTERDICTION_AIR)
+	netsci evaluate interdiction --config $(INTERDICTION_MULTI)
+
+## figures: static paper figures + tables (PDF/SVG/LaTeX) into docs/tex/
+figures: interdiction
+	netsci viz paper
 
 ## site: (re)build the navigable static site from on-disk runs (never simulates)
 site: structure

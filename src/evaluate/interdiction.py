@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import networkx as nx
 
-from src.config import RunConfig
+from src.config import GroundBy, InterdictionConfig, RunConfig
 from src.evaluate.centrality import betweenness
 from src.evaluate.engine import simulate
 
@@ -67,6 +67,22 @@ def close_airports(graph: nx.DiGraph, airports: list[str]) -> nx.DiGraph:
 
 def _top_k(scores: dict[str, float], k: int) -> list[str]:
     return sorted(scores, key=lambda n: scores[n], reverse=True)[:k]
+
+
+def apply_interdiction(graph: nx.DiGraph, ic: InterdictionConfig | None) -> nx.DiGraph:
+    """Apply an :class:`InterdictionConfig` as a graph transform: shut whole
+    layers down, then ground the top-k airports. Returns the original graph
+    unchanged when ``ic`` is None or inactive (every transform copies, so the
+    input graph is never mutated)."""
+    if ic is None or not ic.active:
+        return graph
+    g = graph
+    for layer in ic.close_layers:
+        g = close_layer(g, layer.value)
+    if ic.ground_top_k > 0:
+        scores = betweenness(g) if ic.ground_by is GroundBy.BETWEENNESS else dict(g.degree())
+        g = close_airports(g, _top_k(scores, ic.ground_top_k))
+    return g
 
 
 def scenarios(graph: nx.DiGraph, k: int = 10) -> dict[str, nx.DiGraph]:

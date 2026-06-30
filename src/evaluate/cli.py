@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
-
 import pandas as pd
 import typer
 
 from src.config import ModelName, load_run_config
-from src.evaluate.centrality import betweenness
 from src.evaluate.operating_point import recommend, scan_tau
 from src.evaluate.runner import run_and_save
 from src.experiment import load_experiment_config
@@ -36,18 +33,27 @@ def sweep(
         "explorer can draw every run's animated map with no re-simulation (~2 GB for the full grid)"
     ),
 ) -> None:
-    """Expand the experiment config and run the whole grid, per network."""
-    exp = load_experiment_config(config)
-    groups = exp.grouped_by_network()
-    total = sum(len(v) for v in groups.values())
-    typer.echo(f"running {total} configs across {len(groups)} network(s)"
-               f"{' (recording per-node maps)' if maps else ''} ...")
-    for (region, combo), cfgs in groups.items():
-        graph = read_graphml(processed_graph(region, combo))
-        betweenness(graph)  # warm the cache once before threads share the graph
-        with ThreadPoolExecutor(max_workers=workers) as pool:
-            list(pool.map(lambda c, g=graph: run_and_save(c, g, record_nodes=maps), cfgs))
-        typer.echo(f"  {region}/{combo}: {len(cfgs)} runs -> results/{region}/{combo}/")
+    """Expand the experiment config and run the whole FACTORIAL grid, per network."""
+    from src.evaluate.sweep import run_experiment
+
+    run_experiment(load_experiment_config(config), workers=workers, maps=maps, echo=typer.echo)
+
+
+@app.command()
+def staged(
+    config: str = typer.Option("experiment.yaml", help="path to the master experiment config"),
+    workers: int = typer.Option(4, help="parallel worker threads"),
+    maps: bool = typer.Option(
+        False, "--maps", help="also record per-node history for the animated outbreak maps"
+    ),
+) -> None:
+    """Run the staged ('greedy with re-check') protocol: spread -> vaccinate ->
+    re-check, letting stage 2's results choose which strategy stage 3 verifies.
+    The small, sequential alternative to the full factorial `sweep`."""
+    from src.evaluate.staged import run_staged
+
+    winner = run_staged(load_experiment_config(config), workers=workers, maps=maps, echo=typer.echo)
+    typer.echo(f"staged protocol complete - winning strategy: {winner.value}")
 
 
 @app.command(name="operating-point")
@@ -145,9 +151,19 @@ def interdiction(
         results, network_figure(region, combo, "interdiction.html"),
         title=f"Air interdiction — {region} / {combo}",
     )
+    # Persist the scenario curves so the static paper figure (F7) needs no re-sim.
+    series = pd.DataFrame(
+        [
+            {"scenario": name, "day": day, "infectious": v, "region": region, "combo": combo}
+            for name, r in results.items()
+            for day, v in enumerate(r["infectious"])
+        ]
+    )
+    series_path = network_figure(region, combo, "interdiction.parquet")
+    series.to_parquet(series_path)
     for name, r in results.items():
         typer.echo(f"  {name:42s} peak={r['summary']['peak_infected']:,.0f}")
-    typer.echo(f"wrote {out}")
+    typer.echo(f"wrote {out} and {series_path.name}")
 
 
 @app.command()

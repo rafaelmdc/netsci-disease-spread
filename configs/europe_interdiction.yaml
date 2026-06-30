@@ -1,5 +1,7 @@
-# Flagship multilayer run for the air-interdiction experiment (scenarios A-D):
-# europe / air+land+water, so closing flights leaves land + ferries to carry it.
+# Interdiction on the MULTIMODAL substrate: europe / air+land+water.
+# Here closing flights leaves land (recurrent commuting) and ferries (diffusive)
+# to keep carrying the outbreak -- the headline interdiction result. The air
+# variant of this experiment is configs/europe_air_interdiction.yaml.
 # Build first:  netsci netgen build --region europe --layers air,land,water
 network:
   region: europe
@@ -15,5 +17,7 @@ strategy:
 sim:
   horizon: 210
   tau: 0.0002
+  # Same committed coupling as experiment.yaml: diffusive air/water + recurrent land.
+  tau_by_layer: {air: 0.0002, land: 0.3, water: 0.0005}
   seed_size: 2500
   seed: 0

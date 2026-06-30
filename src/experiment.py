@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
+from typing import Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
@@ -35,6 +36,38 @@ from src.paths import combo_name
 class Population(BaseModel):
     p0: int = 150_000
     p_route: int = 45_000
+
+
+class Protocol(BaseModel):
+    """How the experiment is run: the full factorial grid, or the staged
+    ('greedy with re-check') coordinate descent down the Europe realism ladder.
+
+    In ``staged`` mode the comparison axes are walked sequentially instead of
+    crossed all at once (see src/evaluate/staged.py): spread (all diseases,
+    control) -> vaccinate (one anchor disease, every strategy) -> re-check the
+    winning strategy on the other diseases. It trades the full grid's ~864 runs
+    for ~140, at the cost of one stated caveat (a greedy winner, re-checked once
+    rather than crossed everywhere).
+    """
+
+    mode: Literal["factorial", "staged"] = "factorial"
+    # The realism ladder the epidemic stages run on (the Europe deep-dive).
+    ladder_region: str = "europe"
+    rungs: list[list[Layer]] = Field(
+        default_factory=lambda: [
+            [Layer.AIR],
+            [Layer.AIR, Layer.LAND],
+            [Layer.AIR, Layer.LAND, Layer.WATER],
+        ]
+    )
+    # The disease the vaccination stage is tuned on; its winning strategy is
+    # then re-checked on the others at the flagship rung.
+    anchor_disease: ModelName = ModelName.SEIR
+    flagship: list[Layer] = Field(
+        default_factory=lambda: [Layer.AIR, Layer.LAND, Layer.WATER]
+    )
+    # Metric used to choose the best strategy (a summary key; lower is better).
+    rank_by: str = "peak_infected"
 
 
 class NetworkSpec(BaseModel):
@@ -60,6 +93,8 @@ class ExperimentConfig(BaseModel):
     # the substrate can be asymmetric across regions (YAML key: `networks`).
     networks_spec: list[NetworkSpec] | None = Field(default=None, alias="networks")
     population: Population = Field(default_factory=Population)
+    # how to walk the grid: full factorial (default) or staged coordinate descent
+    protocol: Protocol = Field(default_factory=Protocol)
     # --- models (which to run + their parameters) ---
     models: dict[ModelName, ModelParams]
     # --- interventions ---

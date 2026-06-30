@@ -28,6 +28,29 @@
     <a href="/data">Data</a> page first.</div>
 {% else %}
 <form method="post" action="/study/run">
+
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Protocol</div>
+    <div class="panel-b">
+      <div class="chips" id="mode-chips">
+        <label class="chip"><input type="radio" name="mode" value="factorial" checked onchange="syncMode()"> Factorial grid</label>
+        <label class="chip"><input type="radio" name="mode" value="staged" onchange="syncMode()"> Staged (spread → vaccinate → re-check)</label>
+      </div>
+      <div class="field" id="anchor-field" hidden style="margin-top:.7rem">
+        <label for="anchor">Anchor disease <span class="muted">(tuned in stage 2, re-checked on the rest)</span></label>
+        <select id="anchor" name="anchor">
+          {% for m in models %}<option value="{{ m }}" {{ 'selected' if m=='seir' else '' }}>{{ m|upper }}</option>{% endfor %}
+        </select>
+      </div>
+      <p class="muted" style="font-size:.78rem;margin-top:.55rem">
+        <b>Factorial</b> crosses every axis at once (all selected models × strategies × networks).
+        <b>Staged</b> walks them down the realism ladder you tick above: it runs the baseline
+        spread for every disease, tunes vaccination on the anchor disease, picks the best
+        strategy from those results, then re-checks that winner on the other diseases —
+        far fewer runs, with one stated greedy caveat.</p>
+    </div>
+  </div>
+
   <div class="grid2" style="gap:1.4rem;align-items:start">
 
     <div class="panel">
@@ -99,11 +122,19 @@
     </div>
 
   </div>
-  <div style="margin-top:1.6rem"><button class="btn-run" type="submit">Run study ▸</button></div>
+  <div style="margin-top:1.6rem"><button class="btn-run" type="submit" id="study-submit">Run study ▸</button></div>
 </form>
 {% endif %}
 
 <script>
+  // Protocol mode: reveal the anchor disease for staged; relabel the button.
+  function syncMode() {
+    const staged = document.querySelector('input[name="mode"]:checked').value === 'staged';
+    document.getElementById('anchor-field').hidden = !staged;
+    document.getElementById('study-submit').textContent = staged ? 'Run staged protocol ▸' : 'Run study ▸';
+  }
+  syncMode();
+
   const NEEDS = { sir: [], sis: [], seir: ["sigma"], sqir: ["sigma","kappa","gamma_q"] };
   function syncParams() {
     const need = new Set();

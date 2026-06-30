@@ -86,6 +86,32 @@
     </div>
 
     <div class="panel">
+      <div class="panel-h">Interdiction · edge closures</div>
+      <div class="panel-b">
+        <div class="field">
+          <label>Shut down entire layers</label>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="close_air"> air routes</label>
+            <label class="chip"><input type="checkbox" name="close_land"> land routes</label>
+            <label class="chip"><input type="checkbox" name="close_water"> ferries (water)</label>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="ground_k">Ground top-k airports (0 = none)</label>
+            <input id="ground_k" name="ground_k" value="0"></div>
+          <div class="field"><label for="ground_by">Rank airports by</label>
+            <select id="ground_by" name="ground_by">
+              <option value="degree">degree · busiest</option>
+              <option value="betweenness">betweenness · bridges</option>
+            </select></div>
+        </div>
+        <div class="muted mono" style="font-size:.72rem;margin-top:.5rem">
+          Removes routes (cities stay alive on remaining layers); grounding airports
+          zeroes their air links only. Distinct from vaccination, which removes cities.</div>
+      </div>
+    </div>
+
+    <div class="panel">
       <div class="panel-h">Dynamics</div>
       <div class="panel-b">
         <div class="grid2">

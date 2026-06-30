@@ -1,0 +1,23 @@
+# Interdiction on the AIR substrate: europe / air-only (purely diffusive).
+# The single-layer counterpart to configs/europe_interdiction.yaml: with only
+# flights carrying the outbreak, grounding airports / closing the air layer has
+# nothing to fall back on -- the contrast that motivates the multimodal result.
+# Build first:  netsci netgen build --region europe --layers air
+network:
+  region: europe
+  layers: [air]
+model:
+  name: sir
+  params:
+    beta: 0.32
+    gamma: 0.12
+strategy:
+  name: control
+  coverage: 0.0
+sim:
+  horizon: 210
+  tau: 0.0002
+  # Air is diffusive; no land/water layer to engage here.
+  tau_by_layer: {air: 0.0002, land: 0.3, water: 0.0005}
+  seed_size: 2500
+  seed: 0

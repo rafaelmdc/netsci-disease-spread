@@ -3,6 +3,8 @@
 import networkx as nx
 
 from src.config import (
+    GroundBy,
+    InterdictionConfig,
     Layer,
     ModelConfig,
     ModelName,
@@ -11,7 +13,13 @@ from src.config import (
     RunConfig,
     SimConfig,
 )
-from src.evaluate.interdiction import close_airports, close_layer, run_scenarios, scenarios
+from src.evaluate.interdiction import (
+    apply_interdiction,
+    close_airports,
+    close_layer,
+    run_scenarios,
+    scenarios,
+)
 
 
 def _multilayer() -> nx.DiGraph:
@@ -76,3 +84,25 @@ def test_scenarios_are_graph_copies_not_mutations():
     before = g.number_of_edges()
     scenarios(g, k=1)
     assert g.number_of_edges() == before  # original untouched
+
+
+def test_apply_interdiction_none_and_inactive_are_passthrough():
+    g = _multilayer()
+    assert apply_interdiction(g, None) is g
+    assert apply_interdiction(g, InterdictionConfig()) is g  # nothing selected
+
+
+def test_apply_interdiction_closes_layer():
+    g = apply_interdiction(_multilayer(), InterdictionConfig(close_layers=[Layer.AIR]))
+    assert not g.has_edge("A", "B")  # air-only edge gone
+    assert g.has_edge("B", "C")  # land survives
+
+
+def test_apply_interdiction_grounds_airports_without_mutating_input():
+    g = _multilayer()
+    before = g.number_of_edges()
+    out = apply_interdiction(
+        g, InterdictionConfig(ground_top_k=1, ground_by=GroundBy.DEGREE)
+    )
+    assert out.number_of_edges() <= before
+    assert g.number_of_edges() == before  # original intact

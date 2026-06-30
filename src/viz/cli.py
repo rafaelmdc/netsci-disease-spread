@@ -144,3 +144,36 @@ def site() -> None:
         f"built site for {tally['runs']} runs across {tally['networks']} network(s) "
         f"→ open {results_figure('index.html')}"
     )
+
+
+@app.command()
+def figures(
+    anchor: str = typer.Option("seir", help="anchor disease for the vaccination/staged figures"),
+) -> None:
+    """Build the static, paper-ready result figures (PDF + SVG) into docs/tex/.
+    Skips any figure whose backing table is not present yet."""
+    from src.viz.figures import build_all
+
+    made = build_all(anchor=anchor, echo=typer.echo)
+    typer.echo(f"built {len(made)} figure(s) into docs/tex/")
+
+
+@app.command()
+def tables(
+    anchor: str = typer.Option("seir", help="anchor disease for the vaccination table"),
+) -> None:
+    """Build the paper tables (LaTeX + CSV) into docs/tex/."""
+    from src.viz.tables import build_all
+
+    made = build_all(anchor=anchor, echo=typer.echo)
+    typer.echo(f"built {len(made)} table(s) into docs/tex/")
+
+
+@app.command()
+def paper(anchor: str = typer.Option("seir", help="anchor disease")) -> None:
+    """Build every static paper artifact: result figures + tables into docs/tex/."""
+    from src.viz.figures import build_all as figs
+    from src.viz.tables import build_all as tabs
+
+    n = len(figs(anchor=anchor, echo=typer.echo)) + len(tabs(anchor=anchor, echo=typer.echo))
+    typer.echo(f"built {n} paper artifact(s) into docs/tex/")

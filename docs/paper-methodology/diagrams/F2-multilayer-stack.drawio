@@ -1,11 +1,11 @@
 <mxfile host="app.diagrams.net" type="device">
-  <diagram id="F2stack" name="F2 — Multilayer substrate">
+  <diagram id="F2stack" name="F2 Multilayer substrate">
     <mxGraphModel dx="1100" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="700" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <mxCell id="title" value="Shared-node multilayer substrate (same cities on every layer)" style="text;html=1;fontSize=15;fontStyle=1;align=center;" vertex="1" parent="1">
+        <mxCell id="title" value="Shared-node multilayer transport substrate" style="text;html=1;fontSize=15;fontStyle=1;align=center;" vertex="1" parent="1">
           <mxGeometry x="200" y="10" width="520" height="30" as="geometry" />
         </mxCell>
 
@@ -21,13 +21,13 @@
         </mxCell>
 
         <!-- Plane labels -->
-        <mxCell id="lAir" value="AIR&#10;weighted routes — DIFFUSIVE&#10;(fraction relocates &amp; mixes)" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="lAir" value="Air layer&#10;weighted routes&#10;diffusive mobility" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="790" y="95" width="110" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="lLand" value="LAND&#10;commuting — RECURRENT&#10;(mix then return home)" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="lLand" value="Land layer&#10;commuting&#10;recurrent mobility" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="730" y="285" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="lWater" value="WATER&#10;ferries/shipping — DIFFUSIVE&#10;(in-transit transmission axis)" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="lWater" value="Water layer&#10;ferries&#10;diffusive mobility" style="text;html=1;fontSize=11;align=left;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="670" y="475" width="130" height="60" as="geometry" />
         </mxCell>
 
@@ -59,11 +59,11 @@
         <mxCell id="cCC1" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="a3" target="d3"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="cCC2" style="endArrow=none;html=1;dashed=1;strokeColor=#b3b3b3;" edge="1" parent="1" source="d3" target="w3"><mxGeometry relative="1" as="geometry" /></mxCell>
 
-        <mxCell id="couplabel" value="dashed = same city across layers&#10;(shared node — coupling)" style="text;html=1;fontSize=10;fontStyle=2;align=left;" vertex="1" parent="1">
+        <mxCell id="couplabel" value="dashed links: the same city&#10;shared across layers" style="text;html=1;fontSize=10;fontStyle=2;align=left;" vertex="1" parent="1">
           <mxGeometry x="30" y="300" width="150" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="ladder" value="Europe ladder: air → +land → +water&#10;(rungs we compare for realism)" style="text;html=1;fontSize=11;fontStyle=2;align=center;" vertex="1" parent="1">
-          <mxGeometry x="250" y="600" width="400" height="30" as="geometry" />
+        <mxCell id="ladder" value="Realism ladder: air, then air with land, then air with land and water" style="text;html=1;fontSize=11;fontStyle=2;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="600" width="500" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

@@ -90,6 +90,28 @@ class NetworkConfig(BaseModel):
     graph_path: str | None = None
 
 
+class GroundBy(StrEnum):
+    DEGREE = "degree"
+    BETWEENNESS = "betweenness"
+
+
+class InterdictionConfig(BaseModel):
+    """Edge-level intervention applied as a graph transform before simulation:
+    shut whole transport layers down and/or ground the top-k airports (zero
+    their air links). Cities stay alive on whatever layers remain. Distinct from
+    vaccination, which removes nodes."""
+
+    close_layers: list[Layer] = Field(
+        default_factory=list, description="layers to shut down entirely (air/land/water)"
+    )
+    ground_top_k: int = Field(default=0, ge=0, description="ground this many airports (0 = none)")
+    ground_by: GroundBy = Field(default=GroundBy.DEGREE, description="rank airports by degree|betweenness")
+
+    @property
+    def active(self) -> bool:
+        return bool(self.close_layers) or self.ground_top_k > 0
+
+
 class SimConfig(BaseModel):
     horizon: int = Field(default=75, gt=0, description="days simulated")
     tau: float = Field(default=0.0002, ge=0, description="base travel rate (fallback)")
@@ -117,6 +139,9 @@ class RunConfig(BaseModel):
         default_factory=lambda: StrategyConfig(name=StrategyName.CONTROL)
     )
     sim: SimConfig = Field(default_factory=SimConfig)
+    #: optional edge-level intervention (close layers / ground airports), applied
+    #: as a graph transform before simulation. None => no interdiction.
+    interdiction: InterdictionConfig | None = None
 
     @property
     def run_id(self) -> str:
