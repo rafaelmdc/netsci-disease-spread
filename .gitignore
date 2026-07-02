@@ -221,6 +221,7 @@ __marimo__/
 data/
 results/
 figures/
+gephi_exports/
 # Nextflow
 .nextflow/
 .nextflow.log*

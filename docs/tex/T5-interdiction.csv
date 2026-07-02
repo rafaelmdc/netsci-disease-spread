@@ -1,6 +1,0 @@
-Scenario,air-only,multilayer
-A · full network,121401738.2382522,215471040.8257177
-"B · air closed, land+water open",182741.68937856,117002186.67352147
-C · air closed (air-only model),182741.68937856,106867.97705039842
-D1 · top-10 airports by degree closed,91562702.03859153,210843096.93417233
-D2 · top-10 airports by betweenness closed,72700105.17308864,203699951.65106

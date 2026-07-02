@@ -34,6 +34,7 @@ def _entry(region: str, combo: str, label: str) -> RunEntry:
         model=record["config"]["model"]["name"],
         strategy=record["config"]["strategy"]["name"],
         coverage=float(record["config"]["strategy"]["coverage"]),
+        budget=int(record["config"]["strategy"].get("budget", 0)),
         seed=int(record["config"]["sim"]["seed"]),
         peak=float(record["summary"].get("peak_infected", 0.0)),
         summary_path=run_json(region, combo, label),

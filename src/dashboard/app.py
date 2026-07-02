@@ -169,7 +169,8 @@ async def runs_browser(request: Request):
     rows = [
         {"region": e.region, "combo": e.combo, "network": f"{e.region}/{e.combo}",
          "model": e.model, "strategy": e.strategy, "coverage": e.coverage,
-         "seed": e.seed, "peak": e.peak, "label": e.label, "has_nodes": e.has_nodes}
+         "budget": e.budget, "seed": e.seed, "peak": e.peak, "label": e.label,
+         "has_nodes": e.has_nodes}
         for e in scan_runs()
     ]
     rows.sort(key=lambda r: r["peak"], reverse=True)
@@ -342,14 +343,29 @@ async def gexf(region: str, combo: str, label: str, which: str):
     record = json.loads(path.read_text())
     graph = read_graphml(record["config"]["network"].get("graph_path")
                          or processed_graph(region, combo))
+    # Name downloads after the page context (region/combo · MODEL · strategy),
+    # not the opaque hashed label, so a folder of exports stays legible.
+    cfg = record["config"]
+    context = (f"{region}-{combo} · {cfg['model']['name'].upper()} · "
+               f"{cfg['strategy']['name']} · seed{cfg['sim']['seed']}")
     if which == "network":
         path = ensure_parent(network_gexf(region, combo))
         build_network_gexf(graph, path)
-        return FileResponse(path, filename=f"{region}-{combo}.gexf")
+        return FileResponse(path, filename=f"{context} · topology.gexf")
     if which == "run":
         import pandas as pd
-        node_ts = pd.read_parquet(run_node_timeseries(region, combo, label))
+        nts = run_node_timeseries(region, combo, label)
+        if not nts.exists():
+            # Per-node history is opt-in and the staged sweep skips it, so it is
+            # usually absent. Regenerate it on demand from the saved config: the
+            # run is deterministic (same seed), so this reproduces the same run
+            # and writes node_timeseries.parquet for the dynamic export.
+            from src.config import RunConfig
+            from src.evaluate.runner import run_and_save
+            run_and_save(RunConfig.model_validate(record["config"]),
+                         graph=graph, record_nodes=True)
+        node_ts = pd.read_parquet(nts)
         path = ensure_parent(run_gexf(region, combo, label))
         build_run_gexf(graph, node_ts, path)
-        return FileResponse(path, filename=f"{label}-outbreak.gexf")
+        return FileResponse(path, filename=f"{context} · outbreak.gexf")
     return HTMLResponse("Unknown export", status_code=404)

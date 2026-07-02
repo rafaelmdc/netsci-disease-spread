@@ -146,49 +146,30 @@ def site() -> None:
     )
 
 
-def _anchor(anchor: str | None) -> str:
-    """Resolve the anchor disease: explicit flag wins, else read the experiment
-    config's protocol.anchor_disease, else fall back to 'sir'."""
-    if anchor:
-        return anchor
-    try:
-        from src.experiment import load_experiment_config
-        return load_experiment_config("experiment.yaml").protocol.anchor_disease.value
-    except Exception:  # noqa: BLE001
-        return "sir"
-
-
 @app.command()
-def figures(
-    anchor: str = typer.Option(None, help="anchor disease (default: experiment.yaml's)"),
-) -> None:
-    """Build the static, paper-ready result figures (PDF + SVG) into docs/tex/.
-    Skips any figure whose backing table is not present yet."""
+def figures() -> None:
+    """Build the curated, paper-ready result figures (PDF + SVG) into
+    docs/curated_tex/figures/. Skips any figure whose backing data is absent."""
     from src.viz.figures import build_all
 
-    made = build_all(anchor=_anchor(anchor), echo=typer.echo)
-    typer.echo(f"built {len(made)} figure(s) into docs/tex/")
+    made = build_all(echo=typer.echo)
+    typer.echo(f"built {len(made)} figure(s) into docs/curated_tex/figures/")
 
 
 @app.command()
-def tables(
-    anchor: str = typer.Option(None, help="anchor disease (default: experiment.yaml's)"),
-) -> None:
-    """Build the paper tables (LaTeX + CSV) into docs/tex/."""
+def tables() -> None:
+    """Build the paper tables (LaTeX) into docs/curated_tex/figures/."""
     from src.viz.tables import build_all
 
-    made = build_all(anchor=_anchor(anchor), echo=typer.echo)
-    typer.echo(f"built {len(made)} table(s) into docs/tex/")
+    made = build_all(echo=typer.echo)
+    typer.echo(f"built {len(made)} table(s) into docs/curated_tex/figures/")
 
 
 @app.command()
-def paper(
-    anchor: str = typer.Option(None, help="anchor disease (default: experiment.yaml's)"),
-) -> None:
-    """Build every static paper artifact: result figures + tables into docs/tex/."""
+def paper() -> None:
+    """Build every static paper artifact: result figures + tables."""
     from src.viz.figures import build_all as figs
     from src.viz.tables import build_all as tabs
 
-    a = _anchor(anchor)
-    n = len(figs(anchor=a, echo=typer.echo)) + len(tabs(anchor=a, echo=typer.echo))
-    typer.echo(f"built {n} paper artifact(s) into docs/tex/")
+    n = len(figs(echo=typer.echo)) + len(tabs(echo=typer.echo))
+    typer.echo(f"built {n} paper artifact(s) into docs/curated_tex/figures/")

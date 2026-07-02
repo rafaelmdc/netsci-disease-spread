@@ -74,6 +74,9 @@ population:
 # for the isolation type). All five are RUN (per-value sources in disease-types.md
 # / the paper's Appendix A).
 models:
+  # Two contrasting archetypes: IMMUNIZING (SIR/measles) vs ENDEMIC, no immunity
+  # (SIS/gonorrhea-common-cold). The staged protocol runs BOTH through the full
+  # strategy x rung grid (no anchor), so "what defends best" is read per disease.
   # Immunizing, acute (measles): gamma=0.13 (~8 d), R0~15  -> beta = 15 * 0.13
   sir:    {beta: 1.95,  gamma: 0.13}
   # Endemic, no immunity (gonorrhea): gamma~0.03 (long), R0~1.4 -> beta = 1.4 * 0.03

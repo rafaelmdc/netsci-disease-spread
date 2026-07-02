@@ -52,8 +52,9 @@ def staged(
     The small, sequential alternative to the full factorial `sweep`."""
     from src.evaluate.staged import run_staged
 
-    winner = run_staged(load_experiment_config(config), workers=workers, maps=maps, echo=typer.echo)
-    typer.echo(f"staged protocol complete - winning strategy: {winner.value}")
+    winners = run_staged(load_experiment_config(config), workers=workers, maps=maps, echo=typer.echo)
+    summary = ", ".join(f"{d}->{w.value}" for d, w in winners.items())
+    typer.echo(f"staged protocol complete - best defense per disease: {summary}")
 
 
 @app.command()
@@ -66,8 +67,9 @@ def dose(
     stage-2 results, so stages 1-3 are not re-simulated."""
     from src.evaluate.staged import run_dose
 
-    winner = run_dose(load_experiment_config(config), workers=workers, echo=typer.echo)
-    typer.echo(f"dose-response complete for winner: {winner.value}")
+    winners = run_dose(load_experiment_config(config), workers=workers, echo=typer.echo)
+    summary = ", ".join(f"{d}->{w.value}" for d, w in winners.items())
+    typer.echo(f"dose-response complete for winners: {summary}")
 
 
 @app.command(name="operating-point")

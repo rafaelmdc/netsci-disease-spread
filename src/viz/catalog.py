@@ -26,6 +26,7 @@ class RunEntry:
     model: str
     strategy: str
     coverage: float
+    budget: int
     seed: int
     peak: float
     summary_path: Path
@@ -68,6 +69,7 @@ def scan_runs(root: Path = RESULTS) -> list[RunEntry]:
                     model=cfg["model"]["name"],
                     strategy=cfg["strategy"]["name"],
                     coverage=float(cfg["strategy"]["coverage"]),
+                    budget=int(cfg["strategy"].get("budget", 0)),
                     seed=int(cfg["sim"]["seed"]),
                     peak=float(summ.get("peak_infected", 0.0)),
                     summary_path=path,
@@ -84,8 +86,8 @@ def runs_frame(root: Path = RESULTS) -> pd.DataFrame:
         {
             "label": e.label, "region": e.region, "combo": e.combo,
             "network": f"{e.region} / {e.combo}", "model": e.model,
-            "strategy": e.strategy, "coverage": e.coverage, "seed": e.seed,
-            "peak": e.peak, "has_nodes": e.has_nodes,
+            "strategy": e.strategy, "coverage": e.coverage, "budget": e.budget,
+            "seed": e.seed, "peak": e.peak, "has_nodes": e.has_nodes,
         }
         for e in scan_runs(root)
     ]

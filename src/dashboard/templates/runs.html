@@ -54,6 +54,7 @@
           <th data-sort="net">Network</th>
           <th data-sort="model">Model</th>
           <th data-sort="strat">Strategy</th>
+          <th data-sort="budget" class="num">Dose (cities)</th>
           <th data-sort="coverage" class="num">Coverage</th>
           <th data-sort="seed" class="num">Seed</th>
           <th data-sort="peak" class="num">Peak infectious</th>
@@ -64,13 +65,15 @@
         {% for r in rows %}
           <tr data-net="{{ r.network }}" data-model="{{ r.model }}" data-strat="{{ r.strategy }}"
               data-search="{{ (r.label ~ ' ' ~ r.network ~ ' ' ~ r.model ~ ' ' ~ r.strategy)|lower }}"
-              data-coverage="{{ r.coverage }}" data-seed="{{ r.seed }}" data-peak="{{ r.peak }}">
+              data-budget="{{ r.budget }}" data-coverage="{{ r.coverage }}"
+              data-seed="{{ r.seed }}" data-peak="{{ r.peak }}">
             <td class="pick"><input type="checkbox" class="pick-run"
                 value="{{ r.region }}/{{ r.combo }}/{{ r.label }}" aria-label="select run"></td>
             <td>{{ r.network }}
               <div class="muted mono" style="font-size:.7rem">{{ r.label }}</div></td>
             <td class="mono">{{ r.model|upper }}</td>
             <td class="mono">{{ r.strategy }}</td>
+            <td class="num mono">{% if r.strategy == 'control' %}&mdash;{% else %}{{ r.budget }}{% endif %}</td>
             <td class="num mono">{{ "%.0f%%"|format(r.coverage * 100) }}</td>
             <td class="num mono">{{ r.seed }}</td>
             <td class="num mono">{{ "{:,.0f}".format(r.peak) }}</td>

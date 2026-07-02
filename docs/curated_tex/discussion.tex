@@ -1,1 +1,85 @@
-\section{Discussion}
+\section{Discussion}\label{sec:discussion}
+The results answer the paper's question in a way that depends on how realistic the substrate is,
+and they do so consistently across all five disease types. Three threads run through them: how the
+disease type shapes the epidemic, why targeting bridges beats targeting hubs, and why the choice of
+substrate changes what containment is even possible.
+
+\subsection{Disease type shapes the curve}
+The five types separate cleanly by their dynamical structure rather than by any single rate. The
+immunizing measles type produces the tall, right-skewed, single-peaked curve characteristic of
+SIR: infectious cities find abundant susceptible neighbours, incidence grows, and then the
+susceptible pool is depleted irreversibly, so the outbreak burns out~\cite{kermack:sir}. The
+endemic gonorrhea type has no recovered compartment, so reinfection continually replenishes
+susceptibles and incidence settles at an endemic equilibrium rather than declining to zero. The
+three intermediate types interpolate as expected: latency (SEIR) delays and lowers the peak, and
+both isolation (SEIQRD) and short infectious windows blunt it.
+
+One coincidence deserves care. The waning-immunity influenza type and the isolation-controlled
+Ebola type land at almost the same peak height ($\sim$$8$M on air), but for mechanistic rather than
+biological reasons: influenza's basic reproduction number is low ($R_0\approx1.5$), while Ebola's
+is higher ($R_0\approx2$) but its isolation shortens the effective infectious period
+($1/(\gamma+\kappa)\approx3.3$~days), so the peak, which depends on the infectious period as well
+as $R_0$, settles at a similar level. This tells us the model is internally coherent, not that an
+Ebola outbreak would resemble a flu season. It would not: the isolation type is exactly where the
+well-mixed metapopulation framing is weakest (Section~\ref{sec:limitations}), so its absolute
+number is the least literal of the five, and it is run on the same footing as the others only for
+the sake of comparison.
+
+\subsection{Why bridges beat hubs}
+Across every disease and every rung, immunising the highest-betweenness cities reduced the peak
+more than immunising the highest-degree cities, and both beat random selection. The mechanism is
+structural. Because transmission on a network follows paths, and betweenness counts how many
+shortest paths run through a node, removing high-betweenness cities severs the routes that connect
+otherwise weakly coupled regions~\cite{kitsak:spreaders}. Removing high-degree cities instead
+deletes locally busy nodes whose traffic is often redundant, since their neighbours can still reach
+each other by other short paths, so the giant component and its shortest-path structure survive
+more intact. Betweenness targets the bottlenecks of reachability; degree targets a volume the
+network can partly route around.
+
+The realism ladder amplifies this. The degree--betweenness gap in the resulting peak roughly
+doubles from the air-only network ($4$--$7.5\%$) to the full multilayer ($\approx$$12\%$) for every
+disease. The added layers create few genuinely new bridges; instead they channel the extra
+recurrent and ferry traffic through the same inter-community conduits, so a high-betweenness city
+bridges several layers at once and removing it disrupts all of them~\cite{sorianopanos:multiplex}.
+A single-layer model, which sees only air bridges, therefore \emph{understates} how much
+bridge-targeting gains, the opposite of the intuition that redundant layers should dilute
+targeting.
+
+\subsection{Realism mostly adds people, and changes what containment means}
+Climbing the ladder raised the absolute peaks, but the spread results
+(Section~\ref{sec:res-spread}) show that most of that rise is a population effect: the land layer
+brings inland, non-airport cities into the network, and the peak, as a fraction of the population,
+stays nearly flat across rungs. This is why we report that fraction rather than the raw count,
+which would let the land layer's extra population masquerade as extra severity. Ferries change
+little, because they reach only a handful of coastal cities; land's real contribution is dynamical,
+synchronising a larger connected population through recurrent commuting~\cite{balcan:recurrent}.
+
+The interdiction results carry the sharpest practical implication. In an air-only model, grounding
+all flights ends the outbreak; on the multimodal substrate the same closure leaves a third to a
+half of the peak standing, and closing only the busiest hubs does almost nothing. Whether route
+closure can contain an epidemic at all thus flips with the substrate. This echoes the broader
+lesson that single-layer transport models systematically mislead about containment once ground and
+maritime mobility are included~\cite{balcan:multiscale}, and it is the clearest argument in the
+paper for building the multilayer substrate rather than the air network alone.
+
+\subsection{Limitations}\label{sec:limitations}
+The study is comparative, not predictive, and its absolute counts should not be read as forecasts.
+Three limitations bound the interpretation. First, the well-mixed metapopulation makes transmission
+proportional to the local infectious fraction, which fits casual-contact respiratory and endemic
+diseases far better than a contact-limited pathogen such as Ebola: real filovirus transmission
+requires direct contact with symptomatic or deceased cases and is shaped by care settings that a
+constant isolation rate only crudely approximates. Its peak is therefore the least trustworthy of
+the five, and our metric, peak active infection, does not even reflect the isolation type's high
+case-fatality ($\mu\approx0.71$), so a modest infectious peak can still be devastating. Second,
+each configuration is a single deterministic run at fixed coverage, efficacy, and seed; a
+stochastic ensemble and a coverage sweep would put confidence bounds on the reductions, though the
+strategy \emph{ordering} is stable enough that we do not expect it to change. Third, parameters are
+justified from the literature rather than calibrated to any outbreak, and the transport weights are
+proxies for passenger volume, so the results are internally consistent comparisons, not fits to
+data.
+
+These bounds are also the roadmap. The same engine runs stochastic ensembles, other regions, and
+finer coverage grids without modification, and the interactive simulator turns each of those into a
+configuration change rather than a code change, so the findings here, bridges over hubs, realism
+amplifying that gap, and the limits of route closure, form a stable core on which a more
+quantitative, region-specific study can build.

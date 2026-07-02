@@ -258,8 +258,9 @@ def _staged_study(job_id: str, config_path: str, maps: bool) -> None:
     def echo(line: str) -> None:  # stage banners + winner ranking
         events.publish(job_id, {"type": "stage", "msg": line})
 
-    winner = run_staged(exp, maps=maps, echo=echo, on_run=on_run)
-    events.publish(job_id, {"type": "stage", "msg": f"winner: {winner.value}"})
+    winners = run_staged(exp, maps=maps, echo=echo, on_run=on_run)
+    summary = ", ".join(f"{d}->{w.value}" for d, w in winners.items())
+    events.publish(job_id, {"type": "stage", "msg": f"best defense per disease: {summary}"})
 
 
 async def run_staged_study(ctx: dict, job_id: str, config_path: str, maps: bool) -> None:
