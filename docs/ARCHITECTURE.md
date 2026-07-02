@@ -19,8 +19,8 @@ evaluations* — making layer combinations a first-class, comparable axis.
  │                      │   │                      │   │                      │
  │ per modality:        │   │ standardise each     │   │ for each network:    │
  │  • air  (OpenFlights)│   │ layer to a common    │   │  • epidemic models   │
- │  • land (rail/road/  │   │ node set, then emit  │   │    SIR/SIS/SEIR/SQIR  │
- │    commuting)        │   │ ALL combinations:    │   │    (metapop. R-D)     │
+ │  • land (rail/road/  │   │ node set, then emit  │   │   SIR/SIS/SEIR/    │
+ │    commuting)        │   │ ALL combinations:    │   │  SEIRS/SEIQRD       │
  │  • water(ferry/ship) │   │  A, L, W,            │   │  • vaccination strat. │
  │                      │   │  A+L, A+W, L+W,      │   │    rand/deg/btw/      │
  │ → data/raw/<layer>   │   │  A+L+W               │   │    subgraph           │
@@ -116,9 +116,12 @@ is a pure function of `(config, seed)`.
 
 ## Orchestrating the sweep
 
-The experiment is `{8 networks} × {4 models} × {5 strategies} ×
-{coverage levels} × {seeds}` — many independent, embarrassingly parallel jobs
-(see [`EXPERIMENTS.md`](EXPERIMENTS.md)). Two layers of orchestration:
+The experiment is a **staged** walk down the Europe realism ladder — `{5 disease
+types} × {5 strategies} × {rungs} × {dose budgets}` at a single operating
+coverage and seed, plus the topology-only pass on the cross-region air networks
+(see [`EXPERIMENTS.md`](EXPERIMENTS.md)). A `factorial` mode crossing every axis
+at once is also available. Either way the jobs are independent and embarrassingly
+parallel. Two layers of orchestration:
 
 1. **Within a stage** — `netsci evaluate sweep` groups runs by network so each
    graph (and its cached betweenness) loads once, then fans the runs out over a

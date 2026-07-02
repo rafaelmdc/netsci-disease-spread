@@ -60,8 +60,12 @@ def stage_dose_one(
     master: ExperimentConfig, disease: str, winner: StrategyName
 ) -> ExperimentConfig:
     """One disease's winning strategy on the flagship rung, swept over budget
-    (number of cities vaccinated) at the most adherent coverage. Control is kept
-    as that disease's baseline so the dose-response is measured against it."""
+    (number of cities vaccinated) at the most adherent coverage. We do NOT re-run
+    control here: control ignores the budget, and stage 1 already produced this
+    disease's flagship baseline, so the dose-response reads its reduction against
+    that (re-running control at every budget was ~600 redundant runs). The winner
+    at the operating budget (15) is also already computed by the defend stage and
+    is reused via ``skip_existing``."""
     flagship = NetworkSpec(
         region=master.protocol.ladder_region, layers=list(master.protocol.flagship)
     )
@@ -69,7 +73,7 @@ def stage_dose_one(
         update={
             "networks_spec": [flagship],
             "models": {disease: master.models[disease]},
-            "strategies": [StrategyName.CONTROL, winner],
+            "strategies": [winner],
             "budgets": list(master.protocol.budget_grid),
             "coverages": [max(master.coverages)],
         }
@@ -77,16 +81,21 @@ def stage_dose_one(
 
 
 def stage_interdiction(
-    master: ExperimentConfig, k: int = 10, echo: Echo = print
+    master: ExperimentConfig, k: int = 10, echo: Echo = print, max_seeds: int = 10
 ) -> None:
     """Stage 5 — EDGE targeting (interdiction). The complement to the node-targeting
     defend stage: for each disease, close flight routes (scenarios A-D) and see
     whether land + ferries still carry the outbreak. We run it on BOTH the air-only
     substrate and the multimodal flagship, so the headline contrast (grounding
     flights stops it when air is the sole carrier, but barely dents the multimodal
-    outbreak) is a direct, same-axis comparison. One combined interdiction_<disease>
-    .parquet per disease (with a `combo` column for the substrate) lands in the
-    flagship folder; per-(disease, substrate) HTML sits in each network's folder."""
+    outbreak) is a direct, same-axis comparison. Each scenario is run over a seed
+    ensemble (up to ``max_seeds`` of the master seeds, parallelised) so the figure
+    can carry a confidence band; the parquet keeps a ``seed`` column. One combined
+    interdiction_<disease>.parquet per disease (with `combo` and `seed` columns)
+    lands in the flagship folder; per-(disease, substrate) HTML (representative
+    seed) sits in each network's folder."""
+    from concurrent.futures import ThreadPoolExecutor
+
     import pandas as pd
 
     from src.config import (
@@ -105,44 +114,60 @@ def stage_interdiction(
 
     tau = master.taus[0] if master.taus else 0.0002
     horizon = master.horizons[0] if master.horizons else 210
-    seed = master.seeds[0] if master.seeds else 0
+    # ensemble of seeds (capped: interdiction runs full scenario sims and the
+    # effect is orders of magnitude, so a handful of seeds already pins the CI).
+    seeds = (master.seeds or [0])[:max_seeds]
+
+    def _cfg(layers: list[str], disease, params, seed: int) -> RunConfig:
+        return RunConfig(
+            network=NetworkConfig(
+                region=region, layers=[Layer(x) for x in layers],
+                p0=master.population.p0, p_route=master.population.p_route,
+            ),
+            model=ModelConfig(name=disease, params=params),
+            strategy=StrategyConfig(name=StrategyName.CONTROL, budget=0, coverage=0.0, efficacy=0.0),
+            sim=SimConfig(
+                horizon=horizon, tau=tau, tau_by_layer=master.tau_by_layer,
+                transit=master.transit, seed_size=master.seed_size, seed=seed,
+            ),
+        )
 
     for disease, params in master.models.items():
         rows: list[dict] = []
         for layers in substrates:
             combo = combo_name(layers)
             graph = read_graphml(processed_graph(region, combo))
-            betweenness(graph)  # warm the cache once
-            cfg = RunConfig(
-                network=NetworkConfig(
-                    region=region, layers=[Layer(x) for x in layers],
-                    p0=master.population.p0, p_route=master.population.p_route,
-                ),
-                model=ModelConfig(name=disease, params=params),
-                strategy=StrategyConfig(name=StrategyName.CONTROL, budget=0, coverage=0.0, efficacy=0.0),
-                sim=SimConfig(
-                    horizon=horizon, tau=tau, tau_by_layer=master.tau_by_layer,
-                    transit=master.transit, seed_size=master.seed_size, seed=seed,
-                ),
+            betweenness(graph)  # warm the cache once before threads share the graph
+            per_seed = list(
+                ThreadPoolExecutor(max_workers=min(6, len(seeds))).map(
+                    lambda seed: (seed, run_scenarios(graph, _cfg(layers, disease, params, seed), k=k)),
+                    seeds,
+                )
             )
-            results = run_scenarios(graph, cfg, k=k)
+            # representative HTML from the first seed
             interdiction_to_html(
-                results,
+                per_seed[0][1],
                 network_figure(region, combo, f"interdiction_{disease.value}.html"),
                 title=f"Air interdiction — {region}/{combo} — {disease.value}",
             )
             rows.extend(
-                {"scenario": name, "day": day, "infectious": v,
+                {"scenario": name, "day": day, "infectious": v, "seed": seed,
                  "region": region, "combo": combo, "model": disease.value}
+                for seed, results in per_seed
                 for name, r in results.items()
                 for day, v in enumerate(r["infectious"])
             )
-            echo(f"  [{disease.value}] {combo} scenarios (k={k}):")
-            for name, r in results.items():
-                echo(f"    {name:42s} peak={r['summary']['peak_infected']:,.0f}")
+            echo(f"  [{disease.value}] {combo} scenarios (k={k}, {len(seeds)} seeds), "
+                 "peak averaged over seeds:")
+            peaks: dict[str, list[float]] = {}
+            for _seed, results in per_seed:
+                for name, r in results.items():
+                    peaks.setdefault(name, []).append(r["summary"]["peak_infected"])
+            for name, vals in peaks.items():
+                echo(f"    {name:42s} peak={sum(vals) / len(vals):,.0f}")
         ppath = network_figure(region, flagship_combo, f"interdiction_{disease.value}.parquet")
         pd.DataFrame(rows).to_parquet(ppath)
-        echo(f"  [{disease.value}] wrote {ppath.name} (air + flagship)")
+        echo(f"  [{disease.value}] wrote {ppath.name} (air + flagship, {len(seeds)} seeds)")
 
 
 def staged_total(master: ExperimentConfig) -> int:

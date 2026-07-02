@@ -41,7 +41,9 @@ def run_experiment(
         betweenness(graph)  # warm the cache once before threads share the graph
 
         def _one(cfg, g=graph, where=f"{region}/{combo}"):
-            run_and_save(cfg, g, record_nodes=maps)
+            # skip_existing makes the sweep resumable: a (config, seed) already
+            # computed (by an earlier or interrupted run) is reused, not redone.
+            run_and_save(cfg, g, record_nodes=maps, skip_existing=True)
             if on_run is not None:
                 on_run(cfg, where)
 

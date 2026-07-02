@@ -46,6 +46,7 @@ def run_and_save(
     progress: ProgressFn | None = None,
     node_progress=None,
     node_every: int = 1,
+    skip_existing: bool = False,
 ) -> dict:
     """Simulate one run and persist it. When ``record_nodes`` is set, also
     write the per-node, per-day infection history (``node_timeseries.parquet``)
@@ -53,8 +54,22 @@ def run_and_save(
     for every run in a sweep would be wasteful. ``progress`` is forwarded to the
     engine so a caller (e.g. the dashboard) can stream the run day-by-day.
 
+    ``skip_existing`` makes the run **resumable**: a run is a pure function of
+    ``(config, seed)`` and its ``run_id`` (hence ``label``) is a hash of the
+    resolved config, so if a valid ``summary.json`` for this label already exists
+    we return it instead of recomputing. A truncated/partial file (e.g. from an
+    interrupted sweep) fails to parse and is recomputed, so this is safe to turn
+    on for batch sweeps. Off by default so single/interactive runs always refresh.
+
     A ``state.npz`` resume checkpoint is always written so the run can later be
     continued for more days (see :func:`continue_run`)."""
+    if skip_existing:
+        out_json = run_json(cfg.network.region, _combo(cfg), cfg.label)
+        if out_json.exists():
+            try:
+                return json.loads(out_json.read_text())
+            except (json.JSONDecodeError, OSError):
+                pass  # partial/corrupt -> fall through and recompute
     if graph is None:
         graph = read_graphml(resolve_graph_path(cfg))
 

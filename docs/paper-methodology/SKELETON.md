@@ -43,15 +43,16 @@ Diagrams live in [`diagrams/`](diagrams/) as editable `.drawio` files:
 *(maps to main.tex §Metapopulation dynamics; figure **F3**)*
 
 - **Reaction (per node, per day).** Force of infection `λ_i = β I_i / N_i`; the
-  four compartmental models as the reaction half of a metapopulation
+  five compartmental models as the reaction half of a metapopulation
   reaction–diffusion system `\cite{colizza:reactiondiffusion}`:
 
   | Model | Compartments | Transitions | Disease archetype |
   |-------|--------------|-------------|-------------------|
-  | SIR  | S,I,R   | S→I(λ), I→R(γ) | measles (permanent immunity) |
-  | SIS  | S,I     | S→I(λ), I→S(γ) | common cold (no immunity) |
-  | SEIR | S,E,I,R | S→E(λ), E→I(σ), I→R(γ) | COVID/SARS (latency) |
-  | SQIR | S,I,Q,R | S→I(λ), I→Q(κ), Q→R(γ_Q), I→R(γ) | Ebola (isolation) |
+  | SIR    | S,I,R       | S→I(λ), I→R(γ) | measles (permanent immunity) |
+  | SIS    | S,I         | S→I(λ), I→S(γ) | gonorrhea (no immunity) |
+  | SEIR   | S,E,I,R     | S→E(λ), E→I(σ), I→R(γ) | COVID/SARS (latency) |
+  | SEIRS  | S,E,I,R,S   | +R→S(ω) on SEIR | influenza (waning immunity) |
+  | SEIQRD | S,E,I,Q,R,D | S→E(λ), E→I(σ), I→Q(κ)/R(γ)/D(μ), Q→R(γ_Q) | Ebola (isolation + fatality) |
 
 - **Disease types tested:** 5 dynamical types — immunizing/SIR, latent/SEIR, lethal-isolated/SEIQR+D,
   endemic/SIS, recurrent/SEIRS — each with example diseases + literature-sourced parameters from one
@@ -64,9 +65,12 @@ Diagrams live in [`diagrams/`](diagrams/) as editable `.drawio` files:
     modelled as a force-of-infection coupling
     `π_i = Σ_j C_ij I*_j / N*_j` (C = per-capita commuting matrix with stay-home
     diagonal). No land ⇒ C = I ⇒ recovers plain diffusive.
-  - **Headline justification:** recurrent vs diffusive commuting lowers peak
-    active infection ~5× (~277M→~49M) on Europe air+land — a real
-    threshold-shifting effect, not tuning.
+  - **Justification (not a headline swing).** Recurrent coupling is adopted on
+    modelling grounds (commuters return home), not because it dominates the
+    number. At our operating point the two mechanisms give very similar European
+    air+land peaks (~71M recurrent vs ~73M diffusive); the air layer already
+    synchronises the continent. (The retracted ~5x / 277M→49M claim does not
+    reproduce and is impossible for SIR — see `../METHODOLOGY.md` §1.)
 - **In-transit transmission (refinement axis).** Full reaction on each travelling
   cohort for trip duration (distance/speed), onboard contact rate, onboard-control
   ∈[0,1]; matters most for ferries `\cite{rocklov:diamondprincess}`. Toggleable.
@@ -82,14 +86,14 @@ Diagrams live in [`diagrams/`](diagrams/) as editable `.drawio` files:
   air, keep land+water; (C) close all air in an air-only model; (D) close top-k by
   degree vs betweenness. B-vs-C is the multilayer-only contrast.
 - **Per-model hypotheses** (state as hypotheses, not results): firebreak (SIR),
-  endemic-plateau filter (SIS), layover interception (SEIR), quarantine of hubs (SQIR).
+  endemic-plateau filter (SIS), layover interception (SEIR), quarantine of hubs (SEIQRD).
 
 ## 3.4 Parameterisation & protocol
 *(maps to main.tex §Parameter choice + §Calibration vs verification)*
 
 - **B-backbone, C-check.** Fix clinical rates from epidemiology; set β to a
   literature R0. Network correction: `R0 ∝ (β/γ)·⟨k²⟩/⟨k⟩`
-  `\cite{pastorsatorras:scalefree}`; next-generation matrix for SEIR/SQIR
+  `\cite{pastorsatorras:scalefree}`; next-generation matrix for SEIR/SEIQRD
   `\cite{vandendriessche:r0}`. (Table 1 / `tab:params` already in main.tex.)
 - **We do NOT calibrate to case data** (no ground-truth outbreak on OpenFlights).
   Instead: (i) operating-point selection, (ii) sensitivity sweep for ranking

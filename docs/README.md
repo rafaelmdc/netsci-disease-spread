@@ -19,8 +19,11 @@ lives in [`../src`](../src); this folder is the design + writeup.
    on each, and the air-interdiction experiment.
 7. **[VISUALIZATION.md](VISUALIZATION.md)** — the navigable output layout, the
    animated outbreak map, and the simulator web app (`netsci dashboard`).
-8. **[ROADMAP.md](ROADMAP.md)** — status board and the build slices.
-9. **[MAINTENANCE.md](MAINTENANCE.md)** — reproducibility contract and
+8. **[ROADMAP.md](ROADMAP.md)** — implementation status board and build slices.
+9. **[RESEARCH-ROADMAP.md](RESEARCH-ROADMAP.md)** — the prioritised *scientific*
+   upgrades (ensembles, Collective-Influence / non-backtracking strategies,
+   mortality and equity metrics) with acceptance criteria.
+10. **[MAINTENANCE.md](MAINTENANCE.md)** — reproducibility contract and
    conventions for extending the code.
 
 ## Reference
@@ -34,6 +37,7 @@ lives in [`../src`](../src); this folder is the design + writeup.
 | [EXPERIMENTS.md](EXPERIMENTS.md) | The 8 networks, per-network run plan, air-interdiction scenarios A–D |
 | [VISUALIZATION.md](VISUALIZATION.md) | Co-located navigable outputs, animated map, the simulator web app, shared plotly bundle |
 | [ROADMAP.md](ROADMAP.md) | Phases / vertical slices, open decisions |
+| [RESEARCH-ROADMAP.md](RESEARCH-ROADMAP.md) | Prioritised scientific upgrades + acceptance criteria |
 | [MAINTENANCE.md](MAINTENANCE.md) | Determinism, configs, run_id, the one-command Nextflow/Docker run, testing |
 | [tex/](tex/) | The paper (KDD Explorations double-column). Build: `tectonic tex/main.tex` |
 | [sources/](sources/) | Original project blueprint PDF |

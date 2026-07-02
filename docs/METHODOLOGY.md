@@ -21,10 +21,11 @@ $\lambda_i = \beta \, I_i / N_i$, then the standard transitions:
 
 | Model | Compartments | Transitions (rates) |
 |-------|--------------|---------------------|
-| SIR  | S, I, R       | S→I ($\lambda_i$), I→R ($\gamma$) |
-| SIS  | S, I          | S→I ($\lambda_i$), I→S ($\gamma$) |
-| SEIR | S, E, I, R    | S→E ($\lambda_i$), E→I ($\sigma$), I→R ($\gamma$) |
-| SQIR | S, I, Q, R    | S→I ($\lambda_i$), I→Q ($\kappa$), Q→R ($\gamma_Q$), I→R ($\gamma$) |
+| SIR    | S, I, R          | S→I ($\lambda_i$), I→R ($\gamma$) |
+| SIS    | S, I             | S→I ($\lambda_i$), I→S ($\gamma$) |
+| SEIR   | S, E, I, R       | S→E ($\lambda_i$), E→I ($\sigma$), I→R ($\gamma$) |
+| SEIRS  | S, E, I, R, S    | as SEIR, plus R→S ($\omega$) waning |
+| SEIQRD | S, E, I, Q, R, D | S→E ($\lambda_i$), E→I ($\sigma$), I→Q ($\kappa$) / R ($\gamma$) / D ($\mu$), Q→R ($\gamma_Q$) |
 
 **Mobility — two mechanisms (not all diffusion).** Treating every transport
 layer as diffusion is a known error (`balcan:recurrent`), so we separate:
@@ -108,10 +109,11 @@ synthetic-population network:
 
    | Model | Disease archetype | Typical $R_0$ (cite in paper) | Fixed clinical rate |
    |-------|-------------------|-------------------------------|---------------------|
-   | SIR  | measles / smallpox | high (≈12–18 measles) | $\gamma$ from infectious period |
-   | SIS  | common cold / endemic | low, persistent | $\gamma$ from infectious period |
-   | SEIR | COVID-19 / SARS | ≈2–3 (early COVID) | $\sigma$ from incubation, $\gamma$ from infectious period |
-   | SQIR | Ebola / targeted | ≈1.5–2.5 | + $\kappa$ from time-to-isolation |
+   | SIR    | measles / rubella / mumps | high (≈12–18 measles) | $\gamma$ from infectious period |
+   | SIS    | gonorrhea / endemic | low, persistent | $\gamma$ from infectious period |
+   | SEIR   | COVID-19 / SARS | ≈2–3 (early COVID) | $\sigma$ from incubation, $\gamma$ from infectious period |
+   | SEIRS  | influenza / RSV | ≈1.3–1.8 | + $\omega$ from immunity duration |
+   | SEIQRD | Ebola / Marburg | ≈1.5–2.5 | + $\kappa$ from time-to-isolation, $\mu$ from CFR |
 
    *(Fill the exact values and citations in Table 1 of the paper — these
    are placeholders pending the team's chosen sources.)*
@@ -127,7 +129,7 @@ synthetic-population network:
      disease stays local below a critical mobility rate
      (`colizza:invasion`). So $\tau$ (travel rate) is a *parameter with a
      threshold*, not a free knob — report where we sit relative to it.
-   - Compute $R_0$ for the multi-compartment models (SEIR/SQIR) with the
+   - Compute $R_0$ for the multi-compartment models (SEIR/SEIRS/SEIQRD) with the
      **next-generation matrix** method (`vandendriessche:r0`), not by
      guessing.
 

@@ -56,7 +56,7 @@ Work and to locate the gap our project fills (see
 
 > **Directly answers "do we know how SIR works with these networks?" — yes.**
 > The standard answer is the **metapopulation reaction–diffusion model**:
-> a full compartmental model (SIR/SIS/SEIR/SQIR) runs *inside* each node
+> a full compartmental model (SIR/SIS/SEIR/SEIRS/SEIQRD) runs *inside* each node
 > (city/region/port), and individuals *diffuse* along the network edges
 > between time steps. **This is exactly our blueprint's two-part loop
 > (local city dynamics + flight migration).** So our simulator already *is*
@@ -83,7 +83,7 @@ Work and to locate the gap our project fills (see
   metapopulation models (India, medRxiv 2020.03.13) show the same
   framework applied to rail specifically.
 
-**Takeaway for the project:** SIR/SEIR/SQIR transfer to ground, rail and
+**Takeaway for the project:** SIR/SEIR/SEIRS/SEIQRD transfer to ground, rail and
 sea networks with *no change to the dynamics* — only the edge set and the
 per-layer migration rate change. The metapopulation reaction-diffusion
 literature is the citable backing for that claim.
@@ -157,11 +157,17 @@ boat/ground question). These are **real, citable** anchors per modality.
 - **Balcan & Vespignani (2011), *Nature Physics* — recurrent mobility.**
   `balcan:recurrent`. **Why our land layer is not diffusion.** Commuting is
   *recurrent* (go to work, return home), not diffusive (permanent relocation),
-  and the two give *different invasion thresholds* — a phase transition, not a
-  cosmetic difference. So air/water are modelled as diffusion (relocation) but
-  **land as recurrent commuting** that couples the force of infection between
-  cities without moving residents. Concretely, this lowered the European
-  air+land peak ~5× vs the naive all-diffusion model.
+  and the two give *different invasion thresholds* in principle. So air/water are
+  modelled as diffusion (relocation) but **land as recurrent commuting** that
+  couples the force of infection between cities without moving residents. We adopt
+  recurrent coupling on modelling grounds (commuters return home), not because it
+  swings the headline number: at our operating point the two mechanisms give very
+  similar European air+land peaks (about 71M recurrent vs 73M diffusive), because
+  the air layer already synchronises the continent (see
+  [`METHODOLOGY.md`](METHODOLOGY.md) §1 for the verification). An earlier version
+  of this note claimed a ~5x reduction (~277M→~49M); that figure does not
+  reproduce and is impossible for SIR (peak prevalence cannot exceed ~26%), so it
+  has been retracted.
 
 **How flows become coupling (so we don't invent it).** In the metapopulation
 framework the migration term is the *per-capita* mobility flux: the fraction
@@ -213,8 +219,9 @@ Epidemics-on-flight-networks is **not novel** on its own; the topic runs
 from the early 2000s (Colizza, Guimerà) to today. Our defensible,
 testable angle:
 
-1. **Europe-specific, four-model comparison** under one protocol — a gap
-   in the literature (most work is worldwide or US).
+1. **Europe-specific, five-disease-type comparison** (SIR, SIS, SEIR, SEIRS,
+   SEIQRD) under one protocol — a gap in the literature (most work is worldwide
+   or US).
 2. **The degree–betweenness question for Europe.** There are two regimes
    in the literature:
    - *US-like / correlated* (Sun, Hu & Zhu 2023): hubs are also bridges ⇒

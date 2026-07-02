@@ -40,7 +40,7 @@ results/
 │   │   ├── network.html            ← the graph itself (pyvis, Gephi-style)
 │   │   ├── network.gexf            ← Gephi export
 │   │   ├── structure.html          ← ρ(deg,btw) scatter + anomalous gateways
-│   │   ├── strategy_panel.html     ← 4 models × strategies comparison (this net)
+│   │   ├── strategy_panel.html     ← 5 disease types × strategies comparison (this net)
 │   │   ├── spread_geo.html         ← ⭐ animated outbreak map (representative run)
 │   │   ├── interdiction.html       ← scenarios A–D triptych (flagship only)
 │   │   │
@@ -156,7 +156,7 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
    (`src/viz/site.py`, `netsci viz site`): root + per-network + per-run
    `index.html`, figures co-located.
 5. ✅ **Structural + strategy figures** → `structure.html` (degree-vs-betweenness
-   scatter, anomalous gateways) and `strategy_panel.html` (per-network 4-model
+   scatter, anomalous gateways) and `strategy_panel.html` (per-network 5-disease-type
    strategy panel).
 6. ✅ **Interdiction** experiment (`src/evaluate/interdiction.py`,
    `netsci evaluate interdiction`) + curves figure → `interdiction.html`.

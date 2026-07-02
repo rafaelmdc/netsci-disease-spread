@@ -20,7 +20,8 @@ take the parameter values from one representative exemplar (cited below).
 | 4 | Endemic, no immunity | SIS | gonorrhea, chlamydia, common cold | gonorrhea |
 | 5 | Recurrent, waning immunity | SEIRS | seasonal influenza, RSV, norovirus | seasonal influenza |
 
-The only one we don't have (and dont worry mr lucas and mr matilde its just a SEIQR variation) is the lethal disease model.
+The lethal type (3) uses SEIQR+D: an SEIQR structure with an added fatal
+compartment D, parameterised from Ebola.
 
 ## Parameter values (per type)
 

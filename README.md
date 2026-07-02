@@ -1,5 +1,10 @@
 # netsci-disease-spread
 
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)
+![Tests](https://img.shields.io/badge/tests-pytest-green.svg)
+![Code style: ruff](https://img.shields.io/badge/lint-ruff-orange.svg)
+
 Simulating infection models and topology-aware vaccination strategies on
 transport networks — starting with European air travel and extending to
 multimodal (air / land / water) substrates and every world region.
@@ -19,7 +24,7 @@ air network (airports = nodes, routes = weighted edges), with **land**
 (rail/road/commuting) and **water** (ferry/shipping) layers added as a
 shared-node multilayer network, and the **region** as a parameter so the
 same analysis runs across continents and the whole world. On each network
-we run four compartmental dynamics — **SIR, SIS, SEIR, SQIR** — as a
+we run **five disease types** — **SIR, SIS, SEIR, SEIRS, and SEIQRD** — as a
 metapopulation reaction–diffusion process, and compare vaccination by
 **random**, **degree**, and **betweenness** targeting (plus a structural
 subgraph refinement). We also run an **air-interdiction** experiment — close
@@ -58,7 +63,7 @@ documentation index at [`docs/README.md`](docs/README.md).
 │   ├── retrieve/          # MODULE 1: pull raw data per layer (openflights, geonames, ferries)
 │   ├── netgen/            # MODULE 2: standardise layers → emit each network as GraphML
 │   ├── evaluate/          # MODULE 3: epidemic engine + strategies + metrics + interdiction
-│   │   ├── models/        #   SIR / SIS / SEIR / SQIR (metapopulation R-D)
+│   │   ├── models/        #   SIR / SIS / SEIR / SEIRS / SEIQRD (metapopulation R-D)
 │   │   ├── strategies/    #   vaccination targeting (control/random/degree/betweenness/subgraph)
 │   │   ├── metrics/       #   ρ(degree, betweenness) + FDR anomalous-gateway detection
 │   │   ├── interdiction.py#   close-the-airports experiment (scenarios A–D)
@@ -182,6 +187,18 @@ tectonic main.tex        # or: latexmk -pdf main.tex
 | [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md) | Reproducibility, conventions, how to extend |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Workflow for collaborators |
 
+## Roadmap
+
+Implementation status lives in [`docs/ROADMAP.md`](docs/ROADMAP.md). The
+prioritised plan for strengthening the scientific result (stochastic ensembles,
+Collective-Influence / non-backtracking strategies, mortality and equity metrics)
+is in [`docs/RESEARCH-ROADMAP.md`](docs/RESEARCH-ROADMAP.md).
+
+## Citing
+
+If you use this project, please cite it via [`CITATION.cff`](CITATION.cff)
+(GitHub renders a "Cite this repository" button from it).
+
 ## License
 
-See [`LICENSE`](LICENSE). _Add one before sharing externally._
+Released under the [MIT License](LICENSE).

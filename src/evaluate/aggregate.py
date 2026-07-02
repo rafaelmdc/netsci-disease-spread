@@ -12,11 +12,24 @@ from __future__ import annotations
 
 import json
 
+import numpy as np
 import pandas as pd
 
 from src.evaluate.metrics import characterize, degree_betweenness
 from src.netgen.graph_io import read_graphml
 from src.paths import PROCESSED, RESULTS, combo_name
+
+
+def ci95(x) -> float:
+    """Half-width of the 95% confidence interval of the mean, across a seed
+    ensemble. Returns 0.0 for a single sample (nothing to be uncertain about
+    yet). Used everywhere we turn a set of per-seed values into mean +/- band."""
+    a = np.asarray(x, dtype=float)
+    a = a[~np.isnan(a)]
+    n = a.size
+    if n < 2:
+        return 0.0
+    return float(1.96 * a.std(ddof=1) / np.sqrt(n))
 
 
 def collect(write: bool = True) -> pd.DataFrame:
@@ -58,24 +71,38 @@ def collect(write: bool = True) -> pd.DataFrame:
 
 
 def strategy_gap(df: pd.DataFrame) -> pd.DataFrame | None:
-    """Per network/model/coverage (avg over seeds): peak under degree- vs
-    betweenness-targeting and their gap. Near-zero gap => the cheap degree
+    """Per network/model/coverage: peak under degree- vs betweenness-targeting and
+    their gap, as a seed ensemble. The gap is computed *per seed* (degree and
+    betweenness share the seed's initial-infection placement, so it is a paired
+    comparison), then averaged, with a 95% CI. ``gap_rel_ci`` clear of zero means
+    betweenness genuinely beats degree; a near-zero gap means the cheap degree
     strategy matches the expensive betweenness one (US-like)."""
     pair = df[df["strategy"].isin(["degree", "betweenness"])]
     if pair.empty:
         return None
+    # per-seed pivot: one degree and one betweenness peak per seed.
+    keys = ["region", "combo", "model", "coverage", "seed"]
     piv = (
-        pair.groupby(["region", "combo", "model", "coverage", "strategy"])["peak_infected"]
-        .mean()
-        .unstack("strategy")
+        pair.groupby([*keys, "strategy"])["peak_infected"].mean().unstack("strategy")
     )
     if not {"degree", "betweenness"}.issubset(piv.columns):
         return None
-    g = piv.reset_index().rename(
+    piv = piv.reset_index().rename(
         columns={"degree": "peak_degree", "betweenness": "peak_betweenness"}
     )
-    g["gap_abs"] = g["peak_degree"] - g["peak_betweenness"]
-    g["gap_rel"] = g["gap_abs"] / g["peak_degree"].where(g["peak_degree"] > 0)
+    piv["gap_abs"] = piv["peak_degree"] - piv["peak_betweenness"]
+    piv["gap_rel"] = piv["gap_abs"] / piv["peak_degree"].where(piv["peak_degree"] > 0)
+    # collapse the seed ensemble to mean +/- 95% CI per configuration.
+    grp = piv.groupby(["region", "combo", "model", "coverage"])
+    g = grp.agg(
+        n_seeds=("gap_abs", "size"),
+        peak_degree=("peak_degree", "mean"),
+        peak_betweenness=("peak_betweenness", "mean"),
+        gap_abs=("gap_abs", "mean"),
+        gap_abs_ci=("gap_abs", ci95),
+        gap_rel=("gap_rel", "mean"),
+        gap_rel_ci=("gap_rel", ci95),
+    ).reset_index()
     return g
 
 

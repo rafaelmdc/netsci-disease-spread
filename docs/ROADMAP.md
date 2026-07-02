@@ -1,8 +1,19 @@
 # Roadmap & Status
 
-Living document. Tracks what exists, what's next, and open decisions.
+Living document. Tracks what exists, what's next, and open decisions. For the
+prioritised *scientific* upgrades (stochastic ensembles, Collective-Influence /
+non-backtracking strategies, mortality and equity metrics), see
+[`RESEARCH-ROADMAP.md`](RESEARCH-ROADMAP.md).
 
-## Status (2026-06-27)
+## Status (2026-07-02)
+
+> **Latest:** the staged pipeline has been rerun with all **five disease types**
+> (SIR, SIS, SEIR, SEIRS, SEIQRD). Betweenness (bridges) wins the defend stage for
+> every disease; the interdiction pattern is uniform (closing all air ~halves the
+> multimodal peak vs collapsing it in the air-only world). The curated figure set
+> (F-spread / F-defense / F-dose / F-interdiction + T1) and the paper's
+> `results.tex` + `discussion.tex` are written from this run. Still stubs:
+> `introduction.tex`, `conclusion.tex`.
 
 | Area | Status |
 |------|--------|
@@ -11,7 +22,7 @@ Living document. Tracks what exists, what's next, and open decisions.
 | Literature review | ✅ `docs/literature-review.md` (verified refs; Tanaka→Sun fixed) |
 | Design docs | ✅ architecture, data, methodology, experiments, visualization |
 | Slice 0 (skeleton) | ✅ toy pipeline runs end-to-end |
-| Slice 1 (Europe/air MVP) | ✅ real network, 4 models, ρ(deg,btw)≈0.89 |
+| Slice 1 (Europe/air MVP) | ✅ real network, 5 disease types, ρ(deg,btw)≈0.89 |
 | Slice 2 (sweep + operating-point) | ✅ experiment.yaml (8 networks), parallel sweep, horizon=210 |
 | Slice 3 (subgraph/core + verify) | ✅ subgraph strategy, threshold verification |
 | Slice 4 (multimodal) | 🟡 air+land+water built for Europe; water + OSM/GRIP global coverage = GAPS |
@@ -54,7 +65,7 @@ Living document. Tracks what exists, what's next, and open decisions.
 - [x] `retrieve`: OpenFlights fetcher + provenance.
 - [x] `netgen`: tz-prefix region filter, weighted air graph, population proxy
       (Europe = 561 nodes, 10072 edges) via a layer-builder registry.
-- [x] `evaluate/models`: SIR, SIS, SEIR, SQIR (registry) as metapopulation R-D,
+- [x] `evaluate/models`: SIR, SIS, SEIR, SEIRS, SEIQRD (registry) as metapopulation R-D,
       with a universal inert `V` compartment for correct immunization.
 - [x] `evaluate/strategies`: control, random, degree, betweenness (registry).
 - [x] `evaluate/metrics`: characterization + **ρ(degree, betweenness)** and
@@ -70,10 +81,12 @@ Living document. Tracks what exists, what's next, and open decisions.
 > flight frequency, not a distance).
 
 ### Phase 2 — Novelty depth
-- [ ] Subgraph/core-aware targeting (k-core, motifs, graphlets).
-- [ ] Sensitivity sweep (β/R₀, τ, coverage, efficacy) — show ranking is
-      stable (see `METHODOLOGY.md`).
-- [ ] Low (1%) vs high (75%) coverage comparison.
+- [x] Subgraph/core-aware targeting (k-core / dense motifs) in the strategy set.
+- [~] Sensitivity sweep (β/R₀, τ, coverage, efficacy) — factorial mode exists;
+      the coverage sweep was collapsed to a single operating point (0.75). The
+      remaining ranking-stability work (seed ensembles + confidence bands, and
+      the Collective-Influence / non-backtracking strategies) is tracked in
+      [`RESEARCH-ROADMAP.md`](RESEARCH-ROADMAP.md).
 
 ### Phase 2b — Interactive visualizers (**must**, graded highly) — done
 - [x] `pyvis` interactive network (geographic layout, vaccinated nodes).

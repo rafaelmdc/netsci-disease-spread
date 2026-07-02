@@ -127,5 +127,12 @@ transit: null
 # and the (near-)equilibrium prevalence for endemic ones -- comparable, but read
 # with that in mind.
 horizons:    [1460]
-seeds:       [0]            # single seed (seeded in the giant component, so it takes off)
+# Seed ENSEMBLE: each seed places the initial infections at a different (random,
+# but reproducible) set of cities in the giant component, so averaging over seeds
+# turns every headline number into a mean with a confidence band instead of a
+# single deterministic point. 10 seeds gives a usable 95% CI at a tractable
+# runtime; widen to 20 for tighter bounds, or a single [0] for a smoke test.
+# Runs are resumable (skip_existing), so widening later only computes the new
+# seeds. See docs/RESEARCH-ROADMAP.md #1.
+seeds:       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 seed_size:   2500           # initial infectious seed

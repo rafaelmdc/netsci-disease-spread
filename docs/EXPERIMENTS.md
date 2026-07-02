@@ -1,25 +1,31 @@
 # Experiment & Network Plan
 
-What we build, what we run on it, and which paper artifact each produces.
-The guiding rule: **every network earns its place by answering one sentence
-in the paper.** Most networks only feed a structural table (instant, no
-simulation); the full 4-model vaccination grid runs only where the story
-needs it (the Europe ladder).
+What we build, what we run on it, and which paper artifact each produces. The
+source of truth for every number here is [`../experiment.yaml`](../experiment.yaml);
+this doc explains the *design* behind it. The guiding rule: **every network earns
+its place by answering one sentence in the paper.** The cross-region networks feed
+a structural table only (instant, no simulation); the full disease × strategy grid
+runs only where the story needs it (the Europe realism ladder).
 
-Central question: **In Europe, once you account for air *and* land *and*
-water travel (including how long each trip takes), is the cheap
-degree-targeted vaccination the same as the expensive betweenness-targeted
-one — and can you even stop an outbreak by grounding flights?**
+Central question: **In Europe, once you account for air *and* water *and* land
+travel, is cheap degree-targeted vaccination as good as expensive
+betweenness-targeted vaccination, and can you even stop an outbreak by grounding
+flights?**
 
 ---
 
 ## 1. Networks we build (8 graphs)
 
+The substrate is deliberately **asymmetric** (see `experiment.yaml`): air-only
+everywhere for a fair cross-region comparison (uniform OpenFlights data, so
+differences reflect topology, not the data source), plus the dense multimodal
+stack for Europe only, where ground and ferry data is defensible.
+
 | # | Region | Layers | Role in the paper |
 |---|--------|--------|-------------------|
 | 1 | **europe** | **air + land + water** | ⭐ flagship — the realistic Europe; all headline results live here |
-| 2 | europe | air + land | middle rung of the "add realism" ladder |
-| 3 | europe | air | naive baseline the multilayer is compared against |
+| 2 | europe | air + water | middle rung of the realism ladder |
+| 3 | europe | air | naive baseline the multilayer is compared against (shared pivot) |
 | 4 | americas | air | cross-region spectrum (US-like pole) |
 | 5 | asia | air | cross-region spectrum |
 | 6 | africa | air | cross-region spectrum |
@@ -27,109 +33,105 @@ one — and can you even stop an outbreak by grounding flights?**
 | 8 | world | air | cross-region spectrum (worldwide / Guimerà pole) |
 
 Two storylines share node **#3 (europe/air)** as their pivot:
-- **Ladder** (#1–#3): same region, more layers each step → shows the answer
-  *move* as the map gets realistic.
-- **Cross-region** (#3–#8): same layer everywhere, fair comparison → where
+- **Realism ladder** (#3 → #2 → #1): same region, one more layer each step
+  (air → +water → +land) → shows the answer *move* as the map gets realistic.
+  Water is added **before** land because land coupling is strong enough to swamp
+  water's marginal effect, so we show water's contribution first.
+- **Cross-region** (#3–#8): same layer (air) everywhere, fair comparison → where
   Europe sits among continents.
 
 ---
 
-## 2. What runs on each network
+## 2. The protocol: a staged coordinate descent
 
-| # | Network | ① Structure (ρ, gateways) | ② Vaccination grid | ③ Air-interdiction |
-|---|---------|:---:|:---:|:---:|
-| 1 | europe air+land+water | ✅ | ✅ full (108) | ✅ scenarios A–D |
-| 2 | europe air+land       | ✅ | ✅ full (108) | — |
-| 3 | europe air            | ✅ | ✅ full (108) | — |
-| 4 | americas air          | ✅ | ◽ light (SIR, 27) | — |
-| 5 | asia air              | ✅ | ◽ light (SIR, 27) | — |
-| 6 | africa air            | ✅ | ◽ light (SIR, 27) | — |
-| 7 | oceania air           | ✅ | ◽ light (SIR, 27) | — |
-| 8 | world air             | ✅ | ◽ light (SIR, 27) | — |
+Runs are driven by `protocol.mode: staged` (see `src/evaluate/staged.py`), a
+sequential walk down the Europe ladder rather than a blind full-factorial. The
+cross-region networks are **built** (for the topology-only region spectrum) but
+get **no epidemic runs** — the funnel: wide = structure, deep = Europe.
 
-- **① Structure** — `ρ(degree, betweenness)` + anomalous-gateway list.
-  No simulation; seconds per graph. Runs on all 8.
-- **② Vaccination grid (full)** — 4 models × (control + 4 strategies × 2
-  coverages) × 3 seeds = **108 runs**. Identical grid on all three Europe
-  rungs so the ladder is a true apples-to-apples comparison (only the
-  layers differ). Light version = SIR only (**27 runs**) on the cross-region
-  air nets, just to show the structural result has an epidemic consequence.
-- **③ Air-interdiction** — flagship only. Close air routes, see if land +
-  water still carry the outbreak (see §4).
+| Stage | What it runs | Reads out |
+|-------|--------------|-----------|
+| **1 Spread** | every disease type × every rung, control only (no intervention) | how each disease spreads, per substrate |
+| **2 Defend** | every disease × every strategy × every rung, at the operating budget | which node-targeting rule wins |
+| **3 Dose** | the winning strategy's budget swept over `budget_grid` on the flagship | dose–response / diminishing returns |
+| **4 Interdiction** | close routes on the air-only and the multimodal substrate | what grounding flights achieves, per substrate |
+
+A full-factorial `mode` crossing every axis at once (the ~800-run grid) is also
+available for sensitivity analysis, but the staged run is the one behind the
+paper's figures. An optional `anchor_disease` can restrict stage 2 to one disease
+before re-checking the winner on the rest; the current run drops the anchor and
+runs the full disease × strategy grid.
 
 ---
 
-## 3. The vaccination grid (one cell of the panel)
+## 3. The evaluation grid (current operating point)
 
-Each "full" cell above expands to:
+Everything below comes straight from `experiment.yaml`.
 
 | Axis | Values | Count |
 |------|--------|------:|
-| Disease model | SIR, SIS, SEIR, SQIR | 4 |
+| Disease type | SIR, SIS, SEIR, SEIRS, SEIQRD | 5 |
 | Strategy | control, random, degree, betweenness, subgraph | 5 |
-| Coverage | 1 % (low), 75 % (high) | 2 (control uses 1) |
-| Seeds | 0, 1, 2 (averaged) | 3 |
+| Rung (Europe) | air, air+water, air+land+water | 3 |
+| Dose budgets (stage 3) | 5, 15, 30, 60, 120, 200 cities | 6 |
 
-→ 4 × (1 + 4×2) × 3 = **108 runs** per network. Fixed: 15 cities immunised,
-85 % efficacy, 210-day horizon, seed 2500.
+**Fixed** across every run so only the studied factor varies: budget = 15 cities
+(stages 1–2, 4), coverage = 0.75, efficacy = 0.85, initial seed size = 2500,
+horizon = 1460 days (4 years, one uniform horizon so acute and endemic types are
+comparable), single seed (0), seeded inside the giant component so the outbreak
+takes off. `tau_by_layer = {air: 0.0002, land: 0.3, water: 0.0005}`.
+
+> **Single seed today.** Reporting one seed per configuration is the biggest open
+> credibility gap; widening `seeds` to an ensemble with confidence bands is item 1
+> of [`RESEARCH-ROADMAP.md`](RESEARCH-ROADMAP.md).
 
 ---
 
-## 4. The air-interdiction experiment (flagship only)
+## 4. The interdiction experiment (Europe, two substrates)
 
 Removing **edges** (close routes), not **nodes** (vaccinate cities) — the
-intervention only the multilayer can express.
+intervention only a multilayer model can express. Run on both the air-only and
+the multimodal flagship substrate, for all five diseases.
 
 | Scenario | What we do | What it shows |
 |----------|-----------|---------------|
-| **A** | full air+land+water, no intervention | reference outbreak |
-| **B** | close **all** air routes, keep land + water | do roads + ferries carry it anyway? |
-| **C** | close all air in an **air-only** model | what a naive (air-only) modeller wrongly concludes |
-| **D** | close only the top-_k_ airports by **degree** vs by **betweenness** | which closures matter — busy hubs or bridges? |
+| Full | no intervention | reference outbreak (per substrate) |
+| Close all air | close **all** air routes | do land + ferry carry it anyway? |
+| Close top-10 hubs | close the top-10 airports by betweenness | do a few bridge closures matter? |
 
-Run across SIR + SEIR × 3 seeds (~30–40 fast runs). **B vs C is the
-headline:** air-only modelling says "ground the flights and you're safe";
-the multilayer shows land/ferry travel keeps it going. **D** asks the
-central question through closure instead of vaccination.
+**Headline:** on the air-only substrate, closing all air routes collapses the
+outbreak to ~0.1–0.2% of its peak; on the multimodal substrate the same closure
+still leaves ~34–44% standing, because land commuting and ferries keep moving
+people. A single-layer model overstates a flight ban's benefit by two to three
+orders of magnitude.
 
 ---
 
 ## 5. What the paper actually shows (the artifacts)
 
-1. **Cross-region structural table** — 8 rows (one per network), columns
-   `ρ(deg,btw)` and # anomalous gateways. Places Europe on the
-   US-like ↔ worldwide-like spectrum. *(from ① on all 8)*
+The curated figure set (`docs/curated_tex/figures/`) is four figures plus one
+table, one per stage:
 
-2. **Europe ladder structural panel** — 3 rows (air → air+land →
-   air+land+water) showing how the set of critical bridge cities changes as
-   layers are added. *(from ① on #1–#3)*
+1. **F-spread** — uncontrolled peak (as a fraction of population) by disease type
+   and rung. Orders by dynamical class; nearly flat up the ladder. *(stage 1)*
+2. **F-defense** — peak reduction per strategy at the operating budget on the
+   flagship; betweenness wins for every disease. *(stage 2)*
+3. **F-dose** — peak reduction vs number of cities vaccinated under the winning
+   rule; diminishing returns. *(stage 3)*
+4. **F-interdiction** — peak remaining after closing all air / top-10 hubs, air-only
+   vs multimodal. *(stage 4)*
+5. **T1** — the per-type disease parameters (`disease-types.md`).
 
-3. **The vaccination panel — the "4×n" you asked about** — it is
-   **4 models × 3 Europe rungs = 12 cells**, each cell a
-   strategy-comparison plot (final size / peak by strategy, low vs high
-   coverage). Read **down a column** = same model, more realism; read
-   **across a row** = same map, different disease. This is the deliverable
-   grid, and it is 12 cells, *not* 32 — the cross-region nets don't enter
-   here. *(from ② full on #1–#3)*
-
-4. **Cross-region consequence strip** — small SIR-only bar per region
-   (#4–#8) confirming the structural ρ has a real epidemic effect.
-   *(from ② light)*
-
-5. **Air-interdiction figure** — scenarios A–D on the flagship; the
-   "grounding flights isn't enough" result. *(from ③)*
+Separately, the **cross-region structural table** (ρ(deg,btw) + anomalous-gateway
+count per air network) places Europe on the US-like ↔ worldwide-like spectrum,
+from the topology-only pass on all eight networks.
 
 ---
 
-## 6. Run-count budget (all fast)
+## 6. Run-count budget
 
-| Block | Runs |
-|-------|-----:|
-| Structure (8 graphs) | ~0 (seconds) |
-| Europe ladder vaccination (3 × 108) | 324 |
-| Cross-region light (5 × 27) | 135 |
-| Air-interdiction | ~40 |
-| **Total** | **≈ 500** |
-
-Eight networks, ~500 fast simulations, every run mapped to a figure. Well
-under the "don't brute-force" line.
+The staged run is roughly: stage 1 (5 diseases × 3 rungs) + stage 2 (5 × 5 × 3) +
+stage 3 (6 budgets on the flagship winner) + stage 4 (5 diseases × 2 substrates ×
+scenarios), on the order of ~140 fast simulations, plus the instant structural
+pass on all eight graphs. Every run maps to a figure — well under the
+"don't brute-force" line.

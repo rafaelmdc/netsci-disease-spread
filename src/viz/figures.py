@@ -32,9 +32,16 @@ import matplotlib
 
 matplotlib.use("Agg")  # headless: no display needed
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
+from src.evaluate.aggregate import ci95
 from src.paths import RESULTS, ROOT
+
+# Error bars everywhere show the 95% CI of the mean across the seed ensemble
+# (see docs/RESEARCH-ROADMAP.md #1). With a single-seed run the CI is 0 and the
+# bars simply vanish, so the figures render either way.
+ERRKW = {"ecolor": "#444444", "elinewidth": 0.7, "capsize": 2.0}
 
 TEX = ROOT / "docs" / "curated_tex" / "figures"
 COL_W = 3.4  # one column of a double-column page (inches)
@@ -126,18 +133,22 @@ def fig_spread(summary: pd.DataFrame) -> Path | None:
     if df.empty:
         return None
     df["peak_pct"] = df["peak_infected"] / df["total_population"] * 100.0
-    g = (df.groupby(["model", "combo"])[["peak_infected", "total_population",
-                                         "peak_pct"]].mean().reset_index())
+    grp = df.groupby(["model", "combo"])
+    g = grp[["peak_infected", "total_population", "peak_pct"]].mean().reset_index()
+    g = g.merge(
+        grp["peak_pct"].agg(ci95).reset_index(name="peak_pct_ci"),
+        on=["model", "combo"],
+    )
     models = [m for m in MODELS if m in g["model"].unique()]
     _style()
     fig, ax = plt.subplots(figsize=(COL_W, 2.5))
     step, x = 0.27, range(len(models))
     for i, rung in enumerate(RUNGS):
-        vals = [
-            g[(g["model"] == m) & (g["combo"] == rung)]["peak_pct"].sum()
-            for m in models
-        ]
+        sub = [g[(g["model"] == m) & (g["combo"] == rung)] for m in models]
+        vals = [c["peak_pct"].sum() for c in sub]
+        errs = [c["peak_pct_ci"].sum() for c in sub]
         ax.bar([xi + (i - 1) * step for xi in x], vals, step * BAR_GAP,
+               yerr=errs, error_kw=ERRKW,
                label=RUNG_LABEL[rung], **_bar_kw(RUNG_HUE[rung]))
     ax.set_xticks(list(x))
     ax.set_xticklabels([_disease(m, two_line=True) for m in models])
@@ -160,17 +171,22 @@ def fig_defense(summary: pd.DataFrame, budget: int = 15) -> Path | None:
     rows = []
     for m in MODELS:
         sm = s[s["model"] == m]
-        ctrl = sm[sm["strategy"] == "control"]["peak_infected"].mean()
-        if not (ctrl > 0):
+        # per-seed control baseline (degree/betweenness/... share each seed's
+        # initial placement, so reduction is a paired, per-seed quantity).
+        ctrl = sm[sm["strategy"] == "control"].groupby("seed")["peak_infected"].mean()
+        ctrl = ctrl[ctrl > 0]
+        if ctrl.empty:
             continue
         for strat in STRAT_ORDER:
             cell = sm[(sm["strategy"] == strat) & (sm["coverage"] == hi)
-                      & (sm["budget"] == budget)]
-            if cell.empty:
+                      & (sm["budget"] == budget)].groupby("seed")["peak_infected"].mean()
+            paired = pd.concat([cell.rename("peak"), ctrl.rename("ctrl")],
+                               axis=1, join="inner").dropna()
+            if paired.empty:
                 continue
-            peak = cell["peak_infected"].mean()
+            red_s = (paired["ctrl"] - paired["peak"]) / paired["ctrl"] * 100.0
             rows.append({"model": m, "strategy": strat,
-                         "reduction_pct": (ctrl - peak) / ctrl * 100.0})
+                         "reduction_pct": red_s.mean(), "reduction_ci": ci95(red_s)})
     if not rows:
         return None
     red = pd.DataFrame(rows)
@@ -185,11 +201,11 @@ def fig_defense(summary: pd.DataFrame, budget: int = 15) -> Path | None:
     x = range(len(STRAT_ORDER))
     for j, m in enumerate(models):
         off = (j - (n - 1) / 2) * step  # centre the group on each tick
-        vals = [
-            red[(red["model"] == m) & (red["strategy"] == s)]["reduction_pct"].sum()
-            for s in STRAT_ORDER
-        ]
+        cells = [red[(red["model"] == m) & (red["strategy"] == s)] for s in STRAT_ORDER]
+        vals = [c["reduction_pct"].sum() for c in cells]
+        errs = [c["reduction_ci"].sum() for c in cells]
         ax.bar([xi + off for xi in x], vals, step * BAR_GAP,
+               yerr=errs, error_kw=ERRKW,
                label=_disease(m), **_bar_kw(DISEASE_HUE[m]))
     ax.set_xticks(list(x))
     ax.set_xticklabels(STRAT_ORDER)
@@ -230,21 +246,30 @@ def fig_interdiction(region: str = REGION) -> Path | None:
     if not series:
         return None
     models = [m for m in MODELS if m in series]
-    # peak per (model, combo, scenario), and each scenario as % of that
-    # substrate's own full-network peak.
-    peaks = {m: series[m].groupby(["combo", "scenario"])["infectious"].max()
-             for m in models}
     sub_order = ["air", FLAGSHIP]
     scn_order = list(_SCN)
     out_rows = []
     for m in models:
+        df = series[m]
+        if "seed" not in df.columns:  # backward-compat with single-seed parquets
+            df = df.assign(seed=0)
+        # peak per (combo, scenario, seed); each scenario as % of that substrate's
+        # own full-network peak, computed PER SEED then averaged with a 95% CI.
+        pk = df.groupby(["combo", "scenario", "seed"])["infectious"].max()
+        seeds = sorted(df["seed"].unique())
         for combo in sub_order:
-            full = peaks[m].get((combo, _FULL_SCN), float("nan"))
             for scn in [_FULL_SCN, *scn_order]:
-                pk = peaks[m].get((combo, scn), float("nan"))
-                pct = pk / full * 100.0 if full and full > 0 else float("nan")
-                out_rows.append({"model": m, "combo": combo, "scenario": scn,
-                                 "peak": pk, "pct_of_full": pct})
+                pcts = []
+                for sd in seeds:
+                    full = pk.get((combo, _FULL_SCN, sd), float("nan"))
+                    val = pk.get((combo, scn, sd), float("nan"))
+                    if full and full > 0 and val == val:
+                        pcts.append(val / full * 100.0)
+                out_rows.append({
+                    "model": m, "combo": combo, "scenario": scn,
+                    "pct_of_full": float(np.mean(pcts)) if pcts else float("nan"),
+                    "pct_of_full_ci": ci95(pcts), "n_seeds": len(pcts),
+                })
     out = pd.DataFrame(out_rows)
 
     _style()
@@ -254,13 +279,15 @@ def fig_interdiction(region: str = REGION) -> Path | None:
     for ax, scn in zip(axes, scn_order, strict=False):
         for j, combo in enumerate(sub_order):
             label, hue = _SUBSTRATE[combo]
-            vals = [
+            cells = [
                 out[(out["model"] == m) & (out["combo"] == combo)
-                    & (out["scenario"] == scn)]["pct_of_full"].sum()
+                    & (out["scenario"] == scn)]
                 for m in models
             ]
+            vals = [c["pct_of_full"].sum() for c in cells]
+            errs = [c["pct_of_full_ci"].sum() for c in cells]
             ax.bar([xi + (j - 0.5) * step for xi in x], vals, step * BAR_GAP,
-                   label=label, **_bar_kw(hue))
+                   yerr=errs, error_kw=ERRKW, label=label, **_bar_kw(hue))
         ax.set_xticks(list(x))
         ax.set_xticklabels([_disease(m, two_line=True) for m in models])
         ax.set_title(_SCN[scn])
@@ -284,25 +311,37 @@ def fig_dose(summary: pd.DataFrame) -> Path | None:
     out_rows, plotted = [], False
     for m in MODELS:
         sm = s[s["model"] == m]
-        ctrl = sm[sm["strategy"] == "control"]["peak_infected"].mean()
+        ctrl = sm[sm["strategy"] == "control"].groupby("seed")["peak_infected"].mean()
+        ctrl = ctrl[ctrl > 0]
         cand = sm[(sm["strategy"] != "control") & (sm["coverage"] == hi)]
-        if cand.empty or not (ctrl > 0):
+        if cand.empty or ctrl.empty:
             continue
         winner = cand.groupby("strategy")["budget"].nunique().idxmax()
-        w = (cand[cand["strategy"] == winner].groupby("budget")["peak_infected"]
-             .mean().sort_index())
-        if len(w) < 2:
+        wcand = cand[cand["strategy"] == winner]
+        bvals, means, cis = [], [], []
+        for b in sorted(wcand["budget"].unique()):
+            peak = wcand[wcand["budget"] == b].groupby("seed")["peak_infected"].mean()
+            paired = pd.concat([peak.rename("peak"), ctrl.rename("ctrl")],
+                               axis=1, join="inner").dropna()
+            if paired.empty:
+                continue
+            red_s = (paired["ctrl"] - paired["peak"]) / paired["ctrl"] * 100.0
+            bvals.append(int(b)); means.append(red_s.mean()); cis.append(ci95(red_s))
+        if len(bvals) < 2:
             continue
-        reduction = (ctrl - w.to_numpy()) / ctrl * 100.0
+        means_a, cis_a = np.array(means), np.array(cis)
         hue = DISEASE_HUE[m]
         # lines take the darker stroke (pastel would vanish on white); markers
         # take the pastel fill with that stroke, so they match the bar figures.
-        ax.plot(w.index, reduction, "-o", ms=4.5, color=EDGE[hue],
+        ax.plot(bvals, means_a, "-o", ms=4.5, color=EDGE[hue],
                 markerfacecolor=FILL[hue], markeredgecolor=EDGE[hue],
                 label=f"{_disease(m)}, {winner}")
+        ax.fill_between(bvals, means_a - cis_a, means_a + cis_a,
+                        color=FILL[hue], alpha=0.55, linewidth=0)
         plotted = True
-        out_rows += [{"model": m, "strategy": winner, "budget": int(b),
-                      "reduction_pct": r} for b, r in zip(w.index, reduction)]
+        out_rows += [{"model": m, "strategy": winner, "budget": b,
+                      "reduction_pct": r, "reduction_ci": c}
+                     for b, r, c in zip(bvals, means, cis)]
     if not plotted:
         return None
     ax.set_xlabel("cities vaccinated (budget)")
