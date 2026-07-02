@@ -52,7 +52,9 @@ def staged(
     The small, sequential alternative to the full factorial `sweep`."""
     from src.evaluate.staged import run_staged
 
-    winners = run_staged(load_experiment_config(config), workers=workers, maps=maps, echo=typer.echo)
+    winners = run_staged(
+        load_experiment_config(config), workers=workers, maps=maps, echo=typer.echo
+    )
     summary = ", ".join(f"{d}->{w.value}" for d, w in winners.items())
     typer.echo(f"staged protocol complete - best defense per disease: {summary}")
 

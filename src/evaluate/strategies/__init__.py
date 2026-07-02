@@ -14,7 +14,11 @@ import networkx as nx
 import numpy as np
 
 from src.config import StrategyConfig, StrategyName
-from src.evaluate.centrality import betweenness
+from src.evaluate.centrality import (
+    betweenness,
+    collective_influence,
+    nonbacktracking_scores,
+)
 from src.registry import Registry
 
 Selector = Callable[[nx.DiGraph, int, np.random.Generator], list[str]]
@@ -58,6 +62,28 @@ def _subgraph(graph: nx.DiGraph, budget: int, rng: np.random.Generator) -> list[
     # interconnected clusters). A full graphlet (ORCA) score is future work.
     tri = nx.triangles(nx.DiGraph(graph).to_undirected())
     return [n for n, _ in sorted(tri.items(), key=lambda kv: kv[1], reverse=True)[:budget]]
+
+
+@STRATEGY_REGISTRY.register(StrategyName.COLLECTIVE_INFLUENCE)
+def _collective_influence(
+    graph: nx.DiGraph, budget: int, rng: np.random.Generator
+) -> list[str]:
+    # Optimal-percolation targeting (Morone & Makse): rank by radius-2 CI, which
+    # elevates low-degree nodes bridging high-degree neighbourhoods. Cached per
+    # graph in centrality.py.
+    ci = collective_influence(graph, radius=2)
+    return [n for n, _ in sorted(ci.items(), key=lambda kv: kv[1], reverse=True)[:budget]]
+
+
+@STRATEGY_REGISTRY.register(StrategyName.NONBACKTRACKING)
+def _nonbacktracking(
+    graph: nx.DiGraph, budget: int, rng: np.random.Generator
+) -> list[str]:
+    # Spectral targeting: remove the nodes carrying the most mass in the leading
+    # non-backtracking eigenvector, i.e. those that most raise the epidemic
+    # threshold's driving eigenvalue (Torres et al.). Cached per graph.
+    nb = nonbacktracking_scores(graph)
+    return [n for n, _ in sorted(nb.items(), key=lambda kv: kv[1], reverse=True)[:budget]]
 
 
 def select_targets(graph: nx.DiGraph, cfg: StrategyConfig, rng: np.random.Generator) -> list[str]:

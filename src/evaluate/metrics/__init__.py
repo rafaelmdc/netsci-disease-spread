@@ -24,7 +24,30 @@ def characterize(graph: nx.DiGraph) -> dict[str, float]:
         "n_edges": float(graph.number_of_edges()),
         "mean_degree": float(k),
         "k2_over_k": float(k2 / k) if k > 0 else 0.0,
+        "assortativity": _assortativity(graph),
+        "giant_frac": _giant_fraction(graph),
     }
+
+
+def _assortativity(graph: nx.DiGraph) -> float:
+    """Degree assortativity coefficient; NaN when undefined (e.g. regular graph)."""
+    try:
+        return float(nx.degree_assortativity_coefficient(graph))
+    except (ValueError, ZeroDivisionError, nx.NetworkXError):
+        return float("nan")
+
+
+def _giant_fraction(graph: nx.DiGraph) -> float:
+    """Fraction of nodes in the largest (weakly) connected component."""
+    n = graph.number_of_nodes()
+    if n == 0:
+        return 0.0
+    components = (
+        nx.weakly_connected_components(graph)
+        if graph.is_directed()
+        else nx.connected_components(graph)
+    )
+    return max((len(c) for c in components), default=0) / n
 
 
 def _benjamini_hochberg(pvals: np.ndarray, q: float) -> np.ndarray:

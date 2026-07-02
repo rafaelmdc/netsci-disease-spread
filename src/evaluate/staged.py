@@ -99,7 +99,12 @@ def stage_interdiction(
     import pandas as pd
 
     from src.config import (
-        Layer, ModelConfig, NetworkConfig, RunConfig, SimConfig, StrategyConfig,
+        Layer,
+        ModelConfig,
+        NetworkConfig,
+        RunConfig,
+        SimConfig,
+        StrategyConfig,
     )
     from src.evaluate.centrality import betweenness
     from src.evaluate.interdiction import run_scenarios
@@ -125,7 +130,9 @@ def stage_interdiction(
                 p0=master.population.p0, p_route=master.population.p_route,
             ),
             model=ModelConfig(name=disease, params=params),
-            strategy=StrategyConfig(name=StrategyName.CONTROL, budget=0, coverage=0.0, efficacy=0.0),
+            strategy=StrategyConfig(
+                name=StrategyName.CONTROL, budget=0, coverage=0.0, efficacy=0.0
+            ),
             sim=SimConfig(
                 horizon=horizon, tau=tau, tau_by_layer=master.tau_by_layer,
                 transit=master.transit, seed_size=master.seed_size, seed=seed,
@@ -138,12 +145,11 @@ def stage_interdiction(
             combo = combo_name(layers)
             graph = read_graphml(processed_graph(region, combo))
             betweenness(graph)  # warm the cache once before threads share the graph
-            per_seed = list(
-                ThreadPoolExecutor(max_workers=min(6, len(seeds))).map(
-                    lambda seed: (seed, run_scenarios(graph, _cfg(layers, disease, params, seed), k=k)),
-                    seeds,
-                )
-            )
+            def _run(seed, g=graph, ly=layers, ds=disease, pr=params):
+                return seed, run_scenarios(g, _cfg(ly, ds, pr, seed), k=k)
+
+            with ThreadPoolExecutor(max_workers=min(6, len(seeds))) as pool:
+                per_seed = list(pool.map(_run, seeds))
             # representative HTML from the first seed
             interdiction_to_html(
                 per_seed[0][1],

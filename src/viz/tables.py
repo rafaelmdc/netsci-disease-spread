@@ -35,7 +35,7 @@ values and their literature sources are given in Appendix~\ref{app:sources}
 2 & Latent $+$ immunizing        & SEIR   & COVID-19, SARS, chickenpox       & COVID-19 \\
 3 & Lethal, isolation-controlled & SEIQRD & Ebola, Marburg, pneumonic plague & Ebola \\
 4 & Endemic, no immunity         & SIS    & gonorrhea, chlamydia, common cold & gonorrhea \\
-5 & Recurrent, waning immunity   & SEIRS  & seasonal influenza, RSV, norovirus & seasonal influenza \\
+5 & Recurrent, waning immunity & SEIRS & seasonal influenza, RSV, norovirus & seasonal influenza \\
 \bottomrule
 \end{tabular}
 \end{table*}

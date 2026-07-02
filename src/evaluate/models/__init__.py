@@ -8,8 +8,8 @@ SIR / SIS / SEIR / SQIR / SEIRS / SEIQRD.
 from __future__ import annotations
 
 from src.evaluate.models import (  # noqa: F401  (register on import)
-    seir,
     seiqrd,
+    seir,
     seirs,
     sir,
     sis,

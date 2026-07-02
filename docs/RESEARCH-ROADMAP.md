@@ -234,13 +234,82 @@ the coordinates/country metadata already on the nodes.
 
 ## Suggested execution order and a done-checklist
 
-1. [ ] Widen `seeds`, add ensemble aggregation + confidence bands (item 1).
-2. [ ] Implement `collective_influence` + `nonbacktracking` strategies (item 2).
-3. [ ] Emit per-network statistics + invasion-threshold line + verification (item 3).
-4. [ ] Add deaths / deaths-averted for the lethal type (item 4).
-5. [ ] Add the equity concentration metric + figure (item 5).
+1. [x] Widen `seeds` (→10, resumable), ensemble aggregation + confidence bands
+       (item 1). Code done; 10-seed staged ensemble running; figures carry CIs.
+2. [~] Implement `collective_influence` + `nonbacktracking` strategies (item 2).
+       Code + unit tests written (`tests/test_strategies_extra.py`); **not yet
+       run** (waiting for the ensemble to free the CPU). Remaining: run the
+       tests, then add the two names to `experiment.yaml` `strategies:` and let
+       the resumable sweep compute only the new arms.
+3. [~] Per-network statistics (`k2_over_k`, assortativity, giant fraction) and
+       the non-backtracking epidemic-threshold (`nb_eigenvalue`, `epi_threshold`)
+       in `structure_table` (item 3). Code done; **not yet run**. The τ-based
+       Colizza–Vespignani metapopulation invasion number is left as a smaller
+       follow-up so the delivered threshold stays rigorous.
+4. [~] Deaths / deaths-averted for the lethal type (item 4). Code done
+       (`aggregate.deaths_table` + `figures.fig_deaths`), reading the `D`
+       compartment from existing `timeseries.parquet` — **no recompute needed**.
+       Not yet run.
+5. [~] Equity concentration metric + figure (item 5). Code done
+       (`aggregate.equity_table` + `figures.fig_equity`): per-strategy Gini and
+       top-country share of the vaccinated set. Not yet run. (The cases-averted
+       -by-country half waits for the ensemble results.)
 6. [ ] Update `results.tex` / `discussion.tex`, remove the now-addressed caveats,
        and refresh `CHANGELOG.md` + `ROADMAP.md`.
 
 Items 1–4 make the study *defensible*; items 2 and 5 make it *novel*. If time is
 short, items 1 and 2 are the two that most move the grade.
+
+---
+
+## After the data lands — runbook
+
+The 10-seed staged ensemble (item 1) is running now. The code for items 2–5 is
+written but **not yet executed** (the box is busy with the sweep). Once the sweep
+finishes, run the following in order. Everything except the sweep is one-shot, and
+the sweep is resumable (`skip_existing`), so nothing here is wasted if interrupted.
+
+1. **Confirm the run completed.** Tail the log and check stage 5 wrote fresh
+   `results/europe/air+land+water/interdiction_<disease>.parquet` files. Count:
+   `find results -name summary.json | wc -l`.
+
+2. **Verify the new code (items 2–3), now the box is free.**
+   `uv run pytest tests/test_strategies_extra.py -q`, then a full
+   `uv run pytest -q` and `uv run ruff check`. These are the first executions of
+   the Collective-Influence / non-backtracking code — expect to fix any small
+   issues the untested code has.
+
+3. **(Optional — gives item 2 its results) Add the two modern strategies and
+   re-run.** Append `collective_influence` and `nonbacktracking` to
+   `experiment.yaml`'s `strategies:` list and re-run
+   `uv run netsci evaluate staged --config experiment.yaml --workers 10`. Only the
+   two new arms compute (everything else is reused); `fig_defense` and the
+   strategy-gap table then include them automatically.
+
+4. **Rebuild aggregates, tables and figures:**
+   - `uv run netsci evaluate collect`   → `summary.parquet` + `strategy_gap.parquet` (with 95% CI)
+   - `uv run netsci evaluate structure` → `structure.parquet`: `k2_over_k`, `assortativity`, `giant_frac`, `nb_eigenvalue`, `epi_threshold` (item 3)
+   - `uv run netsci viz figures`        → F-spread/defense/dose/interdiction (CIs) + F-deaths (item 4) + F-equity (item 5)
+   - `uv run netsci viz tables`         → T1 and derived tables
+
+5. **(Optional) Even the ensemble.** The first, killed 20-seed run left orphan
+   seed-10..16 files for some cells, so a few have >10 seeds. For uniform CIs,
+   either delete run folders with `seed >= 10` before step 4, or widen `seeds` to
+   `[0..19]` and re-run to fill them in. Paired figures (defense/dose) inner-join
+   on seed, so this only affects the spread/interdiction bars.
+
+6. **Read the real numbers.** Each figure writes a CSV beside its PDF in
+   `docs/curated_tex/figures/` carrying the `*_ci` columns; `structure.parquet`
+   carries the network stats and thresholds. Quote from these.
+
+7. **Update the paper (item 6).** In `results.tex` / `discussion.tex`: attach the
+   95% CIs to the headline numbers; state the ordering is stable across the
+   ensemble; add the deaths-averted sentence for SEIQRD and the equity finding;
+   report `k2_over_k`, assortativity, and where the operating β/γ sits relative to
+   the `1/nb_eigenvalue` threshold; delete the "single deterministic run" caveat
+   from Limitations. If the modern strategies were run (step 3), state whether
+   either beats betweenness on the European multilayer net.
+
+8. **Housekeeping.** Add the new references (Morone & Makse, Osat & Radicchi,
+   Torres et al., the fairness papers) to `references.bib`, annotate them in
+   `literature-review.md`, and update `CHANGELOG.md` + this checklist.

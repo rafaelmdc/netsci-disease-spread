@@ -32,6 +32,8 @@ class StrategyName(StrEnum):
     BETWEENNESS = "betweenness"
     KCORE = "kcore"
     SUBGRAPH = "subgraph"
+    COLLECTIVE_INFLUENCE = "collective_influence"
+    NONBACKTRACKING = "nonbacktracking"
 
 
 class Layer(StrEnum):
@@ -46,11 +48,11 @@ class ModelParams(BaseModel):
 
     beta: float = Field(gt=0, description="transmission rate")
     gamma: float = Field(gt=0, description="recovery rate")
-    sigma: float | None = Field(default=None, gt=0, description="incubation rate (SEIR/SEIRS/SEIQRD)")
-    kappa: float | None = Field(default=None, gt=0, description="quarantine rate (SQIR/SEIQRD)")
-    gamma_q: float | None = Field(default=None, gt=0, description="recovery from quarantine (SQIR/SEIQRD)")
-    omega: float | None = Field(default=None, gt=0, description="waning-immunity rate, R->S (SEIRS)")
-    mu: float | None = Field(default=None, ge=0, le=1, description="case-fatality fraction of removals (SEIQRD)")
+    sigma: float | None = Field(default=None, gt=0, description="incubation rate E->I")
+    kappa: float | None = Field(default=None, gt=0, description="isolation rate I->Q (SEIQRD)")
+    gamma_q: float | None = Field(default=None, gt=0, description="recovery rate Q->R (SEIQRD)")
+    omega: float | None = Field(default=None, gt=0, description="waning rate R->S (SEIRS)")
+    mu: float | None = Field(default=None, ge=0, le=1, description="case-fatality fraction")
 
 
 class ModelConfig(BaseModel):
@@ -105,7 +107,7 @@ class InterdictionConfig(BaseModel):
         default_factory=list, description="layers to shut down entirely (air/land/water)"
     )
     ground_top_k: int = Field(default=0, ge=0, description="ground this many airports (0 = none)")
-    ground_by: GroundBy = Field(default=GroundBy.DEGREE, description="rank airports by degree|betweenness")
+    ground_by: GroundBy = Field(default=GroundBy.DEGREE, description="rank by degree|betweenness")
 
     @property
     def active(self) -> bool:

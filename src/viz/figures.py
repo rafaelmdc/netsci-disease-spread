@@ -34,6 +34,7 @@ matplotlib.use("Agg")  # headless: no display needed
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import FuncFormatter
 
 from src.evaluate.aggregate import ci95
 from src.paths import RESULTS, ROOT
@@ -84,7 +85,14 @@ DISEASE = {"sir": "Measles", "sis": "Gonorrhea", "seir": "COVID",
            "seirs": "Flu", "seiqrd": "Ebola"}
 DISEASE_HUE = {"sir": "red", "sis": "blue", "seir": "green",
                "seirs": "orange", "seiqrd": "purple"}
-STRAT_ORDER = ["random", "degree", "betweenness", "subgraph"]
+STRAT_ORDER = ["random", "degree", "betweenness", "subgraph",
+               "collective_influence", "nonbacktracking"]
+# compact x-axis labels (the two modern arms have long names)
+STRAT_LABEL = {"collective_influence": "CI", "nonbacktracking": "non-backtrack"}
+
+
+def _strat_label(s: str) -> str:
+    return STRAT_LABEL.get(s, s)
 
 
 def _disease(model: str, two_line: bool = False) -> str:
@@ -191,6 +199,9 @@ def fig_defense(summary: pd.DataFrame, budget: int = 15) -> Path | None:
         return None
     red = pd.DataFrame(rows)
     models = [m for m in MODELS if m in red["model"].unique()]
+    # only strategies actually present (so the figure renders before the two
+    # modern arms are added to the sweep, and includes them once they are).
+    strats = [s for s in STRAT_ORDER if s in set(red["strategy"])]
     _style()
     # Full text width: five diseases per strategy need room, so this is a wide
     # (double-column) figure. Bar width is sized to n diseases so a strategy's
@@ -198,17 +209,17 @@ def fig_defense(summary: pd.DataFrame, budget: int = 15) -> Path | None:
     fig, ax = plt.subplots(figsize=(WIDE, 2.7))
     n = len(models)
     step = min(0.16, 0.82 / n)
-    x = range(len(STRAT_ORDER))
+    x = range(len(strats))
     for j, m in enumerate(models):
         off = (j - (n - 1) / 2) * step  # centre the group on each tick
-        cells = [red[(red["model"] == m) & (red["strategy"] == s)] for s in STRAT_ORDER]
+        cells = [red[(red["model"] == m) & (red["strategy"] == s)] for s in strats]
         vals = [c["reduction_pct"].sum() for c in cells]
         errs = [c["reduction_ci"].sum() for c in cells]
         ax.bar([xi + off for xi in x], vals, step * BAR_GAP,
                yerr=errs, error_kw=ERRKW,
                label=_disease(m), **_bar_kw(DISEASE_HUE[m]))
     ax.set_xticks(list(x))
-    ax.set_xticklabels(STRAT_ORDER)
+    ax.set_xticklabels([_strat_label(s) for s in strats])
     ax.set_ylabel("peak reduction vs no vaccination (%)")
     ax.set_ymargin(0.10)
     cov = f"{hi:.0%}" if pd.notna(hi) else ""
@@ -326,7 +337,9 @@ def fig_dose(summary: pd.DataFrame) -> Path | None:
             if paired.empty:
                 continue
             red_s = (paired["ctrl"] - paired["peak"]) / paired["ctrl"] * 100.0
-            bvals.append(int(b)); means.append(red_s.mean()); cis.append(ci95(red_s))
+            bvals.append(int(b))
+            means.append(red_s.mean())
+            cis.append(ci95(red_s))
         if len(bvals) < 2:
             continue
         means_a, cis_a = np.array(means), np.array(cis)
@@ -341,7 +354,7 @@ def fig_dose(summary: pd.DataFrame) -> Path | None:
         plotted = True
         out_rows += [{"model": m, "strategy": winner, "budget": b,
                       "reduction_pct": r, "reduction_ci": c}
-                     for b, r, c in zip(bvals, means, cis)]
+                     for b, r, c in zip(bvals, means, cis, strict=True)]
     if not plotted:
         return None
     ax.set_xlabel("cities vaccinated (budget)")
@@ -350,6 +363,72 @@ def fig_dose(summary: pd.DataFrame) -> Path | None:
     ax.set_title("Peak reduction vs. number of cities vaccinated")
     ax.legend(frameon=False, loc="lower right")
     return _save(fig, "F-dose", pd.DataFrame(out_rows))
+
+
+# --------------------------------------------------------------------------- #
+# F-deaths — deaths averted for the lethal SEIQRD type, per strategy (flagship).
+# peak_infected hides case fatality (mu ~= 0.71), so this is the metric that makes
+# the Ebola row meaningful. Deaths are read from each run's D compartment.
+# --------------------------------------------------------------------------- #
+def fig_deaths(region: str = REGION, budget: int = 15) -> Path | None:
+    from src.evaluate.aggregate import deaths_table
+
+    df = deaths_table(write=False)
+    if df is None or df.empty:
+        return None
+    s = df[(df["region"] == region) & (df["combo"] == FLAGSHIP) & (df["budget"] == budget)]
+    if s.empty:
+        return None
+    s = s[s["coverage"] == s["coverage"].max()]
+    strats = [x for x in STRAT_ORDER if x in set(s["strategy"])]
+    rows = []
+    for strat in strats:
+        av = s[s["strategy"] == strat]["deaths_averted"].dropna()
+        if av.empty:
+            continue
+        rows.append({"strategy": strat, "deaths_averted": av.mean(), "ci": ci95(av)})
+    if not rows:
+        return None
+    d = pd.DataFrame(rows)
+    _style()
+    fig, ax = plt.subplots(figsize=(COL_W, 2.6))
+    x = range(len(d))
+    ax.bar(list(x), d["deaths_averted"], BAR_GAP * 0.8, yerr=d["ci"], error_kw=ERRKW,
+           **_bar_kw("purple"))
+    ax.set_xticks(list(x))
+    ax.set_xticklabels([_strat_label(s) for s in d["strategy"]], rotation=20, ha="right")
+    ax.yaxis.set_major_formatter(FuncFormatter(_millions))
+    ax.set_ylabel("deaths averted vs\nno vaccination")
+    ax.set_title("Deaths averted, lethal type (SEIQRD)")
+    return _save(fig, "F-deaths", d)
+
+
+# --------------------------------------------------------------------------- #
+# F-equity — geographic concentration of each strategy's vaccinated set: the
+# share of the budget landing in the single most-targeted country (bars), with
+# the number of distinct countries annotated. Tests whether the most effective
+# rule also concentrates protection most narrowly.
+# --------------------------------------------------------------------------- #
+def fig_equity(region: str = REGION, combo: str = FLAGSHIP, budget: int = 15) -> Path | None:
+    from src.evaluate.aggregate import equity_table
+
+    df = equity_table(region=region, combo=combo, budget=budget, write=False)
+    if df is None or df.empty:
+        return None
+    order = [s for s in STRAT_ORDER if s in set(df["strategy"])]
+    df = df.set_index("strategy").loc[order].reset_index()
+    _style()
+    fig, ax = plt.subplots(figsize=(COL_W, 2.6))
+    x = range(len(df))
+    ax.bar(list(x), df["top_country_share"] * 100.0, BAR_GAP * 0.8, **_bar_kw("gray"))
+    for xi, share, nc in zip(x, df["top_country_share"], df["n_countries"], strict=True):
+        ax.text(xi, share * 100.0 + 1.5, f"{int(nc)}c", ha="center", fontsize=6)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels([_strat_label(s) for s in df["strategy"]], rotation=20, ha="right")
+    ax.set_ylim(0, 100)
+    ax.set_ylabel("vaccinated cities in the\nmost-targeted country (%)")
+    ax.set_title(f"Where protection lands ({budget} cities)")
+    return _save(fig, "F-equity", df)
 
 
 # --------------------------------------------------------------------------- #
@@ -374,6 +453,8 @@ def build_all(echo=print) -> list[Path]:
         _try("F-defense", lambda: fig_defense(summary))
         _try("F-dose", lambda: fig_dose(summary))
     _try("F-interdiction", fig_interdiction)
+    _try("F-deaths", fig_deaths)
+    _try("F-equity", fig_equity)
     return made
 
 
