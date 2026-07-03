@@ -18,7 +18,7 @@ multimodal (air / land / water) substrates and every world region.
 ## What this is
 
 We model how an epidemic spreads across a transport network and test which
-vaccination strategy contains it best. The primary substrate is the
+vaccination strategy contains it best using network science metrics. The primary substrate is the
 European subgraph of the [OpenFlights](https://openflights.org/data.html)
 air network (airports = nodes, routes = weighted edges), with **land**
 (rail/road/commuting) and **water** (ferry/shipping) layers added as a
