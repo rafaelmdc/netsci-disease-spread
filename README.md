@@ -8,13 +8,14 @@ transport network, modelled as a shared-node multilayer graph of **air**,
 
 An MSc Bioinformatics group project.
 
-- **Matilde Maria** — background research and literature review, methodology,
-  disease-type parameterisation from the literature, and paper writing.
-- **Lucas Caridade** — background research and literature review, methodology,
-  interpretation of the results, and paper writing.
-- **Rafael Correia** — software and app. Data anaylsis.
+- **Matilde Maria** — literature review, methodology, data analysis, and writing.
+- **Lucas Caridade** — literature review, results interpretation, and writing.
+- **Rafael Correia** — software and the simulator app, and data analysis.
 
-All three contributed to the study design and the final manuscript.
+> **AI assistance.** Claude (Anthropic), via Claude Code, was used as a coding
+> and writing assistant — for parts of the implementation, refactoring,
+> documentation, and figure code. All design decisions, results, and final text
+> were reviewed and validated by the authors.
 
 ## What this is
 
