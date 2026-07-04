@@ -323,6 +323,7 @@ def fig_interdiction(region: str = REGION) -> Path | None:
                    yerr=[lower, upper], error_kw=ERRKW, label=label, **_bar_kw(hue))
         ax.set_xticks(list(x))
         ax.set_xticklabels([_disease(m, two_line=True) for m in models])
+        ax.tick_params(axis="x", labelsize=6.0)
         ax.set_title(_SCN[scn])
         ax.set_ylabel("peak remaining\n(% of full peak)")
         ax.axhline(100, ls="--", lw=0.6, color="#999", zorder=0)

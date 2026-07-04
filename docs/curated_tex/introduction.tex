@@ -1,25 +1,21 @@
 \section{Introduction}
 
-The spatial spread of infectious diseases depends both on pathogen biology and on the structure of human mobility. Characteristics such as transmissibility, infectious period, latency, mortality, reinfection, or waning immunity determine how an outbreak evolves locally, while transport infrastructures determine how infections move between populations. Air, sea, and land transport systems have increased the reach, speed, and volume of human movement, making mobility networks central to the geographical dissemination of infectious diseases \cite{tatem2006global}. In highly connected regions such as Europe, local outbreaks can therefore become regional or continental, with air travel supporting rapid long-distance seeding \cite{colizza:airline} and multiscale mobility processes, including commuting and long-range travel, shaping spatial and temporal spreading patterns \cite{balcan:multiscale}.
+The spatial spread of infectious diseases depends both on pathogen biology and on the structure of human mobility. Characteristics such as transmissibility, infectious period, latency, mortality, reinfection, or waning immunity determine how an outbreak evolves locally, while transport infrastructures determine how infections move between populations. Air, sea, and land transport systems have increased the reach, speed, and volume of human movement, making mobility networks central to the geographical dissemination of infectious diseases \cite{tatem2006global}. In highly connected regions such as Europe, local outbreaks can therefore become regional or continental, with air travel supporting rapid long-distance seeding \cite{colizza:airline} and multiscale mobility processes, including commuting and long-range travel, shaping spatial and temporal spreading patterns \cite{balcan:multiscale}. Because these corridors carry very different volumes and operate on very different timescales, the same pathogen can produce markedly different geographical footprints depending on which parts of the transport system it reaches first. Understanding this interaction between disease biology and mobility structure is a prerequisite for anticipating where an outbreak will travel and for deciding where limited protective effort is best spent \cite{brockmann2013hidden}.
 
 Mathematical epidemic models provide a controlled way to compare these mechanisms. Classical compartmental models divide the population into epidemiological states, beginning with the SIR framework of Kermack and McKendrick \cite{kermack:sir}, in which susceptible individuals become infected and are then removed or recovered. Extensions represent different disease archetypes: SEIR adds a latent exposed state, SIS represents infections without lasting immunity, SEIRS allows immunity to wane, and SEIQRD includes quarantine and disease-induced death \cite{paul2023fractional}. Such models are widely used to analyse transmission mechanisms, epidemic thresholds, and control strategies \cite{hethcote2000mathematics}. However, homogeneous compartmental models describe only the dynamics within a single population. To model spatial spread between cities, this work uses a metapopulation approach, where each city is a local population with internal epidemic dynamics and mobility flows connect cities, allowing infections to be transported across the network \cite{colizza2008metapopulation}.
 
 Figure~\ref{fig:metapopulation_framework} summarizes this modelling logic by combining within-city epidemic dynamics with mobility flows between cities.
 
-\begin{figure*}[tp]
+\begin{figure}[t]
     \centering
-    \includegraphics[width=0.66\textwidth]{figures/metapopulation_epidemic_network_diagram.png}
+    \includegraphics[width=\columnwidth]{figures/metapopulation_epidemic_network_diagram.png}
     \caption[Metapopulation epidemic framework]{
     Metapopulation epidemic framework. Each circle represents a city, modelled as a local subpopulation with its own compartmental epidemic dynamics. The internal compartments illustrate a generic SEIR-type progression: $S$ denotes susceptible individuals, $E$ exposed individuals who are infected but not yet infectious, $I$ infectious individuals, and $R$ recovered or removed individuals. The dashed return arrow indicates that some models, such as SIS or SEIRS, allow individuals to become susceptible again. Arrows between cities represent mobility flows that can transport susceptible, exposed, or infected individuals and seed outbreaks elsewhere. Inspired by metapopulation epidemic models such as Colizza and Vespignani \cite{colizza2008metapopulation}.
     }
     \label{fig:metapopulation_framework}
-\end{figure*}
+\end{figure}
 
-Europe is represented here as a multilayer transport network composed of air, water, and land mobility layers. Multilayer network theory is appropriate for systems in which the same set of nodes can be connected by different types of links, each corresponding to a distinct interaction channel or transport mode \cite{kivela2014multilayer,boccaletti2014structure}. In this work, cities are nodes and transport routes are organised by layer: air links represent fast long-distance mobility, water links represent maritime and ferry-based connectivity, and land links represent regional travel and commuting. This distinction is epidemiologically relevant because mobility can operate through different mechanisms. Air and water travel are approximated as more diffusive, meaning that individuals may relocate and mix in a destination city, whereas land commuting is recurrent, meaning that individuals travel, mix temporarily, and return to their home city. Recurrent mobility can synchronize nearby cities, while long-distance diffusive mobility can seed infection in distant populations \cite{belik2011mobility,balcan:multiscale}.
-
-Figure~\ref{fig:diffusive_recurrent_mobility} illustrates the conceptual difference between these two mobility mechanisms.
-
-\begin{figure}[tbp]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.82\columnwidth]{figures/mobility_mechanisms_diffusive_vs_recurrent_types.png}
     \caption[Diffusive and recurrent mobility mechanisms]{
@@ -27,6 +23,10 @@ Figure~\ref{fig:diffusive_recurrent_mobility} illustrates the conceptual differe
     }
     \label{fig:diffusive_recurrent_mobility}
 \end{figure}
+
+Europe is represented here as a multilayer transport network composed of air, water, and land mobility layers. Multilayer network theory is appropriate for systems in which the same set of nodes can be connected by different types of links, each corresponding to a distinct interaction channel or transport mode \cite{kivela2014multilayer,boccaletti2014structure}. In this work, cities are nodes and transport routes are organised by layer: air links represent fast long-distance mobility, water links represent maritime and ferry-based connectivity, and land links represent regional travel and commuting. This distinction is epidemiologically relevant because mobility can operate through different mechanisms. Air and water travel are approximated as more diffusive, meaning that individuals may relocate and mix in a destination city, whereas land commuting is recurrent, meaning that individuals travel, mix temporarily, and return to their home city. Recurrent mobility can synchronize nearby cities, while long-distance diffusive mobility can seed infection in distant populations \cite{belik2011mobility,balcan:multiscale}.
+
+Figure~\ref{fig:diffusive_recurrent_mobility} illustrates the conceptual difference between these two mobility mechanisms.
 
 Beyond mobility volume, the topology of the network influences epidemic propagation. Cities and routes are not structurally equivalent: some cities act as hubs with many connections, others as bridges between regions, and others belong to dense structural cores that may sustain spreading processes. Epidemic processes in complex networks are strongly affected by heterogeneity, connectivity, and node position \cite{pastorsatorras:review}. Moreover, geographical distance is not always the best proxy for epidemiological proximity, since strongly connected cities can be effectively close even when they are geographically distant \cite{brockmann2013hidden}.
 

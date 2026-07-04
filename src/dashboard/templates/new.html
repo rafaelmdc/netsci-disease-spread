@@ -45,20 +45,26 @@
         <div class="field">
           <label for="model">Compartmental model</label>
           <select id="model" name="model" onchange="syncParams()">
-            {% for m in models %}<option value="{{ m }}">{{ m | upper }}</option>{% endfor %}
+            {% for m in models %}<option value="{{ m.value }}">{{ m.label }}</option>{% endfor %}
           </select>
+          <div class="muted mono" style="font-size:.72rem;margin-top:.4rem">
+            Rates auto-fill from the literature preset for the chosen disease; edit to explore.</div>
         </div>
         <div class="grid2">
-          <div class="field"><label for="beta">β · transmission</label>
-            <input id="beta" name="beta" value="0.4"></div>
-          <div class="field"><label for="gamma">γ · recovery</label>
-            <input id="gamma" name="gamma" value="0.1"></div>
-          <div class="field" data-need="sigma" hidden><label for="sigma">σ · incubation</label>
-            <input id="sigma" name="sigma" value="0.2"></div>
-          <div class="field" data-need="kappa" hidden><label for="kappa">κ · quarantine</label>
-            <input id="kappa" name="kappa" value="0.15"></div>
-          <div class="field" data-need="gamma_q" hidden><label for="gamma_q">γq · recovery (Q)</label>
-            <input id="gamma_q" name="gamma_q" value="0.08"></div>
+          <div class="field" data-param="beta"><label for="beta">β · transmission</label>
+            <input id="beta" name="beta" value="1.95"></div>
+          <div class="field" data-param="gamma"><label for="gamma">γ · recovery</label>
+            <input id="gamma" name="gamma" value="0.13"></div>
+          <div class="field" data-param="sigma" hidden><label for="sigma">σ · incubation</label>
+            <input id="sigma" name="sigma" value="0.20"></div>
+          <div class="field" data-param="kappa" hidden><label for="kappa">κ · isolation</label>
+            <input id="kappa" name="kappa" value="0.20"></div>
+          <div class="field" data-param="gamma_q" hidden><label for="gamma_q">γq · recovery (Q)</label>
+            <input id="gamma_q" name="gamma_q" value="0.10"></div>
+          <div class="field" data-param="omega" hidden><label for="omega">ω · waning</label>
+            <input id="omega" name="omega" value="0.001"></div>
+          <div class="field" data-param="mu" hidden><label for="mu">μ · case-fatality</label>
+            <input id="mu" name="mu" value="0.71"></div>
         </div>
       </div>
     </div>
@@ -137,12 +143,18 @@
 {% endif %}
 
 <script>
-  const NEEDS = { sir: [], sis: [], seir: ["sigma"], sqir: ["sigma","kappa","gamma_q"] };
+  // Auto-fill the literature rates for the chosen disease and show only the
+  // parameters that model uses (see config.DISEASE_PRESETS).
+  const PRESETS = {{ presets | tojson }};
+  const OPTIONAL = ["sigma","kappa","gamma_q","omega","mu"];
   function syncParams() {
-    const model = document.getElementById("model").value;
-    const need = NEEDS[model] || [];
-    document.querySelectorAll("[data-need]").forEach(el => {
-      el.hidden = !need.includes(el.getAttribute("data-need"));
+    const p = PRESETS[document.getElementById("model").value] || {};
+    document.querySelectorAll("[data-param]").forEach(field => {
+      const k = field.getAttribute("data-param");
+      const on = Object.prototype.hasOwnProperty.call(p, k);
+      if (OPTIONAL.includes(k)) field.hidden = !on;
+      const input = document.getElementById(k);
+      if (input && on) input.value = p[k];
     });
   }
   syncParams();

@@ -19,13 +19,13 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Stre
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from src.config import ModelName, StrategyName
 from src.dashboard import events, jobs
 from src.dashboard.figures import aggregate_context, comparison_context, results_context
 from src.dashboard.forms import (
     available_networks,
     build_study_config,
     data_status,
+    form_options,
     graph_is_built,
     parse_run_form,
 )
@@ -80,8 +80,7 @@ async def home(request: Request):
 async def new_form(request: Request):
     return templates.TemplateResponse(request, "new.html", {
         "networks": available_networks(),
-        "models": [m.value for m in ModelName],
-        "strategies": [s.value for s in StrategyName],
+        **form_options(),
     })
 
 
@@ -94,8 +93,7 @@ async def submit(request: Request):
         combo = combo_name(layers)
         return templates.TemplateResponse(request, "new.html", {
             "networks": available_networks(),
-            "models": [m.value for m in ModelName],
-            "strategies": [s.value for s in StrategyName],
+            **form_options(),
             "error": f"Network '{cfg.network.region} / {combo}' is not built. "
                      f"Run `netsci netgen build --region {cfg.network.region} "
                      f"--layers {','.join(layers)}` first.",
@@ -223,8 +221,7 @@ async def compare(request: Request):
 async def study_form(request: Request):
     return templates.TemplateResponse(request, "study.html", {
         "networks": available_networks(),
-        "models": [m.value for m in ModelName],
-        "strategies": [s.value for s in StrategyName],
+        **form_options(),
     })
 
 
@@ -238,8 +235,7 @@ async def study_run(request: Request):
     except Exception as exc:  # noqa: BLE001
         return templates.TemplateResponse(request, "study.html", {
             "networks": available_networks(),
-            "models": [m.value for m in ModelName],
-            "strategies": [s.value for s in StrategyName],
+            **form_options(),
             "error": f"Invalid configuration: {exc}",
         }, status_code=400)
 
@@ -247,8 +243,7 @@ async def study_run(request: Request):
         if not graph_is_built(net["region"], net["layers"]):
             return templates.TemplateResponse(request, "study.html", {
                 "networks": available_networks(),
-                "models": [m.value for m in ModelName],
-                "strategies": [s.value for s in StrategyName],
+                **form_options(),
                 "error": f"Network '{net['region']} / {combo_name(net['layers'])}' is not "
                          f"built — build it on the Data page first.",
             }, status_code=400)

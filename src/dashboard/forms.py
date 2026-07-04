@@ -4,6 +4,9 @@ networks are actually built so the form only offers runnable scenarios."""
 from __future__ import annotations
 
 from src.config import (
+    DISEASE_PRESETS,
+    UI_MODELS,
+    UI_STRATEGIES,
     GroundBy,
     InterdictionConfig,
     Layer,
@@ -24,6 +27,21 @@ _SOURCES = {
     "geonames": ("GeoNames cities", "cities1000.txt"),
     "water": ("OSM ferries (water)", "ferries_world.json"),
 }
+
+
+def form_options() -> dict:
+    """Model/strategy choices + disease presets shared by the run and study forms.
+
+    ``models`` carry a human label (the article disease type); ``presets`` lets the
+    form auto-fill the correct literature rates when a model is picked. SQIR and
+    KCORE are excluded (see config.UI_MODELS / UI_STRATEGIES)."""
+    return {
+        "models": [{"value": m.value,
+                    "label": f"{m.value.upper()} · {DISEASE_PRESETS[m]['label']}"}
+                   for m in UI_MODELS],
+        "strategies": [s.value for s in UI_STRATEGIES],
+        "presets": {m.value: DISEASE_PRESETS[m]["params"] for m in UI_MODELS},
+    }
 
 
 def data_status() -> dict:
@@ -101,20 +119,13 @@ def build_study_config(form) -> dict:
     models_sel = form.getlist("models") or ["sir"]
     strategies = form.getlist("strategies") or ["control"]
 
-    gamma = float(form.get("gamma", 0.12))
-    sigma = float(form.get("sigma", 0.2))
-    kappa = float(form.get("kappa", 0.15))
-    gamma_q = float(form.get("gamma_q", 0.1))
-
-    models: dict[str, dict] = {}
-    for m in models_sel:
-        params = {"beta": 1.0, "gamma": gamma}  # β swept via beta_scales below
-        if m in ("seir", "sqir"):
-            params["sigma"] = sigma
-        if m == "sqir":
-            params["kappa"] = kappa
-            params["gamma_q"] = gamma_q
-        models[m] = params
+    # Each selected disease carries its own literature preset (beta = R0*gamma,
+    # etc.), so the study reproduces the paper's per-disease parameterisation
+    # instead of applying one generic beta to every model. beta_scales stays as a
+    # shared R0-sensitivity multiplier on top (default 1.0 = the preset values).
+    models: dict[str, dict] = {
+        m: dict(DISEASE_PRESETS[ModelName(m)]["params"]) for m in models_sel
+    }
 
     cfg: dict = {
         "networks": networks,
@@ -123,9 +134,9 @@ def build_study_config(form) -> dict:
         "budgets": [int(form.get("budget", 15))],
         "coverages": _floats(form, "coverages", [0.75]),
         "efficacies": [float(form.get("efficacy", 0.85))],
-        "beta_scales": _floats(form, "betas", [0.32]),
+        "beta_scales": _floats(form, "beta_scales", [1.0]),
         "taus": _floats(form, "taus", [0.0002]),
-        "horizons": [int(form.get("horizon", 210))],
+        "horizons": [int(form.get("horizon", 1460))],
         "seeds": _ints(form, "seeds", [0]),
         "seed_size": int(form.get("seed_size", 2500)),
     }
@@ -144,6 +155,9 @@ def build_study_config(form) -> dict:
             "anchor_disease": form.get("anchor") or models_sel[0],
             "flagship": max(rungs, key=len),
             "rank_by": "peak_infected",
+            # Stage 4 dose-response: sweep the winning strategy's budget on the
+            # flagship (matches experiment.yaml, feeds the dose-response figure).
+            "budget_grid": _ints(form, "budget_grid", [5, 15, 30, 60, 120, 200]),
         }
     return cfg
 
@@ -170,12 +184,13 @@ def parse_run_form(form: dict) -> RunConfig:
         layers = ["air"]
 
     model_name = ModelName(form.get("model", "sir"))
-    params: dict = {"beta": _f(form, "beta", 0.4), "gamma": _f(form, "gamma", 0.1)}
-    if model_name in (ModelName.SEIR, ModelName.SQIR):
-        params["sigma"] = _f(form, "sigma", 0.2)
-    if model_name == ModelName.SQIR:
-        params["kappa"] = _f(form, "kappa", 0.15)
-        params["gamma_q"] = _f(form, "gamma_q", 0.08)
+    # Start from the disease's literature preset (correct rates for every model,
+    # including SEIQRD/SEIRS), then apply any explicit form overrides.
+    params = dict(DISEASE_PRESETS[model_name]["params"])
+    for key in list(params):
+        val = form.get(key, "")
+        if str(val).strip():
+            params[key] = float(val)
 
     tau_air = _f(form, "tau", 0.0002)
 

@@ -88,11 +88,11 @@
     <div class="panel-b">
       {% set steps = [
         ("sweep", "Run sweep",
-         "Runs the full experiment grid from experiment.yaml — every region × model × strategy that file lists, saving each run under results/. Heavy: this can take a long time. Only needed when you want the canonical grid; ad-hoc runs come from New run / Study."),
-        ("collect", "Collect",
-         "Reads every run's summary.json under results/ and rolls them into summary.parquet — the table behind the ‘strategy by model’ chart below. Cheap. Re-run it after adding runs."),
-        ("structure", "Structure",
-         "Computes each built network's degree–betweenness structure into structure.parquet — the table behind the ‘spectrum by region’ chart. Reads data/processed/, no simulation. Cheap.")
+         "Runs the staged protocol from experiment.yaml (the paper's runs) across the built networks, saving each under results/. Heavy: a long background job — for the full grid the batch/CLI path is better. Ad-hoc runs come from New run / Study."),
+        ("aggregate", "Aggregate",
+         "Rolls every run into summary.parquet, structure.parquet, deaths.parquet and equity.parquet — the tables behind the strategy, dose, deaths, equity and spectrum charts below. Reads results/, no simulation. Cheap; re-run after adding runs."),
+        ("interdiction", "Interdiction (A–D)",
+         "Runs the air-interdiction scenarios (close air routes / ground top hubs) on Europe's multilayer flagship and writes the interactive figure below. Simulates a handful of scenarios — a minute or two.")
       ] %}
       {% for action, label, help in steps %}
         <div class="action-row">
@@ -113,8 +113,9 @@
 
   {% if not agg.has_any %}
     <div class="alert-err">
-      No aggregate tables yet — run <span class="mono">Collect</span> and
-      <span class="mono">Structure</span> above (after you have some runs).
+      No aggregate tables yet — run <span class="mono">Aggregate</span> above (after you
+      have some runs) to build the strategy, dose, deaths and equity charts, and
+      <span class="mono">Interdiction</span> for the route-closure figure.
     </div>
   {% endif %}
 
@@ -127,6 +128,27 @@
         <input type="checkbox" id="err-chk"> error bars (±1σ over seeds)</label>
     </div>
     <div class="panel-b">{{ agg.strategy_div | safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if agg.dose_div %}
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Dose–response — how many cities to vaccinate</div>
+    <div class="panel-b">{{ agg.dose_div | safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if agg.deaths_div %}
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Deaths averted — lethal type (SEIQRD)</div>
+    <div class="panel-b">{{ agg.deaths_div | safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if agg.equity_div %}
+  <div class="panel" style="margin-bottom:1.4rem">
+    <div class="panel-h">Protection equity — geographic concentration</div>
+    <div class="panel-b">{{ agg.equity_div | safe }}</div>
   </div>
   {% endif %}
 

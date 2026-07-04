@@ -10,6 +10,7 @@ dashboard relays to the browser over SSE. Artifacts are written by the normal
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import time
 import traceback
 
@@ -173,11 +174,67 @@ def _data_action(action: str, region: str | None, layers: list[str] | None) -> N
         _log("building the structure (network-metrics) table…")
         structure_table()
     elif action == "aggregate":
-        from src.evaluate.aggregate import collect, structure_table
+        from src.evaluate.aggregate import (
+            collect,
+            deaths_table,
+            equity_table,
+            structure_table,
+        )
         _log("collecting per-run results…")
         collect()
         _log("building the structure table…")
         structure_table()
+        _log("building the deaths (lethal type) table…")
+        deaths_table()
+        _log("building the protection-equity table…")
+        try:
+            equity_table()
+        except FileNotFoundError:
+            _log("  skipped equity: flagship europe/air+land+water is not built")
+    elif action == "interdiction":
+        import pandas as pd
+
+        from src.config import (
+            DISEASE_PRESETS,
+            Layer,
+            ModelConfig,
+            ModelName,
+            ModelParams,
+            NetworkConfig,
+            RunConfig,
+            SimConfig,
+        )
+        from src.evaluate.interdiction import run_scenarios
+        from src.paths import network_figure, processed_graph
+        from src.viz.interdiction_html import interdiction_to_html
+        # Air-interdiction scenarios A–D on the multilayer flagship (the paper's
+        # §3.5), using the immunizing measles anchor. Writes interdiction.html —
+        # the interactive figure the Compare → Aggregate tab embeds.
+        reg = region or "europe"
+        chosen = layers or ["air", "land", "water"]
+        combo = combo_name(chosen)
+        _log(f"air-interdiction scenarios A–D on {reg}/{combo}…")
+        graph = read_graphml(processed_graph(reg, combo))
+        cfg = RunConfig(
+            network=NetworkConfig(region=reg, layers=[Layer(x) for x in chosen]),
+            model=ModelConfig(name=ModelName.SIR,
+                              params=ModelParams(**DISEASE_PRESETS[ModelName.SIR]["params"])),
+            sim=SimConfig(horizon=1460, seed_size=2500, seed=0,
+                          tau_by_layer={"air": 0.0002, "land": 0.3, "water": 0.0005}),
+        )
+        results = run_scenarios(graph, cfg, k=10)
+        out = interdiction_to_html(
+            results, network_figure(reg, combo, "interdiction.html"),
+            title=f"Air interdiction — {reg} / {combo}",
+        )
+        series = pd.DataFrame(
+            [{"scenario": name, "day": day, "infectious": v, "region": reg, "combo": combo}
+             for name, r in results.items() for day, v in enumerate(r["infectious"])]
+        )
+        series.to_parquet(network_figure(reg, combo, "interdiction.parquet"))
+        for name, r in results.items():
+            _log(f"  {name}: peak={r['summary']['peak_infected']:,.0f}")
+        _log(f"wrote {out}")
     else:
         raise ValueError(f"unknown data action: {action}")
     _log(f"action={action!r} — done")
@@ -197,7 +254,12 @@ async def run_data_task(
 
 def _study(job_id: str, config_path: str, maps: bool) -> None:
     """Expand the generated config into its grid and run each cell, in a thread."""
-    from src.evaluate.aggregate import collect, structure_table
+    from src.evaluate.aggregate import (
+        collect,
+        deaths_table,
+        equity_table,
+        structure_table,
+    )
     from src.evaluate.metrics import betweenness
     from src.evaluate.runner import run_and_save
     from src.experiment import load_experiment_config
@@ -220,6 +282,9 @@ def _study(job_id: str, config_path: str, maps: bool) -> None:
                                     "label": cfg.label, "network": f"{region}/{combo}"})
     collect()
     structure_table()
+    deaths_table()          # lethal-type deaths averted (dashboard aggregate view)
+    with contextlib.suppress(FileNotFoundError):
+        equity_table()      # protection equity on the flagship, if it is built
 
 
 async def run_study(ctx: dict, job_id: str, config_path: str, maps: bool) -> None:

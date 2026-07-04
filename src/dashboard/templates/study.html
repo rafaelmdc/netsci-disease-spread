@@ -39,7 +39,7 @@
       <div class="field" id="anchor-field" hidden style="margin-top:.7rem">
         <label for="anchor">Anchor disease <span class="muted">(tuned in stage 2, re-checked on the rest)</span></label>
         <select id="anchor" name="anchor">
-          {% for m in models %}<option value="{{ m }}" {{ 'selected' if m=='seir' else '' }}>{{ m|upper }}</option>{% endfor %}
+          {% for m in models %}<option value="{{ m.value }}" {{ 'selected' if m.value=='sir' else '' }}>{{ m.label }}</option>{% endfor %}
         </select>
       </div>
       <p class="muted" style="font-size:.78rem;margin-top:.55rem">
@@ -78,16 +78,13 @@
         <div class="field">
           <label>Models</label>
           <div class="chips" id="model-chips">
-            {% for m in models %}<label class="chip model-chip"><input type="checkbox" name="models" value="{{ m }}" {{ 'checked' if m=='sir' else '' }} onchange="syncParams()"> {{ m|upper }}</label>{% endfor %}
+            {% for m in models %}<label class="chip model-chip"><input type="checkbox" name="models" value="{{ m.value }}" {{ 'checked' if m.value=='sir' else '' }}> {{ m.label }}</label>{% endfor %}
           </div>
+          <p class="muted" style="font-size:.78rem;margin-top:.45rem">Each disease uses its
+            literature-anchored rates (β = R₀·γ, etc.); no per-model tuning needed. The β-scale
+            below multiplies every disease's β together for an R₀-sensitivity sweep.</p>
         </div>
-        {{ list_field("betas", "β — transmission", "0.32") }}
-        <div class="grid2">
-          <div class="field"><label for="gamma">γ — recovery</label><input id="gamma" name="gamma" value="0.12"></div>
-          <div class="field" data-need="sigma" hidden><label for="sigma">σ — incubation</label><input id="sigma" name="sigma" value="0.2"></div>
-          <div class="field" data-need="kappa" hidden><label for="kappa">κ — quarantine</label><input id="kappa" name="kappa" value="0.15"></div>
-          <div class="field" data-need="gamma_q" hidden><label for="gamma_q">γq — recovery (Q)</label><input id="gamma_q" name="gamma_q" value="0.1"></div>
-        </div>
+        {{ list_field("beta_scales", "β scale — R₀ sensitivity (×)", "1.0") }}
       </div>
     </div>
 
@@ -114,7 +111,7 @@
         {{ list_field("taus", "τ — travel rate", "0.0002") }}
         {{ list_field("seeds", "RNG seed", "0") }}
         <div class="grid2">
-          <div class="field"><label for="horizon">Horizon — days</label><input id="horizon" name="horizon" value="210"></div>
+          <div class="field"><label for="horizon">Horizon — days</label><input id="horizon" name="horizon" value="1460"></div>
           <div class="field"><label for="seed_size">Seed — infected</label><input id="seed_size" name="seed_size" value="2500"></div>
         </div>
         <div class="field"><label class="chip"><input type="checkbox" name="maps" checked> record outbreak maps per run</label></div>
@@ -134,14 +131,6 @@
     document.getElementById('study-submit').textContent = staged ? 'Run staged protocol ▸' : 'Run study ▸';
   }
   syncMode();
-
-  const NEEDS = { sir: [], sis: [], seir: ["sigma"], sqir: ["sigma","kappa","gamma_q"] };
-  function syncParams() {
-    const need = new Set();
-    document.querySelectorAll('.model-chip input:checked').forEach(i => (NEEDS[i.value]||[]).forEach(n => need.add(n)));
-    document.querySelectorAll('[data-need]').forEach(el => { el.hidden = !need.has(el.getAttribute('data-need')); });
-  }
-  syncParams();
 
   // list fields: + add / remove rows that share an input name
   document.querySelectorAll('.list-add').forEach(btn => btn.addEventListener('click', () => {

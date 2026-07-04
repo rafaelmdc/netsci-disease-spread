@@ -42,6 +42,37 @@ class Layer(StrEnum):
     WATER = "water"
 
 
+# --- Article disease presets -------------------------------------------------
+# The five literature-anchored disease TYPES the paper studies, parameterised
+# from a real exemplar (beta = R0 * gamma; see experiment.yaml / Appendix A).
+# Single source of truth shared by the CLI sweep, the app forms, and the paper.
+# Ordered as in the methodology (Table 1). SQIR is a legacy model, excluded.
+DISEASE_PRESETS: dict[ModelName, dict] = {
+    ModelName.SIR: {"label": "Immunizing, acute (measles)",
+                    "params": {"beta": 1.95, "gamma": 0.13}},
+    ModelName.SEIR: {"label": "Latent + immunizing (COVID)",
+                     "params": {"beta": 0.35, "gamma": 0.13, "sigma": 0.20}},
+    ModelName.SEIQRD: {"label": "Lethal, isolation-controlled (Ebola)",
+                       "params": {"beta": 0.60, "gamma": 0.10, "sigma": 0.09,
+                                  "kappa": 0.20, "gamma_q": 0.10, "mu": 0.71}},
+    ModelName.SIS: {"label": "Endemic, no immunity (gonorrhea)",
+                    "params": {"beta": 0.042, "gamma": 0.03}},
+    ModelName.SEIRS: {"label": "Recurrent, waning immunity (influenza)",
+                      "params": {"beta": 0.32, "gamma": 0.21, "sigma": 0.70,
+                                 "omega": 0.001}},
+}
+
+# Models/strategies offered in the UI and used by the study. SQIR (legacy) and
+# KCORE (dropped from the paper's comparison) stay in the enums/registry so old
+# configs still deserialise, but are not offered as new choices.
+UI_MODELS: list[ModelName] = list(DISEASE_PRESETS)
+UI_STRATEGIES: list[StrategyName] = [
+    StrategyName.CONTROL, StrategyName.RANDOM, StrategyName.DEGREE,
+    StrategyName.BETWEENNESS, StrategyName.SUBGRAPH,
+    StrategyName.COLLECTIVE_INFLUENCE, StrategyName.NONBACKTRACKING,
+]
+
+
 class ModelParams(BaseModel):
     """Compartmental rates. Unused rates stay None and must be absent for
     the chosen model (validated below)."""

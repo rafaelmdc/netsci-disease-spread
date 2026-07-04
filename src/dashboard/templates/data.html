@@ -87,12 +87,21 @@
           <span class="muted" style="font-weight:400;font-size:.78rem">· needs runs from step 3</span></div>
         <div class="action-row">
           <form method="post" action="/data/run"><input type="hidden" name="action" value="aggregate">
-            <button class="btn-ghost" type="submit">Aggregate (collect + structure)</button></form>
+            <button class="btn-ghost" type="submit">Aggregate (summary + structure + deaths + equity)</button></form>
           <button class="help-toggle" type="button" aria-label="what does aggregate do?">?</button>
-          <p class="help-text" hidden>Rolls every run's summary into
-            <span class="mono">summary.parquet</span> and each network's structure into
-            <span class="mono">structure.parquet</span> — the tables behind the charts on the
-            Compare → Aggregate tab. Cheap; re-run it after adding runs.</p>
+          <p class="help-text" hidden>Rolls every run into <span class="mono">summary.parquet</span>,
+            <span class="mono">structure.parquet</span>, <span class="mono">deaths.parquet</span> and
+            <span class="mono">equity.parquet</span> — the tables behind the strategy, dose, deaths,
+            equity and spectrum charts on the Compare → Aggregate tab. Cheap; re-run after adding runs.</p>
+        </div>
+        <div class="action-row">
+          <form method="post" action="/data/run"><input type="hidden" name="action" value="interdiction">
+            <button class="btn-ghost" type="submit">Interdiction (scenarios A–D)</button></form>
+          <button class="help-toggle" type="button" aria-label="what does interdiction do?">?</button>
+          <p class="help-text" hidden>Runs the air-interdiction scenarios (close air routes / ground
+            top hubs) on Europe's multilayer flagship and writes the interactive
+            <span class="mono">interdiction.html</span> shown on the Compare → Aggregate tab.
+            Simulates a handful of scenarios — a minute or two.</p>
         </div>
       </div>
     </div>

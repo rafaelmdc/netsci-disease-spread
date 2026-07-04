@@ -1,8 +1,10 @@
-\appendix
-% Single-column appendix: the wide tables and the architecture schematic then sit
-% inline with their section text (as full-page-width, non-floating blocks) rather
-% than tearing away to float pages, and the figure can be shown much larger.
+% Single-column appendix: the wide tables and the figures then sit inline with
+% their section text (as non-floating [H] blocks, in source order) rather than
+% tearing away to float pages. \onecolumn before \appendix keeps the "APPENDIX"
+% divider on the content page instead of stranding it at the foot of the refs.
 \onecolumn
+\raggedbottom  % stack the [H] blocks tight at the top; don't stretch pages to full height
+\appendix
 \section{Disease parameters}
 \label{app:sources}
 
@@ -15,7 +17,7 @@ Table~\ref{tab:sources} gives the source for each. Notably, measles and Ebola ha
 infectious periods ($\sim$8--10~d) yet $R_0$ differs roughly sevenfold ($\approx$15 vs
 $\approx$2): the infectious period does not set $R_0$; together with $\beta$ it produces it.
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \footnotesize
 \caption{Parameter values per disease type (rates per day; $\mathrm{rate}=1/\mathrm{duration}$,
@@ -37,7 +39,7 @@ the exact number. For the lethal type $\gamma_Q\approx\gamma\approx0.10$.}
 \end{tabular}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \footnotesize
 \caption{Source for every disease-type parameter. $\gamma$, $\sigma$, $\kappa$ come from a measured
@@ -82,7 +84,7 @@ and modularity are evaluated on the undirected largest connected component.
 
 \input{figures/TA-structure-full}
 
-\begin{figure}[ht]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{F-degdist.pdf}
   \caption{Degree distribution up the realism ladder, plotted as the complementary CDF (CCDF): each
@@ -93,7 +95,7 @@ and modularity are evaluated on the undirected largest connected component.
   \label{fig:degdist}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{F-scatter.pdf}
   \caption{Degree versus betweenness per city on the multilayer network (log--log,
@@ -110,7 +112,7 @@ The interactive simulator and the programmatic staged-protocol runs share one en
 configuration system, and results pipeline (Figure~\ref{fig:arch}), so the demonstration and the
 study cannot drift apart.
 
-\begin{figure}[ht]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{F5-architecture.pdf}
   \caption{System architecture: one shared engine behind the interactive simulator and the

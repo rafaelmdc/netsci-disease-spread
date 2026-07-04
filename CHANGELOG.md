@@ -11,6 +11,15 @@ Code is landed; the confirming ensemble run and paper-text update are pending
 (see the roadmap's "After the data lands" runbook).
 
 ### Added
+- **Simulator app now covers the full pipeline and every headline result.** The
+  Compare -> Aggregate tab renders the paper's **dose-response**, **deaths-averted**
+  (lethal SEIQRD type) and **protection-equity** results (new Plotly builders that
+  reuse `summary`/`deaths`/`equity` tables), and a new in-app **Interdiction
+  (scenarios A-D)** data action generates the route-closure figure the tab embeds.
+  The `aggregate` task now also builds `deaths.parquet` and `equity.parquet`.
+- **Shared disease presets** (`config.DISEASE_PRESETS`): one literature-anchored
+  source of truth for the five disease types, consumed by the run/study forms and
+  checked against `experiment.yaml` in tests. Picking a disease auto-fills its rates.
 - **Seed ensembles with 95% confidence bands** (roadmap #1): `experiment.yaml`
   now sweeps a seed ensemble; `strategy_gap` reports the degree-vs-betweenness gap
   per seed with a CI; the four curated figures draw error bars / bands.
@@ -49,6 +58,11 @@ Code is landed; the confirming ensemble run and paper-text update are pending
   baseline instead), removing hundreds of redundant runs.
 
 ### Fixed
+- **App forms could not launch SEIQRD or SEIRS** — they omitted the required
+  incubation/isolation/waning rates and failed validation — and still offered the
+  legacy `sqir` model and the retired `kcore` strategy. The run and study forms now
+  offer the five article diseases (correct presets auto-filled) and the paper's
+  strategy set, with `sqir`/`kcore` kept in the registry but out of the UI.
 - Docs corrected to the current five disease types (SIR, SIS, SEIR, SEIRS,
   SEIQRD; was "four models / SQIR"), the staged protocol, and the retracted
   recurrent-vs-diffusive "~5x" claim.
