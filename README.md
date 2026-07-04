@@ -4,6 +4,20 @@ Simulating disease spread and topology-aware vaccination on the European
 transport network, modelled as a shared-node multilayer graph of **air**,
 **land**, and **water** mobility. An MSc Network Science project.
 
+## Authors & contributions
+
+An MSc Bioinformatics group project.
+
+- **Matilde Maria** — background research and literature review, methodology,
+  disease-type parameterisation from the literature, and paper writing.
+- **Lucas Caridade** — background research and literature review, methodology,
+  interpretation of the results, and paper writing.
+- **Rafael Correia** — software and the three-module pipeline (data retrieval,
+  network generation, the metapopulation epidemic engine), the vaccination and
+  air-interdiction experiments, the interactive simulator app, and the figures.
+
+All three contributed to the study design and the final manuscript.
+
 ## What this is
 
 We ask how an epidemic spreads across a transport network and which
