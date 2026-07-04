@@ -1,9 +1,9 @@
 # Methodology — Models & Parameter Choice
 
-How we define each epidemic model and, crucially, **how we justify the
-parameters**. This is the part reviewers attack first, so the guiding
+How each epidemic model is defined and, crucially, **how the parameters are
+justified**. This is where a result is most easily challenged, so the guiding
 principle is: *make every number traceable and make the result robust to
-it.* BibTeX keys refer to [`tex/references.bib`](tex/references.bib).
+it.* BibTeX keys refer to [`curated_tex/references.bib`](curated_tex/references.bib).
 
 ---
 
@@ -12,7 +12,7 @@ it.* BibTeX keys refer to [`tex/references.bib`](tex/references.bib).
 Each model is the **reaction** half of a *metapopulation
 reaction–diffusion* system (`colizza:reactiondiffusion`): a compartmental
 model runs inside every node, and individuals **diffuse** along network
-edges each day. This is exactly the blueprint's two-part loop.
+edges each day — the standard metapopulation two-part loop.
 
 Per day, per node $i$:
 
@@ -48,7 +48,7 @@ happens only at cities. Turning on `sim.transit` lets travellers be infected
 `rocklov:diamondprincess`). We run the model's **full reaction** on each
 travelling cohort for the trip duration (`distance/speed`) at an onboard contact
 rate, so passengers can be infected *and* recover/incubate/quarantine en route
-(not a one-way toggle). An `control` ∈ [0,1] per layer reduces onboard
+(not a one-way toggle). A per-layer `control` ∈ [0,1] reduces onboard
 transmission (screening, onboard quarantine, hospital ship) — this is how the
 "quarantine on boats" experiments are run. Toggleable, so it is a clean
 comparison axis (base vs in-transit, with vs without onboard control).
@@ -56,19 +56,12 @@ comparison axis (base vs in-transit, with vs without onboard control).
 > **On the modelling choice.** Recurrent coupling is the *correct* representation of
 > daily commuting: commuters return home, so they couple neighbours' force of infection
 > without being relocated (`balcan:recurrent`, `sorianopanos:multiplex`). We adopt it on
-> that ground, not because it swings the headline number. Verified on the current engine
-> (2026-06-29), the peak active infection is close either way at our operating point. On
-> europe/air+land (SIR, β=0.32, γ=0.12, air τ=0.0002, land 0.3, seed 2500, 210d, seeds 0
-> to 2) it is about 71M recurrent versus 73M diffusive (about 1.03x), and about 459M
-> versus 462M at world scale (about 1.01x). Both sit just under the analytic ceiling for a
-> fully synchronised SIR at this R₀ (about 26% of population), because the air layer
-> already synchronises the continent, leaving the land mobility *mechanism* a marginal
-> correction on top. The two operators do differ in the expected direction when air is
-> removed: on a land-only or controlled chain network, diffusion peaks higher and earlier,
-> but the effect is modest (under about 20%), not the threshold-dominating swing once
-> claimed here. An earlier version of this note asserted a 5x effect (about 277M to about
-> 49M); that figure does not reproduce and is impossible for SIR, whose peak prevalence
-> cannot exceed about 26%, so it has been corrected.
+> that ground, not because it swings the headline number. At our operating point the peak
+> active infection is close either way, because the air layer already synchronises the
+> continent and leaves the land-mobility *mechanism* a marginal correction on top. The two
+> operators do differ in the expected direction when air is removed: on a land-only or
+> controlled chain network, diffusion peaks higher and earlier, but the effect is modest
+> (under about 20%), not a threshold-dominating swing.
 
 Holding the dynamics fixed while only the layer set / region changes is what
 makes the comparisons clean.
@@ -103,11 +96,10 @@ makes the comparisons clean.
 not being A.** This is the most defensible position for a project on a
 synthetic-population network:
 
-1. **Anchor each model to a named disease via a literature $R_0$.** The
-   blueprint already pairs models with diseases — keep that and cite an
-   $R_0$ range for each:
+1. **Anchor each model to a named disease via a literature $R_0$.** Each
+   model is paired with a representative disease and cites an $R_0$ range:
 
-   | Model | Disease archetype | Typical $R_0$ (cite in paper) | Fixed clinical rate |
+   | Model | Disease archetype | Typical $R_0$ (from literature) | Fixed clinical rate |
    |-------|-------------------|-------------------------------|---------------------|
    | SIR    | measles / rubella / mumps | high (≈12–18 measles) | $\gamma$ from infectious period |
    | SIS    | gonorrhea / endemic | low, persistent | $\gamma$ from infectious period |
@@ -115,8 +107,8 @@ synthetic-population network:
    | SEIRS  | influenza / RSV | ≈1.3–1.8 | + $\omega$ from immunity duration |
    | SEIQRD | Ebola / Marburg | ≈1.5–2.5 | + $\kappa$ from time-to-isolation, $\mu$ from CFR |
 
-   *(Fill the exact values and citations in Table 1 of the paper — these
-   are placeholders pending the team's chosen sources.)*
+   The exact per-type values and their sources are in the paper's parameter
+   tables (Appendix A).
 
 2. **Back $\beta$ out of $R_0$ — but on a network, not naively.** The
    well-mixed identity $R_0=\beta/\gamma$ is wrong on a heterogeneous
@@ -143,11 +135,12 @@ synthetic-population network:
 
 ## 3. Honesty / limitations to state up front
 
-- **Synthetic population & travel rate.** Node population is a degree
-  proxy ($P_0 + d\cdot P_\text{route}$) and $\tau$ is assumed, not
-  measured. ⇒ Frame the work as **comparative/structural**, not
-  predictive. Our claims are about *differences* (strategy A vs B, layer
-  combo A+L vs A), which are far more robust than absolute case counts.
+- **Modelled flows & travel rate.** Node populations are real (GeoNames
+  cities), but land-commuting flows come from a gravity/radiation model and the
+  per-layer travel rate $\tau$ is assumed, not measured. ⇒ Frame the work as
+  **comparative/structural**, not predictive. Our claims are about *differences*
+  (strategy A vs B, layer combo A+L vs A), which are far more robust than
+  absolute case counts.
 - **Static network.** No timetables; a temporal extension
   (`holme:temporal`) is future work.
 - **Why this is still defensible:** GLEAM-style calibration (A) is
@@ -168,7 +161,7 @@ cost/return. We do **not** do epidemiological calibration, and that is the
 | **Epidemiological calibration** — fit $R_0$/$\beta$ to observed case data (GLEAM: `balcan:gleam`, `balcan:h1n1`) | **No** | There is **no ground-truth outbreak on OpenFlights to fit to.** Fitting would mean inventing a target. Predictive papers calibrate because they have surveillance data; structural/comparative papers (us, `pastorsatorras:review`, `newman:spread`) parameterise + sweep instead. | high · n/a here |
 | **Operating-point selection** — choose the $R_0$ regime where strategies actually *differ* | **Yes (essential)** | If the outbreak is trivially total or trivially dies, every strategy looks identical. Pick $\beta$ so we sit in an informative regime relative to the epidemic/invasion threshold (`pastorsatorras:scalefree`, `colizza:invasion`). | ~free · high |
 | **Sensitivity sweep** — show the *ranking* of strategies/combos/regions is stable across $\beta,\tau,$ coverage, efficacy | **Yes** | This is what *replaces* calibration's credibility role. Cheap because the sweep machinery already exists (`ditommaso:nextflow`). | low · high |
-| **Verification against theory** — sim matches analytic limits: single-node SIR curve; threshold scaling with $\langle k^2\rangle/\langle k\rangle$; SIR final-size vs bond-percolation (`newman:spread`) | **Yes** | Not data-fitting — it validates the *implementation*. Catches bugs and is persuasive to reviewers. | low · high |
+| **Verification against theory** — sim matches analytic limits: single-node SIR curve; threshold scaling with $\langle k^2\rangle/\langle k\rangle$; SIR final-size vs bond-percolation (`newman:spread`) | **Yes** | Not data-fitting — it validates the *implementation*. Catches bugs and is independently convincing. | low · high |
 | **ML hyperparameter tuning** | only if GNN extension added (`liu:gnnreview`) | train/val/test split, search | n/a for the core study |
 
 **Bottom line.** Hard calibration is neither possible nor justified on a
@@ -176,22 +169,3 @@ synthetic-population network; the three rows marked *Yes* recover most of
 its credibility at near-zero added complexity, reusing the same sweep. The
 non-negotiable one is **operating-point selection** — skip it and the
 results can be accidentally trivial.
-
----
-
-## 5. Checklist for the paper's Methods section
-
-- [ ] State each model's compartments, transitions, and the diffusion step
-      (Section "Epidemic Models").
-- [ ] Table 1: per-model $R_0$, $\gamma$, $\sigma$, $\kappa$ **with
-      citations** for each named disease.
-- [ ] Show how $\beta$ is derived from $R_0$ including the
-      $\langle k^2\rangle/\langle k\rangle$ correction.
-- [ ] Report measured $\langle k\rangle$, $\langle k^2\rangle$, and the
-      invasion-threshold position for $\tau$.
-- [ ] State the chosen operating point (target $R_0$ regime) and why it is
-      informative relative to the threshold.
-- [ ] Report a sensitivity sweep showing the strategy ranking is stable.
-- [ ] Report at least one verification check against an analytic limit
-      (single-node SIR, or threshold scaling, or bond-percolation final size).
-- [ ] One explicit paragraph: "comparative, not predictive," and why.

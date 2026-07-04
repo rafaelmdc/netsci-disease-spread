@@ -1,8 +1,7 @@
 # Architecture
 
-How the pipeline is organised and why. The design below is **implemented**;
-status and remaining gaps are tracked in [`ROADMAP.md`](ROADMAP.md), the
-experiment design in [`EXPERIMENTS.md`](EXPERIMENTS.md), and the outputs in
+How the pipeline is organised and why. The experiment design is in
+[`EXPERIMENTS.md`](EXPERIMENTS.md) and the outputs in
 [`VISUALIZATION.md`](VISUALIZATION.md).
 
 ## Three-module pipeline
@@ -25,7 +24,7 @@ evaluations* — making layer combinations a first-class, comparable axis.
  │                      │   │  A+L, A+W, L+W,      │   │    rand/deg/btw/      │
  │ → data/raw/<layer>   │   │  A+L+W               │   │    subgraph           │
  │   + PROVENANCE.txt   │   │ → multilayer graphs  │   │  • structural metrics │
- │                      │   │   data/processed/    │   │    k-core, motifs,    │
+ │                      │   │   data/processed/    │   │    gateways (FDR),    │
  │                      │   │   *.graphml          │   │    ρ(deg,btw)         │
  │                      │   │ (the X networks)     │   │ → results/ (X evals)  │
  └──────────────────────┘   └──────────────────────┘   └──────────────────────┘
@@ -42,7 +41,7 @@ evaluations* — making layer combinations a first-class, comparable axis.
 | **2. `netgen`** | Filter to a **region**, map each layer onto a shared node set, weight edges, assign populations, then emit **every layer combination** as a tagged multilayer graph | `data/processed/<region>/<combo>.graphml` (the *X networks*) | `networkx` |
 | **3. `evaluate`** | For each network: run epidemic models, vaccination strategies, structural metrics, and the air-interdiction experiment; aggregate to study tables | `results/<region>/<combo>/<label>/{summary.json,timeseries.parquet}` + `summary`/`strategy_gap`/`structure` parquet | `numpy`, `networkx` |
 | `viz` (shared) | Interactive standalone HTML + Plotly figure builders + the navigable static site | co-located `*.html` under `results/` + `netsci viz site` | `pyvis`, `plotly` |
-| `dashboard` | The **simulator web app**: design → run live → explore (graded deliverable, see below) | `netsci dashboard` (+ `netsci worker`) | `fastapi`, `arq`, `redis`, `jinja2` |
+| `dashboard` | The **simulator web app**: design → run live → explore (the interactive front end, see below) | `netsci dashboard` (+ `netsci worker`) | `fastapi`, `arq`, `redis`, `jinja2` |
 
 ### Why this shape
 
@@ -64,8 +63,8 @@ evaluations* — making layer combinations a first-class, comparable axis.
   directly tests the novelty question — Guimerà's *worldwide* network shows
   anomalous (degree ≠ betweenness) centrality, while the *US* network is
   reported correlated (degree ≈ betweenness). So the region axis maps onto
-  the centrality-regime spectrum, with Europe as the open question. Start
-  with `europe`; the rest is `-resume` away once the pipeline is solid.
+  the centrality-regime spectrum, with Europe as the empirical question this
+  project answers.
 
 ## Stack & node identity
 
@@ -108,7 +107,7 @@ is a pure function of `(config, seed)`.
   comparisons fair.
 - **Strategy = node-selection function.** Every vaccination strategy has
   the same signature `(graph, budget, **params) -> set[node]`, so adding a
-  new one (e.g. acquaintance immunization, k-core) is a single file.
+  new one (e.g. acquaintance immunization) is a single file.
 - **Config-driven runs.** One YAML in `configs/` fully specifies a run
   (model, params, strategy, coverage, seed). No magic numbers in code.
 - **Determinism.** Every run takes an explicit RNG seed; results are a
@@ -117,8 +116,8 @@ is a pure function of `(config, seed)`.
 ## Orchestrating the sweep
 
 The experiment is a **staged** walk down the Europe realism ladder — `{5 disease
-types} × {5 strategies} × {rungs} × {dose budgets}` at a single operating
-coverage and seed, plus the topology-only pass on the cross-region air networks
+types} × {7 strategies} × {rungs} × {dose budgets}` at a single operating
+coverage and a seed ensemble, plus the topology-only pass on the cross-region air networks
 (see [`EXPERIMENTS.md`](EXPERIMENTS.md)). A `factorial` mode crossing every axis
 at once is also available. Either way the jobs are independent and embarrassingly
 parallel. Two layers of orchestration:
@@ -159,9 +158,9 @@ Why this path:
   snapshot (`vendor/ferries_world.json`), so a clean-clone run never depends on
   a live Overpass query (see [`DATA.md`](DATA.md)).
 
-## Interactive visualization (graded deliverable)
+## Interactive visualization
 
-Interactive, browser-based visuals are an explicit grading criterion. `viz`
+Interactive, browser-based visuals are a first-class output. `viz`
 emits self-contained **HTML** + Plotly figure builders; the **simulator web app**
 (`src/dashboard`) reuses those builders as its results views. Implemented
 outputs (full detail in [`VISUALIZATION.md`](VISUALIZATION.md)):
@@ -188,9 +187,9 @@ they describe** (no separate `figures/` tree), referencing one shared
 (`netsci viz site`). Node coordinates make every network view a real map;
 `.gexf`/GraphML export stays for Gephi figures.
 
-## Multimodal substrate (planned extension)
+## Multimodal substrate
 
-The substrate is deliberately a generic weighted graph so that **air,
-ground (rail/road), and sea (ferry/shipping)** layers can be added as
-extra edge sets — see [`DATA.md`](DATA.md) for candidate sources and
-[`ROADMAP.md`](ROADMAP.md) for how they enter as a multilayer network.
+The substrate is a generic weighted graph, so **air, ground (rail/road), and
+sea (ferry/shipping)** layers enter as extra edge sets on a shared node set —
+see [`DATA.md`](DATA.md) for the sources and how they combine into the
+multilayer network.

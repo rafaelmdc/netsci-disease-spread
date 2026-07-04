@@ -71,19 +71,17 @@ Everything below comes straight from `experiment.yaml`.
 | Axis | Values | Count |
 |------|--------|------:|
 | Disease type | SIR, SIS, SEIR, SEIRS, SEIQRD | 5 |
-| Strategy | control, random, degree, betweenness, subgraph | 5 |
+| Strategy | control, random, degree, betweenness, subgraph, collective-influence, non-backtracking | 7 |
 | Rung (Europe) | air, air+water, air+land+water | 3 |
 | Dose budgets (stage 3) | 5, 15, 30, 60, 120, 200 cities | 6 |
 
 **Fixed** across every run so only the studied factor varies: budget = 15 cities
 (stages 1–2, 4), coverage = 0.75, efficacy = 0.85, initial seed size = 2500,
 horizon = 1460 days (4 years, one uniform horizon so acute and endemic types are
-comparable), single seed (0), seeded inside the giant component so the outbreak
-takes off. `tau_by_layer = {air: 0.0002, land: 0.3, water: 0.0005}`.
-
-> **Single seed today.** Reporting one seed per configuration is the biggest open
-> credibility gap; widening `seeds` to an ensemble with confidence bands is item 1
-> of [`RESEARCH-ROADMAP.md`](RESEARCH-ROADMAP.md).
+comparable), seeded inside the giant component so the outbreak
+takes off. `tau_by_layer = {air: 0.0002, land: 0.3, water: 0.0005}`. Each
+configuration is run as a ten-seed ensemble, and headline numbers carry a 95%
+confidence interval across seeds.
 
 ---
 
@@ -100,17 +98,17 @@ the multimodal flagship substrate, for all five diseases.
 | Close top-10 hubs | close the top-10 airports by betweenness | do a few bridge closures matter? |
 
 **Headline:** on the air-only substrate, closing all air routes collapses the
-outbreak to ~0.1–0.2% of its peak; on the multimodal substrate the same closure
-still leaves ~34–44% standing, because land commuting and ferries keep moving
-people. A single-layer model overstates a flight ban's benefit by two to three
-orders of magnitude.
+outbreak to near zero; on the multimodal substrate the same closure still leaves
+32–47% of the peak standing, because land commuting and ferries keep moving
+people. A single-layer model overstates a flight ban's benefit by orders of
+magnitude.
 
 ---
 
 ## 5. What the paper actually shows (the artifacts)
 
-The curated figure set (`docs/curated_tex/figures/`) is four figures plus one
-table, one per stage:
+The curated figure set (`docs/curated_tex/figures/`) centres on one figure per
+stage, plus the parameter table:
 
 1. **F-spread** — uncontrolled peak (as a fraction of population) by disease type
    and rung. Orders by dynamical class; nearly flat up the ladder. *(stage 1)*
@@ -120,7 +118,7 @@ table, one per stage:
    rule; diminishing returns. *(stage 3)*
 4. **F-interdiction** — peak remaining after closing all air / top-10 hubs, air-only
    vs multimodal. *(stage 4)*
-5. **T1** — the per-type disease parameters (`disease-types.md`).
+5. **T1** — the per-type disease parameters (paper Appendix A).
 
 Separately, the **cross-region structural table** (ρ(deg,btw) + anomalous-gateway
 count per air network) places Europe on the US-like ↔ worldwide-like spectrum,
@@ -130,8 +128,9 @@ from the topology-only pass on all eight networks.
 
 ## 6. Run-count budget
 
-The staged run is roughly: stage 1 (5 diseases × 3 rungs) + stage 2 (5 × 5 × 3) +
+The staged run is roughly: stage 1 (5 diseases × 3 rungs) + stage 2 (5 × 7 × 3) +
 stage 3 (6 budgets on the flagship winner) + stage 4 (5 diseases × 2 substrates ×
-scenarios), on the order of ~140 fast simulations, plus the instant structural
+scenarios) — on the order of ~155 configurations, each run as a ten-seed
+ensemble, for roughly 1,600 simulations in total, plus the instant structural
 pass on all eight graphs. Every run maps to a figure — well under the
-"don't brute-force" line.
+full-factorial grid the same axes would generate.

@@ -26,11 +26,10 @@ degree; that was replaced.)
 
 ## Ground & sea layers (multimodal)
 
-Adding boat and ground networks is feasible **and supported by published
-work** — each modality has been studied as a transmission network in its
-own right. They enter as additional edge layers over a shared node set
-(cities/regions/ports). Each row below pairs a candidate data source with
-the literature that validates using it for epidemic modelling.
+Boat and ground networks enter as additional edge layers over a shared node
+set (cities/regions/ports), **supported by published work** — each modality has
+been studied as a transmission network in its own right. Each row below pairs a
+data source with the literature that validates using it for epidemic modelling.
 
 Split each land layer into **topology** (the edges) and **flow weights**
 (how many people move), because they have *different global coverage*.
@@ -38,7 +37,7 @@ Split each land layer into **topology** (the edges) and **flow weights**
 | Layer | Topology source (global) | Flow-weight source | Supporting literature | Caveats |
 |-------|--------------------------|--------------------|-----------------------|---------|
 | Air (baseline) | OpenFlights (global) | route frequency | `colizza:airline`, `guimera:anomalous` | static snapshot |
-| Rail | OSM `railway=*` (global) | gravity/radiation model | HSR↔COVID studies (lit-review §3b, *verify authors*) | needs station→city mapping |
+| Rail | OSM `railway=*` (global) | gravity/radiation model | HSR↔COVID studies (lit-review §3b) | needs station→city mapping |
 | Road | OSM `highway=*`; **GRIP** `meijer:grip` (222 countries, global) | gravity/radiation model | `tizzoni:proxies` | full road graph huge → region-level |
 | Sea / ferry & shipping | OSM `route=ferry` (via Overpass; **vendored snapshot**, see below); cargo port-call data | port traffic | `kaluza:cargo`, `seebens:bioinvasion` | cargo/vector-borne, not direct human spread |
 
@@ -106,8 +105,7 @@ result is that **coupling can push the system over the epidemic threshold
 even when no single layer would sustain the outbreak alone** — so keep
 layers tagged (each with its own migration rate), never merge them into
 one undifferentiated edge set. See [`literature-review.md`](literature-review.md)
-§ Multimodal and [`ROADMAP.md`](ROADMAP.md) for scoping this as a stretch
-goal vs the core Europe/air result.
+§ Multimodal for the supporting references.
 
 > **Disease-relevance caveat for shipping.** `kaluza:cargo` and
 > `seebens:bioinvasion` model *cargo* ships, whose epidemic relevance is

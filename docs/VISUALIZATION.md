@@ -1,6 +1,6 @@
-# Visualization & Output Plan
+# Visualization & Outputs
 
-How the (currently scaffold-level) evaluate + viz pipeline becomes a set of
+How the evaluate + viz pipeline turns simulation results into a set of
 **navigable, self-explanatory human outputs**, with every figure stored
 **inside the network/run folder that produced it** — open a folder, get its
 story, no separate `figures/` tree to reconcile.
@@ -21,7 +21,7 @@ click to it.
   double-click, no server.
 - **Self-explanatory.** Each figure carries a title + caption describing the
   model, network, and what to look at, so it stands alone in the report.
-- **Two delivery modes, same data:** standalone HTML (offline, gradeable
+- **Two delivery modes, same data:** standalone HTML (offline, self-contained
   artifact) and the **simulator web app** (§5), an interactive front end that
   reuses the same Plotly figure builders.
 
@@ -46,9 +46,9 @@ results/
 │   │   │
 │   │   ├── sir__betweenness__cov75__seed0/      ← one RUN folder
 │   │   │   ├── index.html          ← run page linking the three below
-│   │   │   ├── summary.json        ← metrics (exists today)
-│   │   │   ├── timeseries.parquet  ← region-summed compartments/day (exists today)
-│   │   │   ├── node_timeseries.parquet  ← NEW: per-node infectious/day (+lat/lon)
+│   │   │   ├── summary.json        ← metrics
+│   │   │   ├── timeseries.parquet  ← region-summed compartments/day
+│   │   │   ├── node_timeseries.parquet  ← per-node infectious/day (+lat/lon)
 │   │   │   ├── curves.html         ← S/E/I/R/V curves
 │   │   │   └── spread_geo.html     ← per-run animated map (if flagged to animate)
 │   │   └── sir__control__seed0/ ...
@@ -56,14 +56,14 @@ results/
 │   ├── air+land/   └── (same shape)
 │   └── air/        └── (same shape)
 │
-├── americas/air/   └── index.html + structure.html + light SIR runs
+├── americas/air/   └── index.html + structure.html (topology only, no runs)
 ├── asia/air/ · africa/air/ · oceania/air/ · world/air/   └── (same)
 ```
 
-`src/paths.py` already gives `run_dir`, `results_dir`, `processed_graph`.
-We add helpers for the co-located figures (e.g. `run_figure(region, combo,
-label, "curves.html")`, `network_index(region, combo)`, `results_index()`)
-and **retire the separate `FIGURES` tree** so outputs aren't split in two.
+`src/paths.py` provides `run_dir`, `results_dir`, `processed_graph`, plus
+helpers for the co-located figures (`run_figure(region, combo, label,
+"curves.html")`, `network_index(region, combo)`, `results_index()`); there is no
+separate `FIGURES` tree, so outputs are never split in two.
 
 ---
 
@@ -77,7 +77,7 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 2. **`results/<region>/<combo>/index.html` — one network.**
    - The network itself (`network.html`) + Gephi export.
    - `structure.html`: degree-vs-betweenness scatter, anomalous gateways flagged.
-   - `strategy_panel.html`: this network's slice of the 4×3 grid (artifact 3).
+   - `strategy_panel.html`: this network's slice of the disease × strategy grid (artifact 3).
    - `spread_geo.html`: the headline animated outbreak (artifact 4).
    - For the flagship: `interdiction.html` (artifact 5).
    - A table of every run linking to each run page.
@@ -95,7 +95,7 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 |------------------------------|------|-------|
 | 1 Cross-region structural table | `results/index.html` | ρ + gateways, 8 rows |
 | 2 Europe ladder structural | `results/index.html` strip + each net `structure.html` | how bridges change air→+water→+land |
-| 3 Vaccination 4×3 panel | per-net `strategy_panel.html` | down=more realism, across=disease |
+| 3 Vaccination strategy panel | per-net `strategy_panel.html` | down=more realism, across=disease |
 | 4 ⭐ Animated geo-spread | `spread_geo.html` | per-node infection over days, play+slider |
 | 5 Air-interdiction triptych | `interdiction.html` (flagship) | A vs B vs C animated side by side |
 
@@ -105,7 +105,7 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 
 - **Standalone animated HTML (primary).** Plotly `animation_frame=day` over
   per-node infectious counts on a geo scatter → play button + day slider, one
-  self-contained `.html`. Offline, gradeable, embeds in the report.
+  self-contained `.html`. Offline, self-contained, embeds in the report.
 - **Shared Plotly bundle (disk).** Figures reference **one** `plotly.min.js`
   written at the results root (`src/viz/assets.py`) instead of inlining the
   ~3.5 MB library in every file — `curves.html` drops from ~4.7 MB to ~18 KB
@@ -131,11 +131,11 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 
 ---
 
-## 6. Evaluate changes that unlock the above
+## 6. The evaluate outputs behind the above
 
-| Change | Why |
+| Piece | What it provides |
 |--------|-----|
-| **Persist per-node history (opt-in)** | `engine.simulate(record_nodes=True)` already returns `node_infectious`; `runner` must write `node_timeseries.parquet` (+ node lat/lon) for runs flagged to animate. *Keystone — unlocks every animation.* Opt-in so we don't store per-node × per-day for all ~500 runs. |
+| **Per-node history (opt-in)** | `engine.simulate(record_nodes=True)` returns `node_infectious`; `runner` writes `node_timeseries.parquet` (+ node lat/lon) for runs flagged to animate. *Keystone — every animation reads this.* Opt-in, so per-node × per-day history is not stored for every run. |
 | **Structural metrics module** | ρ(deg,btw) **+ anomalous-gateway detection** with a defined threshold (Sun-Hu-Zhu FDR benchmark), per-node centralities → `structure.html` |
 | **Strategy-contrast metrics** | benefit-over-control + degree-vs-betweenness final-size gap (the thesis number) → `strategy_panel.html` |
 | **Interdiction runner** | edge-layer removal scenarios A–D → `interdiction.html` |
@@ -144,25 +144,23 @@ and **retire the separate `FIGURES` tree** so outputs aren't split in two.
 
 ---
 
-## 7. Build order
+## 7. Outputs
 
-1. ✅ **Keystone:** per-node history persisted (opt-in `record_nodes`), figures
-   co-located in run/network folders, `FIGURES` tree retired.
-2. ✅ **Animated geo-spread HTML** (`spread_html.py`, `netsci viz animate`).
-3. ✅ **Simulator web app** (`src/dashboard`, `netsci dashboard` + `netsci
-   worker`) — design a scenario, run it live (day-by-day SSE), explore the
-   result, and continue a finished run for more days. Replaced the Dash explorer.
-4. ✅ **Index generators** → navigable three-level static site
-   (`src/viz/site.py`, `netsci viz site`): root + per-network + per-run
-   `index.html`, figures co-located.
-5. ✅ **Structural + strategy figures** → `structure.html` (degree-vs-betweenness
-   scatter, anomalous gateways) and `strategy_panel.html` (per-network 5-disease-type
-   strategy panel).
-6. ✅ **Interdiction** experiment (`src/evaluate/interdiction.py`,
-   `netsci evaluate interdiction`) + curves figure → `interdiction.html`.
+- **Per-node history** persisted (opt-in `record_nodes`), with figures
+  co-located in the run/network folders.
+- **Animated geo-spread HTML** (`spread_html.py`, `netsci viz animate`).
+- **Simulator web app** (`src/dashboard`, `netsci dashboard` + `netsci
+  worker`) — design a scenario, run it live (day-by-day SSE), explore the
+  result, and continue a finished run for more days.
+- **Navigable three-level static site** (`src/viz/site.py`, `netsci viz site`):
+  root + per-network + per-run `index.html`, figures co-located.
+- **Structural and strategy figures** → `structure.html` (degree-vs-betweenness
+  scatter, anomalous gateways) and `strategy_panel.html` (per-network,
+  five-disease-type strategy panel).
+- **Interdiction** experiment (`src/evaluate/interdiction.py`,
+  `netsci evaluate interdiction`) + curves figure → `interdiction.html`.
 
-> Done: anomalous gateways now use a **degree-conditioned Benjamini-Hochberg
-> FDR** test (`metrics.anomalous_gateways`) instead of an arbitrary quantile,
-> and `collect` writes a **degree-vs-betweenness gap** table
-> (`results/strategy_gap.parquet`) — the headline thesis number per
-> network/model/coverage.
+Anomalous gateways use a degree-conditioned Benjamini-Hochberg FDR test
+(`metrics.anomalous_gateways`), and `collect` writes a degree-vs-betweenness gap
+table (`results/strategy_gap.parquet`) — the headline number per
+network/model/coverage.

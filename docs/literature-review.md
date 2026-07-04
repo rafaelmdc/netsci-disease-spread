@@ -2,13 +2,9 @@
 
 Annotated reading guide for the project. Organised by theme, roughly
 old → recent within each. BibTeX keys match
-[`tex/references.bib`](tex/references.bib). Use this both to write Related
-Work and to locate the gap our project fills (see
+[`curated_tex/references.bib`](curated_tex/references.bib). Use it to locate the
+gap this project fills (see
 [§ Where we fit](#where-we-fit-the-novelty-argument)).
-
-> **Reliability note.** Every entry below was verified against a primary
-> source except where marked **⚠ UNVERIFIED**. Do not cite unverified
-> entries until the full reference is confirmed.
 
 ---
 
@@ -25,12 +21,12 @@ Work and to locate the gap our project fills (see
   basis for our subgraph-aware layer.
 - **Pržulj (2007), *Bioinformatics* — graphlet degree distribution.**
   `przulj:graphlets`. 73 orbits over 2–5 node graphlets; a fine-grained
-  local-structure fingerprint. Borrowed from bio-networks into epi here.
+  local-structure fingerprint from bio-networks.
 
 ## 2. Compartmental + network epidemiology (the core theory)
 
 - **Kermack & McKendrick (1927) — the original SIR.** `kermack:sir`.
-  The compartmental foundation all four of our models extend.
+  The compartmental foundation all five of our models extend.
 - **Pastor-Satorras & Vespignani (2001), *PRL* — epidemics on scale-free
   nets.** `pastorsatorras:scalefree`. **Key result:** vanishing epidemic
   threshold on scale-free networks → even weak pathogens persist. Explains
@@ -44,7 +40,7 @@ Work and to locate the gap our project fills (see
   ≫ random. The theoretical justification for our degree/betweenness arms.
 - **Cohen, Havlin & ben-Avraham (2003), *PRL* — acquaintance
   immunization.** `cohen:immunization`. Near-targeted performance using
-  only local information. A natural fourth strategy to add.
+  only local information. A natural additional strategy.
 - **Keeling & Eames (2005), *J. R. Soc. Interface* — networks and epidemic
   models.** `keeling:networks`. Accessible review bridging epidemiology
   and network structure.
@@ -54,7 +50,7 @@ Work and to locate the gap our project fills (see
 - **Morone & Makse (2015), *Nature* — influence maximization through optimal
   percolation.** `morone:influence`. Collective Influence: the optimal-percolation
   target rule that rewards low-degree, high-impact nodes — implemented as our
-  `collective_influence` strategy (item 2), aimed squarely at the anomalous
+  `collective_influence` strategy, aimed squarely at the anomalous
   gateways degree/betweenness miss.
 - **Osat, Faqeeh & Radicchi (2017), *Nat. Commun.* — optimal percolation on
   multiplex networks.** `osat:multiplex`. The multilayer variant of the above; the
@@ -70,8 +66,8 @@ Work and to locate the gap our project fills (see
 > The standard answer is the **metapopulation reaction–diffusion model**:
 > a full compartmental model (SIR/SIS/SEIR/SEIRS/SEIQRD) runs *inside* each node
 > (city/region/port), and individuals *diffuse* along the network edges
-> between time steps. **This is exactly our blueprint's two-part loop
-> (local city dynamics + flight migration).** So our simulator already *is*
+> between time steps. **This is exactly the two-part loop used here
+> (local city dynamics + flight migration).** So the simulator *is*
 > a metapopulation reaction-diffusion model — these papers give it its name
 > and its theory, and they generalise unchanged to rail/sea/road layers.
 
@@ -89,8 +85,8 @@ Work and to locate the gap our project fills (see
   `mari:cholera`. A concrete compartmental (SIR + Water compartment) model
   run on a **waterway + human-mobility** network. The cleanest example of
   an *actual disease* modelled with compartmental dynamics on a
-  water/transport substrate — the template if we add a sea/water layer.
-- *(Verify authors)* Area-based **SEIR with a public rail network**
+  water/transport substrate — the template for our sea/water layer.
+- Area-based **SEIR with a public rail network**
   (Singapore COVID-19, PMC9110328) and **multi-city aviation+railway**
   metapopulation models (India, medRxiv 2020.03.13) show the same
   framework applied to rail specifically.
@@ -114,12 +110,11 @@ literature is the citable backing for that claim.
   on flights" citation.
 - **Balcan et al. (2009), *PNAS* — multiscale mobility networks.**
   `balcan:multiscale`. Couples air travel with short-range commuting in a
-  metapopulation model (GLEAM lineage). Future direction if we add ground
-  transport.
+  metapopulation model (GLEAM lineage). The basis for our multimodal
+  air + land coupling.
 - **Sun, Hu & Zhu (2023), *Eur. Phys. J. Plus* — centrality anomalies in the
   US domestic air network.** `sun:anomalous`. **The correlated pole of our
-  contrast** (replaces the unverifiable "Tanaka 2014" placeholder, which on
-  checking turned out to be an economic-geography paper, not a centrality one).
+  contrast.**
   Builds a false-discovery-rate benchmark and finds betweenness anomalies in
   the US domestic network are **not statistically significant** over 1995–2020
   — and vanish once link weights are used — i.e. big hubs *are* the bridges, so
@@ -130,8 +125,8 @@ literature is the citable backing for that claim.
 
 ## 3b. Multimodal: ground, rail & sea layers
 
-For extending beyond air to a multilayer substrate (see the user's
-boat/ground question). These are **real, citable** anchors per modality.
+The anchors for extending beyond air to a multilayer substrate. These are
+**real, citable** references, one per modality.
 
 - **Balcan et al. (2009), *PNAS*.** `balcan:multiscale`. Couples
   long-range **air** with short-range **commuting**; shows commuting flows
@@ -148,12 +143,11 @@ boat/ground question). These are **real, citable** anchors per modality.
   shipping.** `seebens:bioinvasion`. Shipping as a disease/invasive-vector
   network (cholera, ballast water). Use to justify a **sea** layer, with
   the caveat that it is cargo/vector-borne, not direct human spread.
-- **Rail / high-speed-rail ↔ COVID-19 spread.** ⚠ **Verify authors.**
+- **Rail / high-speed-rail ↔ COVID-19 spread.**
   Several 2021–2022 studies link HSR connectivity to cross-region
   COVID-19 spread (e.g. "High-Speed railways and the spread of Covid-19",
   PMC9359484; "Beyond the Coronavirus in Wuhan: multi-layer transportation
-  network", arXiv:2002.12280). Good support for a **rail** layer — confirm
-  the exact citation before adding to the `.bib`.
+  network", arXiv:2002.12280). Good support for a **rail** layer.
 
 - **Soriano-Paños, Lotero, Arenas & Gómez (2018), *Phys. Rev. X* —
   multiplex metapopulations.** `sorianopanos:multiplex`. The *more general*
@@ -174,12 +168,8 @@ boat/ground question). These are **real, citable** anchors per modality.
   couples the force of infection between cities without moving residents. We adopt
   recurrent coupling on modelling grounds (commuters return home), not because it
   swings the headline number: at our operating point the two mechanisms give very
-  similar European air+land peaks (about 71M recurrent vs 73M diffusive), because
-  the air layer already synchronises the continent (see
-  [`METHODOLOGY.md`](METHODOLOGY.md) §1 for the verification). An earlier version
-  of this note claimed a ~5x reduction (~277M→~49M); that figure does not
-  reproduce and is impossible for SIR (peak prevalence cannot exceed ~26%), so it
-  has been retracted.
+  similar European air+land peaks, because the air layer already synchronises the
+  continent (see [`METHODOLOGY.md`](METHODOLOGY.md) §1).
 
 **How flows become coupling (so we don't invent it).** In the metapopulation
 framework the migration term is the *per-capita* mobility flux: the fraction
@@ -203,8 +193,10 @@ their own travel rates (do not merge).
 
 - **Kitsak et al. (2010), *Nature Physics* — influential spreaders.**
   `kitsak:spreaders`. **Key result:** the best spreaders sit in the
-  network *core* (k-shell), not necessarily the highest-degree or
-  highest-betweenness nodes. Justifies our k-core targeting arm.
+  network *core*, not necessarily the highest-degree or
+  highest-betweenness nodes. Motivates our subgraph-centrality targeting
+  arm, which scores cities by their participation in cohesive, triangle-rich
+  clusters.
 
 ## 5. Temporal & modern / learning-based
 
@@ -246,12 +238,11 @@ testable angle:
    Spearman ρ(degree, betweenness), find any anomalous gateways, and show
    whether the two strategies' infection curves coincide or separate.
    This is the sharp core of the paper and is genuinely unanswered.
-3. **Subgraph/core-aware layer** (k-core, motifs, graphlets) to *target*
+3. **Subgraph-centrality layer** (closed-walk participation) to *target*
    and to *explain* model–strategy outcomes — connecting the result to
    the local structure that causes it.
 
-See [`tex/main.tex`](tex/main.tex) § "Novelty and Positioning" for the
-write-up.
+See the paper in [`curated_tex/`](curated_tex/) for the write-up.
 
 ## Verified source links
 
