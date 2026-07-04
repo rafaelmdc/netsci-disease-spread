@@ -12,9 +12,7 @@ An MSc Bioinformatics group project.
   disease-type parameterisation from the literature, and paper writing.
 - **Lucas Caridade** — background research and literature review, methodology,
   interpretation of the results, and paper writing.
-- **Rafael Correia** — software and the three-module pipeline (data retrieval,
-  network generation, the metapopulation epidemic engine), the vaccination and
-  air-interdiction experiments, the interactive simulator app, and the figures.
+- **Rafael Correia** — software and app. Data anaylsis.
 
 All three contributed to the study design and the final manuscript.
 
