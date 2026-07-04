@@ -1,4 +1,8 @@
 \appendix
+% Single-column appendix: the wide tables and the architecture schematic then sit
+% inline with their section text (as full-page-width, non-floating blocks) rather
+% than tearing away to float pages, and the figure can be shown much larger.
+\onecolumn
 \section{Disease parameters}
 \label{app:sources}
 
@@ -11,7 +15,7 @@ Table~\ref{tab:sources} gives the source for each. Notably, measles and Ebola ha
 infectious periods ($\sim$8--10~d) yet $R_0$ differs roughly sevenfold ($\approx$15 vs
 $\approx$2): the infectious period does not set $R_0$; together with $\beta$ it produces it.
 
-\begin{table*}[t]
+\begin{table}[ht]
 \centering
 \footnotesize
 \caption{Parameter values per disease type (rates per day; $\mathrm{rate}=1/\mathrm{duration}$,
@@ -31,9 +35,9 @@ the exact number. For the lethal type $\gamma_Q\approx\gamma\approx0.10$.}
 5 & Recurrent $\cdot$ SEIRS   & 0.21 ($\sim$4.8\,d) & 0.70 ($\sim$1.4\,d) & 0                 & $\sim$0.001 (2--7\,yr)     & $\sim$0.001 & 1.3--1.8 \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
-\begin{table*}[t]
+\begin{table}[ht]
 \centering
 \footnotesize
 \caption{Source for every disease-type parameter. $\gamma$, $\sigma$, $\kappa$ come from a measured
@@ -66,18 +70,49 @@ Influenza (SEIRS) & $\sigma=0.70$ & incubation 1.4~d & ``median incubation perio
                   & $R_0=1.3$--$1.8$ & $R_0$ (review) & median $R\approx1.80$ for the 1918 pandemic (IQR 1.47--2.27)~\cite{biggerstaff:influenzar0} \\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
+
+\section{Full network descriptors}
+\label{app:structure}
+
+Table~\ref{tab:structure-full} gives the complete structural descriptor set for every built network,
+extending the key-descriptor summary in the main text (Table~\ref{tab:structure}). All quantities are
+topological, computed from the built graphs with no simulation; path length, diameter, clustering,
+and modularity are evaluated on the undirected largest connected component.
+
+\input{figures/TA-structure-full}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.6\textwidth]{F-degdist.pdf}
+  \caption{Degree distribution up the realism ladder, plotted as the complementary CDF (CCDF): each
+  point is the fraction of cities with degree at least $k$, on log--log axes (the standard
+  heavy-tail view, free of the $1/N$ tail noise of a raw histogram). Heavy-tailed over two orders of
+  magnitude on every substrate; the land layer adds a shoulder of moderate-degree inland cities near
+  $k\approx12$ (Section~\ref{sec:res-structure}).}
+  \label{fig:degdist}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.6\textwidth]{F-scatter.pdf}
+  \caption{Degree versus betweenness per city on the multilayer network (log--log,
+  $\rho=0.74$). The two rank together for most cities, but the ringed anomalous gateways carry high
+  betweenness at low degree: what betweenness-targeting catches and degree-targeting misses
+  (Section~\ref{sec:res-structure}).}
+  \label{fig:scatter}
+\end{figure}
 
 \section{Implementation architecture}
 \label{app:arch}
 
 The interactive simulator and the programmatic staged-protocol runs share one engine,
 configuration system, and results pipeline (Figure~\ref{fig:arch}), so the demonstration and the
-study cannot drift apart. (This figure is a working schematic and will be refined.)
+study cannot drift apart.
 
-\begin{figure}[t]
+\begin{figure}[ht]
   \centering
-  \includegraphics[width=\columnwidth]{F5-architecture.pdf}
+  \includegraphics[width=\textwidth]{F5-architecture.pdf}
   \caption{System architecture: one shared engine behind the interactive simulator and the
   programmatic runs, writing to a common results pipeline.}
   \label{fig:arch}

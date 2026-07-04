@@ -24,8 +24,24 @@ Code is landed; the confirming ensemble run and paper-text update are pending
   `deaths_table` + `F-deaths`, read from the existing `D` compartment (no recompute).
 - **Vaccination-equity metric** (roadmap #5): `equity_table` + `F-equity`
   (per-strategy Gini and top-country share of the vaccinated set).
+- **Presentation figures beyond bars**: `F-geo` (the Europe network on real
+  geography, betweenness-coloured, anomalous gateways ringed, air vs multimodal),
+  `F-curves` (epidemic I(t) across the realism ladder, seed-median + IQR band),
+  and `F-scatter` (degree vs betweenness with gateways ringed — the visual proof
+  of the degree≈betweenness overlap).
+- **Appendix distribution figures**: `A-peak-dist` and `A-gap-dist` show the full
+  per-seed ensemble behind the headline means.
+- **Expanded network descriptors**: `characterize` now also computes density,
+  average clustering, mean shortest-path length + diameter (small-world), and
+  Louvain community modularity. Rendered as a compact **main-text table**
+  (`T2-structure`: the epidemiologically important descriptors) plus a **full
+  appendix table** (`TA-structure-full`: every descriptor), and a
+  **degree-distribution figure** (`F-degdist`, CCDF log-log per rung).
 
 ### Changed
+- **F-deaths is now per-capita** (deaths averted per 100k), so the whole figure
+  panel shares consistent units; the interdiction figure was already normalised
+  (% of full-network peak).
 - Sweep runs are now **resumable** (`run_and_save(skip_existing=True)`): a
   completed `(config, seed)` is reused, not recomputed, so widening the ensemble
   or adding strategies only pays for the new cells.

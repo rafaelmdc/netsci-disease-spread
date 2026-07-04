@@ -19,14 +19,68 @@ def characterize(graph: nx.DiGraph) -> dict[str, float]:
     degrees = np.array([d for _, d in graph.degree()], dtype=float)
     k = degrees.mean() if degrees.size else 0.0
     k2 = (degrees**2).mean() if degrees.size else 0.0
+    apl, diam = _path_metrics(graph)
     return {
         "n_nodes": float(graph.number_of_nodes()),
         "n_edges": float(graph.number_of_edges()),
+        "density": float(nx.density(graph)),
         "mean_degree": float(k),
         "k2_over_k": float(k2 / k) if k > 0 else 0.0,
         "assortativity": _assortativity(graph),
+        "clustering": _clustering(graph),
+        "avg_path_length": apl,
+        "diameter": diam,
+        "modularity": _modularity(graph),
         "giant_frac": _giant_fraction(graph),
     }
+
+
+def _undirected_lcc(graph: nx.DiGraph) -> nx.Graph:
+    """Largest connected component of the undirected projection — the substrate
+    for the path/clustering/community metrics (a directed transport graph is
+    effectively undirected for reachability, and these measures need a single
+    connected component)."""
+    ug = graph.to_undirected()
+    if ug.number_of_nodes() == 0:
+        return ug
+    lcc = max(nx.connected_components(ug), key=len)
+    return ug.subgraph(lcc).copy()
+
+
+def _clustering(graph: nx.DiGraph) -> float:
+    """Average (undirected) clustering coefficient — local cohesion / triangles."""
+    try:
+        return float(nx.average_clustering(graph.to_undirected()))
+    except (ZeroDivisionError, nx.NetworkXError):
+        return float("nan")
+
+
+def _path_metrics(graph: nx.DiGraph) -> tuple[float, float]:
+    """Average shortest-path length and diameter on the undirected largest
+    connected component (small-world signature: short paths -> fast invasion)."""
+    lcc = _undirected_lcc(graph)
+    if lcc.number_of_nodes() < 2:
+        return float("nan"), float("nan")
+    try:
+        apl = float(nx.average_shortest_path_length(lcc))
+        diam = float(nx.diameter(lcc))
+    except (nx.NetworkXError, ValueError):
+        return float("nan"), float("nan")
+    return apl, diam
+
+
+def _modularity(graph: nx.DiGraph) -> float:
+    """Modularity of a Louvain community partition of the undirected projection
+    (geographic/community structure; high Q -> outbreaks can be trapped in
+    modules, relevant to interdiction and targeted vaccination)."""
+    ug = graph.to_undirected()
+    if ug.number_of_edges() == 0:
+        return float("nan")
+    try:
+        communities = nx.community.louvain_communities(ug, seed=0)
+        return float(nx.community.modularity(ug, communities))
+    except (nx.NetworkXError, ZeroDivisionError, ValueError):
+        return float("nan")
 
 
 def _assortativity(graph: nx.DiGraph) -> float:

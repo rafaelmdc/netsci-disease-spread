@@ -4,71 +4,148 @@ of Section~\ref{sec:params} one factor at a time: how each disease \emph{spreads
 intervention, which node-targeting rule best \emph{defends}, how that winner scales with
 \emph{dose}, and what closing routes (\emph{interdiction}) achieves. All runs are on Europe, with
 the disease type and the realism ladder (air $\rightarrow$ $+$water $\rightarrow$ $+$land) as the
-two cross-cutting axes. Each configuration is a single deterministic run, so absolute counts are
-comparative rather than predictive, and we read the differences between scenarios.
+two cross-cutting axes. Every configuration is run as an ensemble of ten random seedings of the
+initial infection; we report the mean and a $95\%$ confidence interval across the ensemble, so
+absolute counts are comparative rather than predictive and every difference we read below is
+resolved against seed variation.
+
+\subsection{The transport networks}\label{sec:res-structure}
+Structure sets what any epidemic or countermeasure can do, so we characterise the substrates before
+intervening (Table~\ref{tab:structure}; the full descriptor set is Table~\ref{tab:structure-full}).
+All are sparse (density $\le 0.033$) yet strongly small-world: the mean shortest path is only about
+three hops ($\langle\ell\rangle = 2.7$ on Europe air, $3.2$ on the multilayer) while local clustering
+stays high ($C \approx 0.5$), so any two cities lie a few steps apart and an outbreak can cross the
+continent in weeks. The degree distribution is heavy-tailed across two orders of magnitude
+(Figure~\ref{fig:degdist}, Appendix~\ref{app:structure}), with a heterogeneity ratio $\langle k^2\rangle/\langle k\rangle$ of
+$91$--$121$; in a metapopulation this heterogeneity is what lowers the invasion threshold and gives
+the busiest airports their outsized seeding role~\cite{colizza:invasion}.
+
+Climbing the realism ladder reorganises that structure without changing its small-world character.
+Adding land and ferry layers roughly triples the modelled population and flips the degree
+assortativity from disassortative on air alone ($r=-0.19$) to mildly assortative on the multilayer
+($r=+0.14$), as commuting joins cities of similar size; it stretches the diameter from $6$ to $11$
+and lifts modularity from $Q=0.28$ to $0.35$ as national road and ferry clusters form.
+
+Most consequential is how a city's degree relates to its betweenness. In most
+cities the two rank together, so the busiest airports are also the main bridges and it scarcely
+matters which a vaccination rule targets. The exceptions are \emph{anomalous gateways}: cities that
+lie on a great many shortest paths (high betweenness) despite having only a handful of direct routes
+(low degree), so they carry an epidemic across the continent far out of proportion to their traffic.
+This is the anomalous centrality Guimer\`a et al.\ found in the worldwide air network, with
+Anchorage, few flights but the gateway to remote Alaska, the canonical
+example~\cite{guimera:anomalous}. How many a network has is a property of the region: the correlation
+$\rho(\text{degree},\text{betweenness})$ spans a spectrum from a US-like regime where hubs and bridges
+coincide and anomalies all but vanish~\cite{sun:anomalous} to a worldwide-like regime rich in gateways. Europe's air network is strongly correlated
+($\rho=0.89$, US-like), but adding the land and ferry layers pulls it toward the anomalous end
+($\rho=0.74$) and surfaces seventeen gateways on the flagship, low-degree bridge cities on the
+Nordic and western periphery (Figure~\ref{fig:geo}; the degree--betweenness scatter is
+Figure~\ref{fig:scatter} in Appendix~\ref{app:structure}). These gateways are the
+\emph{only} cities where degree- and betweenness-targeting disagree, which makes them the whole
+stake of the defence comparison below: if targeting bridges beats targeting hubs, it can only be
+because it protects them.
+
+\input{figures/T2-structure}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\columnwidth]{F-geo.pdf}
+  \caption{The Europe network on real geography: air-only (top) versus multimodal (bottom). Node
+  colour is betweenness, size is population, and rings mark anomalous gateways. Adding land and
+  ferry layers redistributes betweenness onto peripheral bridge cities
+  (Section~\ref{sec:res-structure}).}
+  \label{fig:geo}
+\end{figure}
 
 \subsection{How each disease spreads}\label{sec:res-spread}
 With no intervention every one of the five types takes off on every rung of the ladder
-(Figure~\ref{fig:spread}). We report the peak as a fraction of the population, so that substrates
+(Figure~\ref{fig:spread-curves}a). We report the peak as a fraction of the population, so that substrates
 carrying different numbers of people are compared fairly. The peak then orders cleanly by dynamical
-class: the immunizing measles type (SIR) is highest, at $\approx$$61\%$ of the population on air
-alone, followed by the endemic gonorrhea type (SIS, $\approx$$28\%$) and the latent COVID type
-(SEIR, $\approx$$12\%$), with the waning-immunity influenza type (SEIRS) and the
-isolation-controlled Ebola type (SEIQRD) lowest at $\approx$$4\%$ each. Latency delays a peak and
-isolation caps it, so the two types that add those mechanisms surge least, even though every type
-clears its invasion threshold~\cite{colizza:invasion}.
+class: the immunizing measles type (SIR) is highest, at $59\%$ of the population ($95\%$ CI
+$\pm1.4$) on air alone, followed by the endemic gonorrhea type (SIS, $28\%$) and the latent COVID
+type (SEIR, $12\%$), with the waning-immunity influenza type (SEIRS, $4.0\%$) and the
+isolation-controlled Ebola type (SEIQRD, $3.8\%$) lowest. The intervals are tight (at most $\pm2$
+points on the measles type and under half a point on the milder ones), so the ordering is resolved
+across seeds. Latency delays a peak and isolation caps it, so the two types that add those
+mechanisms surge least, even though every type clears its invasion
+threshold~\cite{colizza:invasion}.
 
-Climbing the realism ladder barely moves that fraction: for every disease it stays within about
-three points across air, $+$water, and $+$land (measles $61\%$, $58\%$, $62\%$), which is exactly
-why we normalise. In absolute counts the peak roughly doubles from air to the full multilayer
-(measles $121$M $\rightarrow$ $213$M; gonorrhea $56$M $\rightarrow$ $97$M), but that rise is almost
-entirely a population effect: the land layer pulls inland, non-airport cities into the network,
-growing the modelled population from $199$M to $342$M. Per capita, the ladder adds people who can be
-infected, not severity. Ferries even lower the peak slightly (measles $61\% \rightarrow 58\%$),
+Climbing the realism ladder moves that fraction only a little, and chiefly for the measles type (air
+$59\%$, $+$water $57\%$, $+$land $63\%$); the milder types stay within half a point, which is why we
+normalise. In absolute counts the peak roughly doubles from air to the full multilayer (measles
+$117$M $\rightarrow$ $216$M; gonorrhea $56$M $\rightarrow$ $97$M), but that rise is almost entirely a
+population effect: the land layer pulls inland, non-airport cities into the network, growing the
+modelled population from $199$M to $342$M. Per capita, the ladder adds people who can be infected,
+not severity. Ferries even lower the peak slightly (measles $59\% \rightarrow 57\%$),
 because the coastal cities they add crest out of phase and desynchronise the surge, whereas land's
 role is dynamical, synchronising a larger connected population through recurrent
-commuting~\cite{balcan:recurrent}. The \emph{temporal} signature, by contrast, belongs to the
+commuting~\cite{balcan:recurrent} and bringing the peak forward (Figure~\ref{fig:spread-curves}b). The \emph{temporal} signature, by contrast, belongs to the
 disease and not the substrate: the acute measles type peaks within about three weeks (day
 $17$--$21$) and burns out, while the endemic gonorrhea type is still climbing toward its plateau at
 the four-year horizon.
 
-\begin{figure}[t]
+\begin{figure}[tbp]
   \centering
-  \includegraphics[width=\columnwidth]{F-spread.pdf}
-  \caption{Uncontrolled spread. Peak active infection, as a fraction of the population, by disease
-  type and substrate, up the realism ladder (air, $+$water, $+$land). Normalising by population
-  removes the confound that the land layer also adds inland cities. The peak orders by dynamical
-  class (immunizing $>$ endemic $>$ latent $>$ waning $\approx$ isolation-controlled) and is nearly
-  flat across the ladder: realism adds people, not per-capita severity
+  \includegraphics[width=\columnwidth]{F-spread-curves.pdf}
+  \caption{How each disease spreads, with no intervention. \textbf{(a)}~Peak active infection, as a
+  fraction of the population, by disease type and substrate up the realism ladder (air, $+$water,
+  $+$land); normalising by population removes the confound that the land layer also adds inland
+  cities. The peak orders by dynamical class (immunizing $>$ endemic $>$ latent $>$ waning $\approx$
+  isolation-controlled) and is nearly flat across the ladder: realism adds people, not per-capita
+  severity. \textbf{(b)}~Epidemic curve of the immunizing measles type across the same ladder:
+  infectious fraction over time, seed median with an interquartile band. Adding land brings the peak
+  \emph{earlier} and higher (recurrent commuting synchronises a larger population), while ferries push
+  it slightly later and lower (coastal cities crest out of phase), so the substrate reshapes the
+  timing even where it barely moves the per-capita height. Error bars in (a) are $95\%$ confidence
+  intervals and the band in (b) an interquartile range, both across the ten-seed ensemble
   (Section~\ref{sec:res-spread}).}
-  \label{fig:spread}
+  \label{fig:spread-curves}
 \end{figure}
 
 \subsection{Which vaccination wins}\label{sec:res-defend}
 Holding the budget at $15$ immunised cities ($75\%$ coverage) on the multilayer flagship, targeting
 the structural \emph{bridges} (betweenness) yields the largest peak reduction for every one of the
-five diseases (Figure~\ref{fig:defense}): measles $13.1\%$, the isolation, waning, and latent types
-$12.3$--$12.7\%$, and the endemic gonorrhea type $10.8\%$. Targeting the busiest \emph{hubs}
-(degree) and the dense-cluster \emph{subgraph} rule (Section~\ref{sec:defend}) tie well below it
-($7$--$9.3\%$), while random immunisation is barely distinguishable from doing nothing
-($0.5$--$0.8\%$). The ordering bridges~$>$~hubs~$\approx$~subgraph~$\gg$~random is uniform: it holds
-for all five disease types and, in the underlying table, at all three rungs, so the win is not an
-artefact of one disease or one substrate~\cite{kitsak:spreaders}.
+five diseases (Figure~\ref{fig:defense}): measles $12.5\%$, the latent, waning, and
+isolation-controlled types $12.6$--$12.9\%$, and the endemic gonorrhea type $10.8\%$. Targeting the
+busiest \emph{hubs} (degree) and the dense-cluster \emph{subgraph} rule (Section~\ref{sec:defend})
+tie well below it ($7.0$--$9.3\%$), while random immunisation is barely distinguishable from doing
+nothing ($\approx$$1\%$). The confidence intervals are a few tenths of a point, so the ordering
+bridges~$>$~hubs~$\approx$~subgraph~$\gg$~random is unambiguous; it holds for all five disease types
+and, in the underlying table, at all three rungs, so the win is not an artefact of one disease or
+one substrate~\cite{kitsak:spreaders}. And the gateways are what decide it. Because degree and
+betweenness diverge \emph{only} at those cities (Section~\ref{sec:res-structure}), betweenness's
+roughly four-point edge over degree is precisely the containment the seventeen low-degree bridges
+carry, which degree-targeting forgoes by ranking them too low to protect.
 
-If anything, the realism ladder sharpens this advantage rather than diluting it. The relative gap
-between the peak left by hub-targeting and by bridge-targeting grows from $4$--$7.5\%$ on the
-air-only network to $\approx$$12\%$ on the full multilayer for every disease (measles $7.5\%
-\rightarrow 12.5\%$). Adding land and ferry layers routes yet more traffic through the same
-inter-community conduits that betweenness identifies, so removing a bridge airport becomes
-\emph{more} valuable, not less.
+The two optimal-percolation rules put that mechanism to a further test: does a method beat degree
+only if it can see past raw connectivity to the gateways? They split cleanly. Collective
+Influence~\cite{morone:influence}, which scores a city by its neighbourhood's reach rather than its
+own traffic, nearly matches betweenness (measles $11.8\%$ against $12.4\%$, and within half a point
+on every disease), recovering most of the advantage that degree forfeits at the gateways. The
+non-backtracking rule~\cite{radicchi:nonbacktracking}, by contrast, tracks degree ($7.8$--$9.2\%$):
+its eigenvector ranking rewards the same busy cities degree already finds and so misses the same
+gateways. The two rules that beat degree are exactly the two that can find the low-degree bridges,
+and the one that cannot forfeits them alongside degree, so the test set up in
+Section~\ref{sec:res-structure} resolves squarely in the gateways' favour. Betweenness remains the
+rule to use, with Collective Influence a confirming second.
 
-\begin{figure*}[t]
+The bridges-over-hubs ordering holds at every rung, but vaccination gets \emph{harder} as the
+substrate grows more realistic. Immunising $15$ cities cuts the measles peak by $19\%$ under
+betweenness on the sparse air-only network, yet only $12\%$ on the full multilayer, with degree
+falling in step ($12\% \rightarrow 8\%$). Two effects compound: the fixed $15$-city budget covers a
+smaller share of the larger multilayer, and its land and ferry layers give the outbreak redundant
+routes around any removed city. Betweenness keeps its $\approx$$50\%$ relative edge over degree
+throughout, so realism does not change \emph{which} cities to protect, only how much budget a given
+reduction demands, which is the same redundancy that blunts route closure below.
+
+\begin{figure*}[tp]
   \centering
   \includegraphics[width=0.82\textwidth]{F-defense.pdf}
   \caption{Node targeting. Peak reduction versus no vaccination for each strategy at a fixed budget
   ($15$ cities, $75\%$ coverage) on the multilayer flagship. Betweenness (bridges) wins for every
-  disease type; degree (hubs) and the subgraph rule trail; random is near zero
-  (Section~\ref{sec:res-defend}).}
+  disease type, with Collective Influence a close second; degree (hubs), the subgraph rule, and
+  non-backtracking trail together, and random is near zero. Error bars are $95\%$ confidence
+  intervals across the ten-seed ensemble; they are a few tenths of a point and often smaller than the
+  bar borders (Section~\ref{sec:res-defend}).}
   \label{fig:defense}
 \end{figure*}
 
@@ -83,12 +160,14 @@ outbreaks. The disease ordering is consistent at every budget: the types that co
 $33.8\%$ down to gonorrhea $30.1\%$), because a recovered compartment locks in the vaccination's
 gain whereas SIS reinfection steadily erodes it.
 
-\begin{figure}[t]
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{F-dose.pdf}
   \caption{Dose--response. Peak reduction versus the number of cities vaccinated under the winning
   betweenness rule, on the flagship. Returns diminish beyond $\sim$$60$--$120$ cities; immunising
-  diseases gain slightly more than the reinfecting endemic type (Section~\ref{sec:res-dose}).}
+  diseases gain slightly more than the reinfecting endemic type. Shaded bands are $95\%$ confidence
+  intervals across the ten-seed ensemble; they are very narrow (often thinner than the marker),
+  reflecting the low seed-to-seed spread in peak reduction (Section~\ref{sec:res-dose}).}
   \label{fig:dose}
 \end{figure}
 
@@ -97,25 +176,59 @@ The second lever closes \emph{routes} rather than immunising cities, and it is w
 model and the full multilayer part company most sharply (Figure~\ref{fig:interdiction}). Closing
 \emph{all} air routes in an air-only model collapses every outbreak to $0.1$--$0.2\%$ of its full
 peak (measles $0.18\%$, gonorrhea $0.12\%$): grounding flights ends the epidemic when air is the
-only carrier. On the true multilayer substrate the same closure still leaves $34$--$44\%$ of the
-peak standing (measles $44\%$, COVID $35\%$, Ebola $34\%$), because land commuting and ferries keep
-moving people. A single-layer picture therefore overstates the benefit of a flight ban by two to
-three orders of magnitude.
+only carrier. On the true multilayer substrate the same closure still leaves $32$--$47\%$ of the
+peak standing (measles $47\%$, COVID $33\%$, Ebola $32\%$), because land commuting and ferries keep
+moving people. A single-layer picture therefore overstates the benefit of a flight ban by more than
+two orders of magnitude.
 
 Closing only the top-$10$ hub airports (ranked by betweenness) is weaker still: it leaves
-$56$--$70\%$ of the peak in the air-only model and $70$--$99\%$ on the multilayer, and for the slow
-endemic type essentially all of it ($99\%$). Removing a handful of bridge airports barely perturbs
+$61$--$71\%$ of the peak in the air-only model and $77$--$90\%$ on the multilayer, and for the slow
+endemic type nearly all of it ($90\%$). Removing a handful of bridge airports barely perturbs
 an outbreak that also travels by road and sea. Either way the message is the same, that the
 realistic multimodal substrate flips the policy conclusion a single-layer model would reach: once
 ground and ferry travel are in the picture, no air-route closure contains the epidemic on its own.
 
-\begin{figure*}[t]
+\begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{F-interdiction.pdf}
+  \includegraphics[width=\columnwidth]{F-interdiction.pdf}
   \caption{Edge targeting. Peak remaining (as a percentage of each substrate's own full-network
-  peak) after closing all air routes (left) or the top-$10$ hub airports (right), for the air-only
+  peak) after closing all air routes (top) or the top-$10$ hub airports (bottom), for the air-only
   model versus the multimodal network. Closing air ends the outbreak only in the air-only world
-  (its bars sit near zero); on the multimodal substrate $34$--$44\%$ of the peak survives
-  (Section~\ref{sec:res-interdict}).}
+  (its bars sit near zero); on the multimodal substrate $32$--$47\%$ of the peak survives. Error bars
+  are $95\%$ confidence intervals across the ten-seed ensemble, with the upper whisker capped at
+  $100\%$ since peak remaining cannot exceed the full-network peak (Section~\ref{sec:res-interdict}).}
   \label{fig:interdiction}
-\end{figure*}
+\end{figure}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=\columnwidth]{F-deaths-equity.pdf}
+  \caption{Deaths averted, and where protection lands. \textbf{(a)}~Deaths averted per $100{,}000$
+  people for the lethal isolation type (SEIQRD) under each strategy at the $15$-city operating point;
+  bridge-targeting averts the most, and by a wider margin than under the peak metric. Error bars are
+  $95\%$ confidence intervals across the ten-seed ensemble. \textbf{(b)}~Where betweenness-targeting
+  places protection on the flagship, at the three dose budgets. Cities sit at their coordinates
+  (grey: all cities); the operating top $15$ (large red) spread across $12$ countries rather than
+  clustering in one, and the next tiers (ranks $16$--$50$, $51$--$200$) extend that cover outward
+  across the continent (Section~\ref{sec:res-deaths}).}
+  \label{fig:deaths-equity}
+\end{figure}
+
+\subsection{Deaths averted, and where protection lands}\label{sec:res-deaths}
+Two refinements sharpen the vaccination result. First, peak active infection understates what is at
+stake for the lethal isolation type, whose case-fatality is high ($\mu\approx0.71$). Reading
+cumulative deaths from the model's fatal compartment, bridge-targeting averts $\approx$$7{,}400$
+deaths per $100{,}000$ people on the flagship, against $\approx$$4{,}800$ for hub- and
+subgraph-targeting and only $\approx$$680$ for random selection (Figure~\ref{fig:deaths-equity}a). The
+bridge advantage is therefore \emph{larger} under a mortality metric ($53\%$ more deaths averted
+than degree) than under the peak metric ($\sim$$39\%$), because the bottleneck cities betweenness
+protects sit on the very routes that would otherwise carry the disease into spared populations.
+
+Second, effectiveness and equity need not trade off on this substrate. Betweenness-targeting places
+its cities across the continent rather than onto one nation's hubs: the operating top $15$ span
+$12$ countries, and larger budgets ($50$, $200$) extend that cover outward
+(Figure~\ref{fig:deaths-equity}b). Degree, the subgraph rule, and both optimal-percolation strategies
+instead concentrate their $15$ cities in $10$ countries with $27\%$ in a single one (Germany), a
+Gini of $0.26$ against betweenness's $0.15$. The most effective rule is thus also the most
+geographically even: targeting structural bridges distributes protection across the continent's
+borders rather than piling it onto one nation's hubs.

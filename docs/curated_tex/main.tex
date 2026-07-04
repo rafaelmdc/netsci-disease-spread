@@ -11,10 +11,32 @@
 \usepackage{array}
 \usepackage[hyphens]{url}
 \usepackage{microtype}        % protrusion: tightens justification, kills most overfull boxes
+\usepackage{needspace}        % surgical only: a small nudge at a specific column foot
 \graphicspath{{figures/}}
 
 % Let TeX stretch a little harder before declaring an overfull line.
 \setlength{\emergencystretch}{2em}
+
+% Float placement. The class defaults are conservative and shove figures onto
+% later pages, far from the text that cites them. Loosen the fractions so a page
+% may be mostly float, allow more floats per page, and let single-column figures
+% fall to the bottom as well as the top.
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.1}
+% High float-page fractions forbid sparse all-figure pages: a float page must be
+% nearly full, so a lone big figure cannot sit alone on one and is pushed onto a
+% text page (with body text) instead of stacking with the next figure.
+\renewcommand{\floatpagefraction}{0.9}
+\renewcommand{\dbltopfraction}{0.7}       % a full-width figure* leaves >=30% of
+                                          % its page for text: no all-figure pages
+\renewcommand{\dblfloatpagefraction}{0.9}
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{3}
+\setcounter{dbltopnumber}{1}   % at most one full-width (figure*) float per page top,
+                               % so two big schematics never stack on an all-figure page
+\setlength{\dbltextfloatsep}{12pt plus 2pt minus 2pt}  % gap under full-width floats
 
 % Emails are long single tokens that overflow the narrow author columns; render
 % them in normal roman and let them break at . and @ so they wrap in-column.

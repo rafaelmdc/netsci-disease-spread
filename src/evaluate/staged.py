@@ -81,7 +81,8 @@ def stage_dose_one(
 
 
 def stage_interdiction(
-    master: ExperimentConfig, k: int = 10, echo: Echo = print, max_seeds: int = 10
+    master: ExperimentConfig, k: int = 10, echo: Echo = print, max_seeds: int = 10,
+    skip_existing: bool = True,
 ) -> None:
     """Stage 5 — EDGE targeting (interdiction). The complement to the node-targeting
     defend stage: for each disease, close flight routes (scenarios A-D) and see
@@ -140,6 +141,13 @@ def stage_interdiction(
         )
 
     for disease, params in master.models.items():
+        ppath = network_figure(region, flagship_combo, f"interdiction_{disease.value}.parquet")
+        # interdiction is strategy-independent and deterministic given the seeds,
+        # so a completed parquet is reused rather than recomputed (this is the
+        # expensive stage; re-running it on a defend-only change wastes ~1 min/disease).
+        if skip_existing and ppath.exists():
+            echo(f"  [{disease.value}] interdiction reused (parquet exists), skipping")
+            continue
         rows: list[dict] = []
         for layers in substrates:
             combo = combo_name(layers)
@@ -171,7 +179,6 @@ def stage_interdiction(
                     peaks.setdefault(name, []).append(r["summary"]["peak_infected"])
             for name, vals in peaks.items():
                 echo(f"    {name:42s} peak={sum(vals) / len(vals):,.0f}")
-        ppath = network_figure(region, flagship_combo, f"interdiction_{disease.value}.parquet")
         pd.DataFrame(rows).to_parquet(ppath)
         echo(f"  [{disease.value}] wrote {ppath.name} (air + flagship, {len(seeds)} seeds)")
 

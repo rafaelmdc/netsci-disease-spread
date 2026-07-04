@@ -10,9 +10,9 @@ estimate how many people a real epidemic would infect, but quantify differences 
 under identical conditions. The whole pipeline, from data retrieval through network generation to
 evaluation, is a single reproducible workflow (Figure~\ref{fig:pipeline}).
 
-\begin{figure*}[t]
+\begin{figure*}[tp]
   \centering
-  \includegraphics[width=0.76\textwidth]{F1-pipeline.pdf}
+  \includegraphics[width=0.64\textwidth]{F1-pipeline.pdf}
   \caption{Data and simulation pipeline. Open data sources are retrieved, assembled into
   per-region multilayer networks, and evaluated by one engine. A single interactive simulator
   drives the whole pipeline and can retrieve data and build networks, but is mainly used to
@@ -45,7 +45,21 @@ validating the land kernel, not for parameterising any region. Node populations 
 GeoNames where available, with a degree-based proxy $N_i = P_0 + d(i)\,P_\mathrm{route}$ as a
 fallback.
 
-\begin{figure}[t]
+Before running any outbreak we characterise each built network structurally, since topology bounds
+what an epidemic or an intervention can do. For every network we measure order and density, the
+degree distribution and its heterogeneity ratio $\langle k^2\rangle/\langle k\rangle$ (which
+governs the metapopulation invasion threshold~\cite{colizza:invasion}), degree assortativity,
+average clustering, the mean shortest-path length and diameter, community modularity, and the rank
+correlation $\rho$ between a city's degree and its betweenness, together with the count of
+\emph{anomalous gateways}, low-degree cities whose betweenness far exceeds that of their
+similar-degree peers. These gateways are the anomalous centrality that Guimer\`a et al.\ found in
+the worldwide air network~\cite{guimera:anomalous}; we flag them not by an arbitrary cutoff but by
+standardising each city's betweenness against that of its similar-degree peers and testing for a
+significant excess under Benjamini--Hochberg false-discovery-rate control, the degree-conditioned
+benchmark of~\cite{sun:anomalous}. These descriptors are reported per network and read directly
+against the epidemic results.
+
+\begin{figure}[tbp]
   \centering
   \includegraphics[width=\columnwidth]{F2-multilayer-stack.pdf}
   \caption{Shared-node multilayer substrate. Each city is one shared node present on every layer
@@ -113,20 +127,32 @@ a decision about which structural elements of the network to remove. We compare 
 first is node targeting (vaccination): a set of cities is rendered immune so they no longer
 transmit. The targeting rule is the object of study, and at a fixed budget we compare no
 intervention (control), random selection, degree (the highest-traffic cities), betweenness (the
-structural bridges), and a motif rule we label \emph{subgraph}, which ranks cities by their
-embedding in dense local clusters (triangle participation, the number of closed triads through each
-node) rather than by raw connectivity. This last rule is a tractable proxy for the core-spreader
-heuristics of~\cite{kitsak:spreaders}: where degree counts a city's routes and betweenness the paths
-it bridges, the subgraph rule rewards cities inside tightly interconnected neighbourhoods, which
-need not be the busiest or the most central. Having found the most effective rule, we then sweep its
+structural bridges), a motif rule we label \emph{subgraph}~\cite{estrada:subgraph,milo:motifs}, which ranks cities by
+their embedding in dense local clusters (triangle participation, the number of closed triads through
+each node) rather than by raw connectivity, and two optimal-percolation rules from the modern
+immunization literature:
+Collective Influence~\cite{morone:influence}, which scores a city by the summed reduced degrees of
+the nodes on a ball of radius two around it, and a non-backtracking
+rule~\cite{radicchi:nonbacktracking}, which ranks cities by their weight in the leading eigenvector
+of the Hashimoto (non-backtracking) matrix. Subgraph centrality weights a node by its participation
+in closed walks, so it is high precisely where a city sits in a cohesive, triangle-rich cluster in
+which infection can recirculate over redundant paths rather than pass through once~\cite{estrada:subgraph}.
+This is the structural signature of local transmission reinforcement: where degree counts a city's
+routes and betweenness the paths it bridges, subgraph centrality identifies the tightly
+interconnected neighbourhoods that sustain an outbreak once it arrives, and these need not be the
+busiest or the most central cities. It therefore probes a mechanism of spread the other rules miss,
+which is why we include it in the comparison. The two optimal-percolation rules are designed to
+reward exactly the low-degree, high-impact cities of the anomalous-gateway kind rather than raw
+hubs, and so test whether a method built for uncorrelated networks gains anything on a correlated,
+real one. Having found the most effective rule, we then sweep its
 budget, from a handful of cities to a few hundred, to trace the dose--response: how many cities must
 be vaccinated for substantial containment, and where the returns diminish. Coverage and per-city
 efficacy are held fixed throughout, so only the budget and the rule vary.
 
 The second mode is edge targeting (interdiction): we close routes rather than immunise cities, in
 four scenarios: (A) no intervention; (B) close all air routes while retaining land and water; (C)
-close all air routes within an air-only model; and (D) close only the top-$k$ routes ranked by
-degree versus by betweenness. Scenarios B and C exist to contrast what a single-layer model
+close all air routes within an air-only model; and (D) close only the top-$k$ airports (removing all
+of their routes) ranked by degree versus by betweenness. Scenarios B and C exist to contrast what a single-layer model
 concludes with how the full multilayer network behaves. The two modes are distinct levers, not
 stacked, so each reads in the same currency: containment per unit of a fixed budget.
 
@@ -153,9 +179,15 @@ off and how large it grows. We therefore seed where it can spread, and measure t
 uniform horizon of $1460$ days (four years) gives cross-disease comparability: the acute type peaks
 and burns out within months, while the endemic type needs years to approach its equilibrium. Across
 any comparison the only inputs that change are the disease type, the protection strategy, and the
-layer set. We report final epidemic size, peak active infection, and peak day, and verify the engine
-against analytic limits, namely single-node dynamics and the final-size correspondence between SIR
-and bond percolation~\cite{newman:spread}.
+layer set. We report peak active infection (as a fraction of the population), final epidemic size,
+and peak day; for the lethal isolation type we additionally report cumulative deaths and deaths
+averted per capita, read from its fatal compartment, and for each targeting rule the geographic
+concentration of the cities it selects, summarised by a per-country Gini coefficient. To quantify
+seed sensitivity, every configuration is run as an ensemble of ten random seedings of the initial
+infection, and each headline number is the ensemble mean with a $95\%$ confidence interval
+($\text{mean}\pm1.96\,\text{s.e.}$), so every reported difference is resolved against seed variation.
+We verify the engine against analytic limits, namely single-node dynamics and the final-size
+correspondence between SIR and bond percolation~\cite{newman:spread}.
 
 These pieces form a single staged protocol (Figure~\ref{fig:protocol}), walked one factor at a time
 rather than as a full grid. We first run each disease with no intervention to see how it
@@ -166,7 +198,7 @@ evaluates the edge-targeting lever, \emph{interdiction}, progressively closing r
 ferries) on the flagship. The vaccination phases run up the realism ladder (air, then $+$water, then
 $+$land), so each result reads against both the disease and the realism axis.
 
-\begin{figure*}[t]
+\begin{figure*}[tp]
   \centering
   \includegraphics[width=0.9\textwidth]{F3-protocol.pdf}
   \caption{Experimental protocol. From one multilayer network the study splits into two

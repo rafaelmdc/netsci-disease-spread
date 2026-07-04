@@ -51,6 +51,18 @@ Work and to locate the gap our project fills (see
 - **Pastor-Satorras, Castellano, Van Mieghem & Vespignani (2015), *RMP* —
   epidemic processes in complex networks.** `pastorsatorras:review`. The
   definitive survey; cite for any general claim.
+- **Morone & Makse (2015), *Nature* — influence maximization through optimal
+  percolation.** `morone:influence`. Collective Influence: the optimal-percolation
+  target rule that rewards low-degree, high-impact nodes — implemented as our
+  `collective_influence` strategy (item 2), aimed squarely at the anomalous
+  gateways degree/betweenness miss.
+- **Osat, Faqeeh & Radicchi (2017), *Nat. Commun.* — optimal percolation on
+  multiplex networks.** `osat:multiplex`. The multilayer variant of the above; the
+  right formulation for our air/land/water multiplex substrate.
+- **Radicchi & Castellano (2016), *PRE* — percolation theory to single out
+  influential spreaders.** `radicchi:nonbacktracking`. Non-backtracking (Hashimoto)
+  spreader ranking; backs our `nonbacktracking` strategy and the non-backtracking
+  eigenvalue `lambda_NB` reported (with `T_c = 1/lambda_NB`) in the structure table.
 
 ## 2b. Running SIR/SEIR *on* a transport network — the metapopulation framework
 

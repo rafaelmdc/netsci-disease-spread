@@ -235,27 +235,29 @@ the coordinates/country metadata already on the nodes.
 ## Suggested execution order and a done-checklist
 
 1. [x] Widen `seeds` (→10, resumable), ensemble aggregation + confidence bands
-       (item 1). Code done; 10-seed staged ensemble running; figures carry CIs.
-2. [~] Implement `collective_influence` + `nonbacktracking` strategies (item 2).
-       Code + unit tests written (`tests/test_strategies_extra.py`); **not yet
-       run** (waiting for the ensemble to free the CPU). Remaining: run the
-       tests, then add the two names to `experiment.yaml` `strategies:` and let
-       the resumable sweep compute only the new arms.
-3. [~] Per-network statistics (`k2_over_k`, assortativity, giant fraction) and
-       the non-backtracking epidemic-threshold (`nb_eigenvalue`, `epi_threshold`)
-       in `structure_table` (item 3). Code done; **not yet run**. The τ-based
-       Colizza–Vespignani metapopulation invasion number is left as a smaller
+       (item 1). Done: uniform 0–9 ensemble (1244 runs), figures carry 95% CIs.
+2. [x] Implement `collective_influence` + `nonbacktracking` strategies (item 2).
+       Code + unit tests pass (`tests/test_strategies_extra.py`, 7 passed). Still
+       **optional**: adding the two names to `experiment.yaml` `strategies:` and
+       re-running the (resumable) defend stage to get their *results* — see task
+       "Add modern strategies and re-run defend". F-equity already includes them.
+3. [x] Per-network statistics (`k2_over_k`, assortativity, giant fraction) and the
+       non-backtracking threshold (`nb_eigenvalue`, `epi_threshold`) — delivered as
+       the **T2-structure** LaTeX table (`netsci viz tables`), computed on the fly.
+       The τ-based Colizza–Vespignani metapop invasion number is left as a smaller
        follow-up so the delivered threshold stays rigorous.
-4. [~] Deaths / deaths-averted for the lethal type (item 4). Code done
-       (`aggregate.deaths_table` + `figures.fig_deaths`), reading the `D`
-       compartment from existing `timeseries.parquet` — **no recompute needed**.
-       Not yet run.
-5. [~] Equity concentration metric + figure (item 5). Code done
-       (`aggregate.equity_table` + `figures.fig_equity`): per-strategy Gini and
-       top-country share of the vaccinated set. Not yet run. (The cases-averted
-       -by-country half waits for the ensemble results.)
+4. [x] Deaths / deaths-averted for the lethal type (item 4), now **per-capita**
+       (per 100k) in `F-deaths`, read from the `D` compartment (no recompute).
+5. [x] Equity concentration metric + figure (item 5): per-strategy Gini and
+       top-country share (`F-equity`).
 6. [ ] Update `results.tex` / `discussion.tex`, remove the now-addressed caveats,
-       and refresh `CHANGELOG.md` + `ROADMAP.md`.
+       and refresh `CHANGELOG.md` + `ROADMAP.md`. (CHANGELOG done; paper text pending.)
+7. [x] Presentation figures beyond bars: F-geo, F-curves, F-scatter, + appendix
+       A-peak-dist / A-gap-dist. All rendered and debugged. (An F-threshold
+       phase-diagram was prototyped and **dropped**: the metapopulation model is
+       not bond percolation on the mobility graph, so attack rate stayed 0 across
+       the whole T sweep and T_c = 1/lambda_NB was not the governing threshold.
+       lambda_NB / T_c remain in the T2 table as structural descriptors only.)
 
 Items 1–4 make the study *defensible*; items 2 and 5 make it *novel*. If time is
 short, items 1 and 2 are the two that most move the grade.
@@ -286,23 +288,38 @@ the sweep is resumable (`skip_existing`), so nothing here is wasted if interrupt
    two new arms compute (everything else is reused); `fig_defense` and the
    strategy-gap table then include them automatically.
 
-4. **Rebuild aggregates, tables and figures:**
+4. **Even the ensemble first (DECIDED: prune to 0–9).** The first, killed 20-seed
+   run left orphan `seed >= 10` files for some cells, so a few average over more
+   seeds than others. Delete every run folder with `seed >= 10` so the ensemble is
+   a uniform 0–9, then rebuild aggregates so the CIs are comparable. (Paired
+   figures inner-join on seed, so this mainly affects the spread/interdiction bars,
+   but uniform is cleaner.)
+
+5. **Rebuild aggregates, tables and figures:**
    - `uv run netsci evaluate collect`   → `summary.parquet` + `strategy_gap.parquet` (with 95% CI)
-   - `uv run netsci evaluate structure` → `structure.parquet`: `k2_over_k`, `assortativity`, `giant_frac`, `nb_eigenvalue`, `epi_threshold` (item 3)
-   - `uv run netsci viz figures`        → F-spread/defense/dose/interdiction (CIs) + F-deaths (item 4) + F-equity (item 5)
-   - `uv run netsci viz tables`         → T1 and derived tables
+   - `uv run netsci viz tables`         → T1 archetypes + **T2-structure** (item 3):
+     `⟨k⟩`, `k2_over_k`, `assortativity`, `giant_frac`, `nb_eigenvalue`, and the
+     percolation threshold `T_c = 1/λ_NB`, computed on the fly (no parquet, so it
+     does not collide with the region-spectrum `structure.parquet`).
+   - `uv run netsci viz figures`        → the curated set **plus the richer figures**:
+     - core (CIs): F-spread, F-defense, F-dose, F-interdiction
+     - F-deaths (item 4, now **per-capita**, deaths averted per 100k), F-equity (item 5)
+     - **F-curves** — epidemic I(t) across the ladder (seed-median + IQR band)
+     - **F-geo** — the Europe network on real geography, betweenness-coloured, gateways ringed
+     - **F-scatter** — degree vs betweenness (flagship), gateways ringed, ρ annotated
+     - **A-peak-dist / A-gap-dist** — per-seed distributions (appendix)
 
-5. **(Optional) Even the ensemble.** The first, killed 20-seed run left orphan
-   seed-10..16 files for some cells, so a few have >10 seeds. For uniform CIs,
-   either delete run folders with `seed >= 10` before step 4, or widen `seeds` to
-   `[0..19]` and re-run to fill them in. Paired figures (defense/dose) inner-join
-   on seed, so this only affects the spread/interdiction bars.
+6. **(Dropped) Threshold phase diagram.** Prototyped and removed: a T = β/(β+γ)
+   sweep on the flagship gave 0 attack rate across the whole range, confirming the
+   metapopulation model is not bond percolation on the mobility graph, so
+   `T_c = 1/λ_NB` is not its governing threshold. `λ_NB` and `T_c` stay in the T2
+   table as structural spectral descriptors only.
 
-6. **Read the real numbers.** Each figure writes a CSV beside its PDF in
-   `docs/curated_tex/figures/` carrying the `*_ci` columns; `structure.parquet`
-   carries the network stats and thresholds. Quote from these.
+7. **Read the real numbers.** Each figure writes a CSV beside its PDF in
+   `docs/curated_tex/figures/` carrying the `*_ci` columns; the T2 table's numbers
+   come from `structure_table`. Quote from these.
 
-7. **Update the paper (item 6).** In `results.tex` / `discussion.tex`: attach the
+8. **Update the paper (item 6).** In `results.tex` / `discussion.tex`: attach the
    95% CIs to the headline numbers; state the ordering is stable across the
    ensemble; add the deaths-averted sentence for SEIQRD and the equity finding;
    report `k2_over_k`, assortativity, and where the operating β/γ sits relative to
@@ -310,6 +327,29 @@ the sweep is resumable (`skip_existing`), so nothing here is wasted if interrupt
    from Limitations. If the modern strategies were run (step 3), state whether
    either beats betweenness on the European multilayer net.
 
-8. **Housekeeping.** Add the new references (Morone & Makse, Osat & Radicchi,
+9. **Housekeeping.** Add the new references (Morone & Makse, Osat & Radicchi,
    Torres et al., the fairness papers) to `references.bib`, annotate them in
    `literature-review.md`, and update `CHANGELOG.md` + this checklist.
+
+---
+
+## Presentation figures (beyond bars)
+
+Added to lift the paper past bar charts; all but F-threshold need no new
+simulation (they read structure + the saved `timeseries.parquet`).
+
+| Figure | Shows | Data cost |
+|--------|-------|-----------|
+| F-geo | Europe network on real geography, betweenness-coloured, gateways ringed; air vs multimodal | none (structure) |
+| F-curves | epidemic I(t) across the ladder, seed-median + IQR band | none (timeseries) |
+| F-scatter | degree vs betweenness (flagship), gateways ringed, ρ annotated — the "degree ≈ betweenness" proof | none (structure) |
+
+(An F-threshold phase-diagram was prototyped and dropped — see the checklist note:
+the metapopulation dynamics are not bond percolation on the mobility graph, so
+T_c = 1/λ_NB did not govern the take-off.)
+
+The **full animated-map bake** (`evaluate sweep --maps`, ~2 GB / ~50 min) is
+**optional / demo-only**: it feeds the interactive explorer's animations, which
+never enter the static paper. Do it only if the live app is being demoed at the
+defence; the static invasion figure needs just a couple of node-recording runs,
+not the full sweep. Not on the critical path.

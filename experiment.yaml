@@ -91,7 +91,7 @@ models:
 # --- Vaccination strategies --------------------------------------------------
 # Blueprint set (control, random, degree, betweenness) + subgraph (novelty).
 # kcore available in the registry but excluded to keep the grid focused.
-strategies: [control, random, degree, betweenness, subgraph]
+strategies: [control, random, degree, betweenness, subgraph, collective_influence, nonbacktracking]
 budgets:    [15]            # number of cities immunised
 coverages:  [0.75]          # single operating coverage (coverage sweep dropped)
 efficacies: [0.85]

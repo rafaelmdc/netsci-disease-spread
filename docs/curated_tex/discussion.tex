@@ -4,6 +4,7 @@ and they do so consistently across all five disease types. Three threads run thr
 disease type shapes the epidemic, why targeting bridges beats targeting hubs, and why the choice of
 substrate changes what containment is even possible.
 
+\needspace{3\baselineskip}% keep this heading off a page foot; nudge only, no full gap
 \subsection{Disease type shapes the curve}
 The five types separate cleanly by their dynamical structure rather than by any single rate. The
 immunizing measles type produces the tall, right-skewed, single-peaked curve characteristic of
@@ -34,16 +35,22 @@ otherwise weakly coupled regions~\cite{kitsak:spreaders}. Removing high-degree c
 deletes locally busy nodes whose traffic is often redundant, since their neighbours can still reach
 each other by other short paths, so the giant component and its shortest-path structure survive
 more intact. Betweenness targets the bottlenecks of reachability; degree targets a volume the
-network can partly route around.
+network can partly route around. Concretely, the difference lives in the anomalous gateways: the
+low-degree, high-betweenness bridge cities that a degree ranking places too low to protect, even
+though a disproportionate share of cross-continental transmission must pass through
+them~\cite{guimera:anomalous}. Degree and betweenness agree everywhere else, so these gateways are
+the whole of betweenness's margin, and the result is really a statement about them: the rules that
+win are the ones that find the bridges that traffic alone hides.
 
-The realism ladder amplifies this. The degree--betweenness gap in the resulting peak roughly
-doubles from the air-only network ($4$--$7.5\%$) to the full multilayer ($\approx$$12\%$) for every
-disease. The added layers create few genuinely new bridges; instead they channel the extra
-recurrent and ferry traffic through the same inter-community conduits, so a high-betweenness city
-bridges several layers at once and removing it disrupts all of them~\cite{sorianopanos:multiplex}.
-A single-layer model, which sees only air bridges, therefore \emph{understates} how much
-bridge-targeting gains, the opposite of the intuition that redundant layers should dilute
-targeting.
+The realism ladder does not change this ordering, but it raises the stakes. Immunising the same
+$15$ cities cuts the peak by about $19\%$ on the air-only network and only $12\%$ on the full
+multilayer, with degree falling in step ($12\%$ to $8\%$): the fixed budget covers a smaller share
+of the larger network, and its land and ferry layers give the outbreak redundant paths around any
+removed city, so every rule loses absolute grip while betweenness keeps its roughly $50\%$ relative
+advantage over degree~\cite{sorianopanos:multiplex}. The multilayer substrate thus makes node
+targeting harder, not easier, through the very redundancy that also lets outbreaks survive route
+closure (Section~\ref{sec:res-interdict}); a single-layer model, seeing only air routes, would
+\emph{overstate} how much any vaccination campaign achieves.
 
 \subsection{Realism mostly adds people, and changes what containment means}
 Climbing the ladder raised the absolute peaks, but the spread results
@@ -70,10 +77,12 @@ diseases far better than a contact-limited pathogen such as Ebola: real filoviru
 requires direct contact with symptomatic or deceased cases and is shaped by care settings that a
 constant isolation rate only crudely approximates. Its peak is therefore the least trustworthy of
 the five, and our metric, peak active infection, does not even reflect the isolation type's high
-case-fatality ($\mu\approx0.71$), so a modest infectious peak can still be devastating. Second,
-each configuration is a single deterministic run at fixed coverage, efficacy, and seed; a
-stochastic ensemble and a coverage sweep would put confidence bounds on the reductions, though the
-strategy \emph{ordering} is stable enough that we do not expect it to change. Third, parameters are
+case-fatality ($\mu\approx0.71$); we therefore also report deaths averted per capita for the lethal
+type (Section~\ref{sec:res-deaths}), where bridge-targeting shows its largest margin. Second, every
+configuration is run as a ten-seed ensemble and we attach a $95\%$ confidence interval to each
+headline number, so the reductions carry uncertainty bounds and the strategy \emph{ordering} is
+resolved against seed variation; a finer coverage grid and full transition-level stochasticity
+remain natural extensions. Third, parameters are
 justified from the literature rather than calibrated to any outbreak, and the transport weights are
 proxies for passenger volume, so the results are internally consistent comparisons, not fits to
 data.
